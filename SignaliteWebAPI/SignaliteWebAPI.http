@@ -1,0 +1,6 @@
+@SignaliteWebAPI_HostAddress = http://localhost:5026
+
+GET {{SignaliteWebAPI_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
