@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using SignaliteWebAPI.Infrastructure.Database;
 
@@ -10,9 +11,11 @@ using SignaliteWebAPI.Infrastructure.Database;
 namespace SignaliteWebAPI.Infrastructure.Database.Migrations
 {
     [DbContext(typeof(SignaliteDbContext))]
-    partial class SignaliteDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250308185030_Other_Entities")]
+    partial class Other_Entities
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "9.0.2");
@@ -39,9 +42,6 @@ namespace SignaliteWebAPI.Infrastructure.Database.Migrations
                         .HasColumnType("TEXT");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("MessageId")
-                        .IsUnique();
 
                     b.ToTable("Attachments");
                 });
@@ -99,6 +99,9 @@ namespace SignaliteWebAPI.Infrastructure.Database.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER");
 
+                    b.Property<int?>("AttachmentId")
+                        .HasColumnType("INTEGER");
+
                     b.Property<string>("Content")
                         .HasColumnType("TEXT");
 
@@ -115,6 +118,9 @@ namespace SignaliteWebAPI.Infrastructure.Database.Migrations
                         .HasColumnType("INTEGER");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("AttachmentId")
+                        .IsUnique();
 
                     b.HasIndex("GroupId");
 
@@ -230,17 +236,6 @@ namespace SignaliteWebAPI.Infrastructure.Database.Migrations
                     b.ToTable("UserGroups");
                 });
 
-            modelBuilder.Entity("SignaliteWebAPI.Domain.Models.Attachment", b =>
-                {
-                    b.HasOne("SignaliteWebAPI.Domain.Models.Message", "Message")
-                        .WithOne("Attachment")
-                        .HasForeignKey("SignaliteWebAPI.Domain.Models.Attachment", "MessageId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Message");
-                });
-
             modelBuilder.Entity("SignaliteWebAPI.Domain.Models.FriendRequest", b =>
                 {
                     b.HasOne("SignaliteWebAPI.Domain.Models.User", "Recipient")
@@ -273,6 +268,10 @@ namespace SignaliteWebAPI.Infrastructure.Database.Migrations
 
             modelBuilder.Entity("SignaliteWebAPI.Domain.Models.Message", b =>
                 {
+                    b.HasOne("SignaliteWebAPI.Domain.Models.Attachment", "Attachment")
+                        .WithOne("Message")
+                        .HasForeignKey("SignaliteWebAPI.Domain.Models.Message", "AttachmentId");
+
                     b.HasOne("SignaliteWebAPI.Domain.Models.Group", "Group")
                         .WithMany()
                         .HasForeignKey("GroupId")
@@ -284,6 +283,8 @@ namespace SignaliteWebAPI.Infrastructure.Database.Migrations
                         .HasForeignKey("SenderId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("Attachment");
 
                     b.Navigation("Group");
 
@@ -347,15 +348,15 @@ namespace SignaliteWebAPI.Infrastructure.Database.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("SignaliteWebAPI.Domain.Models.Attachment", b =>
+                {
+                    b.Navigation("Message")
+                        .IsRequired();
+                });
+
             modelBuilder.Entity("SignaliteWebAPI.Domain.Models.Group", b =>
                 {
                     b.Navigation("Users");
-                });
-
-            modelBuilder.Entity("SignaliteWebAPI.Domain.Models.Message", b =>
-                {
-                    b.Navigation("Attachment")
-                        .IsRequired();
                 });
 
             modelBuilder.Entity("SignaliteWebAPI.Domain.Models.User", b =>

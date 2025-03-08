@@ -11,5 +11,7 @@ public class User
     public required string PasswordSalt { get; set; }
     public string? PhotoUrl { get; set; }
     public string? BackgroundUrl { get; set; }
-    public List<UserGroup> UserGroups { get; set; } = [];
+    public List<UserGroup> Groups { get; set; } = [];
+    public List<UserFriend> Friends { get; set; } = [];
+    public List<FriendRequest> FriendRequests { get; set; } = [];
 }

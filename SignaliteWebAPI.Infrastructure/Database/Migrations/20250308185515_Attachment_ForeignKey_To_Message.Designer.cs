@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using SignaliteWebAPI.Infrastructure.Database;
 
@@ -10,9 +11,11 @@ using SignaliteWebAPI.Infrastructure.Database;
 namespace SignaliteWebAPI.Infrastructure.Database.Migrations
 {
     [DbContext(typeof(SignaliteDbContext))]
-    partial class SignaliteDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250308185515_Attachment_ForeignKey_To_Message")]
+    partial class Attachment_ForeignKey_To_Message
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "9.0.2");
@@ -97,6 +100,9 @@ namespace SignaliteWebAPI.Infrastructure.Database.Migrations
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int?>("AttachmentId")
                         .HasColumnType("INTEGER");
 
                     b.Property<string>("Content")
