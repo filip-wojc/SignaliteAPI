@@ -8,12 +8,21 @@
 
     <ItemGroup>
         <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="9.0.2"/>
+        <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="9.0.2">
+          <PrivateAssets>all</PrivateAssets>
+          <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+        </PackageReference>
     </ItemGroup>
 
     <ItemGroup>
       <Folder Include="Controllers\" />
       <Folder Include="Exceptions\" />
       <Folder Include="Extensions\" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\SignaliteWebAPI.Application\SignaliteWebAPI.Application.csproj" />
+      <ProjectReference Include="..\SignaliteWebAPI.Infrastructure\SignaliteWebAPI.Infrastructure.csproj" />
     </ItemGroup>
 
 </Project>

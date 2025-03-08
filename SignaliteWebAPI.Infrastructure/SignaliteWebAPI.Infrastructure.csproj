@@ -7,11 +7,22 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <Folder Include="Database\" />
       <Folder Include="Exceptions\" />
-      <Folder Include="Extensions\" />
       <Folder Include="Helpers\" />
       <Folder Include="Repositories\" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <PackageReference Include="Microsoft.EntityFrameworkCore" Version="9.0.2" />
+      <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="9.0.2" />
+      <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="9.0.2">
+        <PrivateAssets>all</PrivateAssets>
+        <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      </PackageReference>
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\SignaliteWebAPI.Domain\SignaliteWebAPI.Domain.csproj" />
     </ItemGroup>
 
 </Project>
