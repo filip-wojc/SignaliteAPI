@@ -8,16 +8,18 @@
 
     <ItemGroup>
       <Folder Include="Exceptions\" />
-      <Folder Include="Extensions\" />
       <Folder Include="Features\Message\" />
-      <Folder Include="Features\User\" />
       <Folder Include="Helpers\" />
-      <Folder Include="MappingProfiles\" />
-      <Folder Include="Validators\" />
     </ItemGroup>
 
     <ItemGroup>
       <ProjectReference Include="..\SignaliteWebAPI.Infrastructure\SignaliteWebAPI.Infrastructure.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <PackageReference Include="AutoMapper" Version="14.0.0" />
+      <PackageReference Include="MediatR" Version="12.4.1" />
+      <PackageReference Include="Microsoft.Extensions.Identity.Core" Version="9.0.3" />
     </ItemGroup>
 
 </Project>
