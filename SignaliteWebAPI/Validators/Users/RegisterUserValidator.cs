@@ -1,6 +1,5 @@
 ﻿using FluentValidation;
 using SignaliteWebAPI.Application.Features.User.AddUser;
-using SignaliteWebAPI.Domain.DTOs.Users;
 
 namespace SignaliteWebAPI.Validators.Users;
 
