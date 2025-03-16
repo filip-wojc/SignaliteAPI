@@ -1,5 +1,6 @@
 ﻿using System.Text.Json;
 using Microsoft.AspNetCore.Diagnostics;
+using SignaliteWebAPI.Application.Exceptions;
 using SignaliteWebAPI.Exceptions;
 
 namespace SignaliteWebAPI.Middlewares;
