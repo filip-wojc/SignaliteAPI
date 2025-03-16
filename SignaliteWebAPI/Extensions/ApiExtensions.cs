@@ -3,6 +3,8 @@ using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using SignaliteWebAPI.Application.Features.User.AddUser;
 using SignaliteWebAPI.Behaviors;
+using SignaliteWebAPI.Domain.Interfaces.Services;
+using SignaliteWebAPI.Infrastructure.Services;
 using SignaliteWebAPI.Middlewares;
 using SignaliteWebAPI.Validators.Users;
 
@@ -19,6 +21,9 @@ public static class ApiExtensions
 
         services.AddExceptionHandler<AppExceptionHandler>();
         services.AddScoped<IValidator<AddUserCommand>, RegisterUserValidator>();
+        services.AddScoped<ITokenService, TokenService>();
         services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>));
+        
+        
     }
 }
