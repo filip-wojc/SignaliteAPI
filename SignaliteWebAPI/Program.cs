@@ -17,8 +17,9 @@ builder.Services.AddControllers();
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi(options =>
     options.AddDocumentTransformer<BearerSecuritySchemeTransformer>());
-builder.Services.AddInfrastructureServices(builder.Configuration);
-builder.Services.AddApplicationServices();
+builder.Services.AddInfrastructureServices(builder.Configuration); // extension function
+builder.Services.AddApplicationServices(); // extension function
+builder.Services.AddIdentityServices(builder.Configuration); // extension function (configures bearer)
 
 
 var app = builder.Build();

@@ -1,10 +1,12 @@
 ﻿using FluentValidation;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
+using SignaliteWebAPI.Application.Behaviors;
 using SignaliteWebAPI.Application.Features.User.AddUser;
-using SignaliteWebAPI.Behaviors;
+using SignaliteWebAPI.Application.Features.Users.AddUser;
+using SignaliteWebAPI.Domain.Interfaces.Services;
+using SignaliteWebAPI.Infrastructure.Services;
 using SignaliteWebAPI.Middlewares;
-using SignaliteWebAPI.Validators.Users;
 
 namespace SignaliteWebAPI.Extensions;
 
@@ -18,7 +20,6 @@ public static class ApiExtensions
         });
 
         services.AddExceptionHandler<AppExceptionHandler>();
-        services.AddScoped<IValidator<AddUserCommand>, RegisterUserValidator>();
-        services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>));
+        services.AddScoped<IValidator<AddUserCommand>, AddUserValidator>();
     }
 }

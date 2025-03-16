@@ -2,8 +2,10 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using SignaliteWebAPI.Domain.Interfaces.Repositories;
+using SignaliteWebAPI.Domain.Interfaces.Services;
 using SignaliteWebAPI.Infrastructure.Database;
 using SignaliteWebAPI.Infrastructure.Repositories.Users;
+using SignaliteWebAPI.Infrastructure.Services;
 
 namespace SignaliteWebAPI.Infrastructure.Extensions;
 
@@ -17,5 +19,6 @@ public static class InfrastructureExtensions
         });
         
         services.AddScoped<IUserRepository, UserRepository>();
+        services.AddScoped<ITokenService, TokenService>();
     }
 }

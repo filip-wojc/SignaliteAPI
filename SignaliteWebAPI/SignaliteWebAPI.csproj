@@ -7,7 +7,6 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="FluentValidation" Version="11.11.0" />
         <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="9.0.2"/>
         <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="9.0.2">
           <PrivateAssets>all</PrivateAssets>
@@ -19,6 +18,11 @@
     <ItemGroup>
       <ProjectReference Include="..\SignaliteWebAPI.Application\SignaliteWebAPI.Application.csproj" />
       <ProjectReference Include="..\SignaliteWebAPI.Infrastructure\SignaliteWebAPI.Infrastructure.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Folder Include="Behaviors\" />
+      <Folder Include="Validators\Users\" />
     </ItemGroup>
 
 </Project>

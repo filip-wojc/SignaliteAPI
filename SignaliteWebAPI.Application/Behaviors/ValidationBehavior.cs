@@ -1,8 +1,8 @@
 ﻿using FluentValidation;
 using MediatR;
-using SignaliteWebAPI.Exceptions;
+using SignaliteWebAPI.Application.Exceptions;
 
-namespace SignaliteWebAPI.Behaviors;
+namespace SignaliteWebAPI.Application.Behaviors;
 
 public class ValidationBehavior<TRequest, TResponse> : IPipelineBehavior<TRequest, TResponse>
 {
@@ -22,7 +22,7 @@ public class ValidationBehavior<TRequest, TResponse> : IPipelineBehavior<TReques
             var failures = validationResults.SelectMany(r => r.Errors).Where(e => e != null).ToList();
             if (failures.Count != 0)
             {
-                var errorList = failures.Select(f => f.ErrorMessage).ToList();
+                var errorList = Enumerable.ToList<string>(failures.Select(f => f.ErrorMessage));
                 throw new ValidatorException("One or more validation errors occured")
                 {
                     Errors = errorList
