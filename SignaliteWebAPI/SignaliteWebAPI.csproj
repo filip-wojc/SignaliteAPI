@@ -20,9 +20,4 @@
       <ProjectReference Include="..\SignaliteWebAPI.Infrastructure\SignaliteWebAPI.Infrastructure.csproj" />
     </ItemGroup>
 
-    <ItemGroup>
-      <Folder Include="Behaviors\" />
-      <Folder Include="Validators\Users\" />
-    </ItemGroup>
-
 </Project>
