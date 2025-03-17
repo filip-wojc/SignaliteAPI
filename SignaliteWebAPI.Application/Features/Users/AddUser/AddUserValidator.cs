@@ -1,14 +1,14 @@
 ﻿using FluentValidation;
 using SignaliteWebAPI.Application.Features.User.AddUser;
 
-namespace SignaliteWebAPI.Validators.Users;
+namespace SignaliteWebAPI.Application.Features.Users.AddUser;
 
-public class RegisterUserValidator : AbstractValidator<AddUserCommand>
+public class AddUserValidator : AbstractValidator<AddUserCommand>
 {
-    public RegisterUserValidator()
+    public AddUserValidator()
     {
-        int minLength = 4;
-        int maxLength = 16;
+        const int minLength = 4;
+        const int maxLength = 16;
         
         RuleFor(u => u.RegisterUserDto.Username)
             .NotNull().WithMessage("Username is required.")
