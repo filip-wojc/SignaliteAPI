@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using SignaliteWebAPI.Domain.Models;
-
+using Serilog;
 namespace SignaliteWebAPI.Infrastructure.Database;
 
 public class SignaliteDbContext : DbContext
@@ -8,6 +9,11 @@ public class SignaliteDbContext : DbContext
     public SignaliteDbContext(DbContextOptions<SignaliteDbContext> options) : base(options)
     {
         
+    }
+    
+    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+    {
+        // optionsBuilder.LogTo(Log.Information, new[] { DbLoggerCategory.Database.Command.Name }, LogLevel.Information); (redundant)
     }
     
     public DbSet<User> Users { get; set; }

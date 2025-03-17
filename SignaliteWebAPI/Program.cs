@@ -7,18 +7,27 @@ using SignaliteWebAPI.Infrastructure.Extensions;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Scalar.AspNetCore;
-
+using Serilog;
+using Serilog.Events;
+using Microsoft.AspNetCore.HttpLogging;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// Set up Serilog Configuration
+builder.ConfigureSerilog();
+
+builder.Services.AddHttpLogging(logging =>
+{
+    logging.LoggingFields = HttpLoggingFields.All;
+});
+
 // Add services to the container.
-builder.Services.AddApiServices();
+builder.Services.AddApiServices(); // extension
 builder.Services.AddControllers();
-// Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi(options =>
     options.AddDocumentTransformer<BearerSecuritySchemeTransformer>());
-builder.Services.AddInfrastructureServices(builder.Configuration);
-builder.Services.AddApplicationServices();
+builder.Services.AddInfrastructureServices(builder.Configuration); // extension
+builder.Services.AddApplicationServices(); // extension
 
 
 var app = builder.Build();
@@ -28,6 +37,7 @@ if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
     
+    // http://localhost:5026/scalar/v1
     app.MapScalarApiReference(options =>
     {
         options
@@ -38,10 +48,10 @@ if (app.Environment.IsDevelopment())
     });
 }
 
+app.ConfigureSerilogHttpLogging(); // extension
+app.UseHttpLogging(); // Logs request & response headers, body, etc.
 app.UseExceptionHandler(_ => { });
-
 app.UseHttpsRedirection();
-
 app.UseAuthentication();
 app.UseAuthorization();
 
