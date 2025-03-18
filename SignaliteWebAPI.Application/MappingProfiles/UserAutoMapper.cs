@@ -9,5 +9,6 @@ public class UserAutoMapper : Profile
     public UserAutoMapper()
     {
         CreateMap<RegisterUserDTO, User>();
+        CreateMap<SendFriendRequestDTO, FriendRequest>();
     }
 }
