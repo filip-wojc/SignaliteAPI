@@ -8,6 +8,8 @@ public class User
     public string Surname { get; set; }
     public string Email { get; set; }
     public string HashedPassword { get; set; }
+    public string? RefreshToken { get; set; }
+    public DateTime? RefreshTokenExpiryDate { get; set; }
     public string? PhotoUrl { get; set; }
     public string? BackgroundUrl { get; set; }
     public List<UserGroup> Groups { get; set; } = [];

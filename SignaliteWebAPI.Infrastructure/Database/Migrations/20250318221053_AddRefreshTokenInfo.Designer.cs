@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using SignaliteWebAPI.Infrastructure.Database;
 
@@ -10,9 +11,11 @@ using SignaliteWebAPI.Infrastructure.Database;
 namespace SignaliteWebAPI.Infrastructure.Database.Migrations
 {
     [DbContext(typeof(SignaliteDbContext))]
-    partial class SignaliteDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250318221053_AddRefreshTokenInfo")]
+    partial class AddRefreshTokenInfo
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "9.0.2");
@@ -171,7 +174,7 @@ namespace SignaliteWebAPI.Infrastructure.Database.Migrations
                     b.Property<string>("RefreshToken")
                         .HasColumnType("TEXT");
 
-                    b.Property<DateTime?>("RefreshTokenExpiryDate")
+                    b.Property<DateTime>("RefreshTokenExpiryDate")
                         .HasColumnType("TEXT");
 
                     b.Property<string>("Surname")

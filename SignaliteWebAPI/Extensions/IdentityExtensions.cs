@@ -19,9 +19,10 @@ public static class IdentityExtensions
                 IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(tokenKey)),
                 ValidateIssuer = false,
                 ValidateAudience = false,
+                ValidateLifetime = true
              };
 
-             // pass the token to signalR on connection ( without it it cant get the token properly)
+             // pass the token to signalR on connection ( without it, it cant get the token properly)
              options.Events = new JwtBearerEvents
              {
                 OnMessageReceived = context =>
