@@ -15,10 +15,10 @@ public class FriendsRepository(SignaliteDbContext dbContext) : IFriendsRepositor
 
     public async Task<List<FriendRequest>> GetFriendRequests(int userId)
     {
-         return await dbContext.FriendRequests.Where(fr => fr.RecipientId == userId).ToListAsync();
+         return await dbContext.FriendRequests.Include(fr => fr.Sender).Where(fr => fr.RecipientId == userId).ToListAsync();
     }
 
-    public async Task<bool> IsFriendRequestExist(int senderId, int recipientId)
+    public async Task<bool> FriendRequestExists(int senderId, int recipientId)
     {
         var friendRequests = await dbContext.FriendRequests
             .Where(fr =>

@@ -1,5 +1,4 @@
 ﻿using AutoMapper;
-using SignaliteWebAPI.Domain.DTOs.FriendRequests;
 using SignaliteWebAPI.Domain.DTOs.Users;
 using SignaliteWebAPI.Domain.Models;
 
@@ -10,7 +9,5 @@ public class UserAutoMapper : Profile
     public UserAutoMapper()
     {
         CreateMap<RegisterUserDTO, User>();
-        CreateMap<SendFriendRequestDTO, FriendRequest>();
-        CreateMap<FriendRequest, GetFriendRequestDTO>();
     }
 }

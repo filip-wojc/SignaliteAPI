@@ -36,7 +36,7 @@ public class SendFriendRequestValidator : AbstractValidator<SendFriendRequestCom
     
     private async Task<bool> FriendRequestNotExist(SendFriendRequestCommand command, CancellationToken cancellationToken)
     {
-        bool exists = await _friendsRepository.IsFriendRequestExist(
+        bool exists = await _friendsRepository.FriendRequestExists(
             command.SendFriendRequestDTO.SenderId, 
             command.SendFriendRequestDTO.RecipientId
         );

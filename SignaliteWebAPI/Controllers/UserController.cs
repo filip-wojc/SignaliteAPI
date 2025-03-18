@@ -29,7 +29,7 @@ public class UserController(ISender mediator) : ControllerBase
 
     // Will be replaced with user id from token
     [HttpGet("friend-requests/{userId}")]
-    public async Task<ActionResult<List<GetFriendRequestDTO>>> GetFriendRequests([FromRoute] int userId)
+    public async Task<ActionResult<List<FriendRequestDTO>>> GetFriendRequests([FromRoute] int userId)
     {
         var friendRequests = await mediator.Send(new GetFriendRequestsQuery { UserId = userId });
         return Ok(friendRequests);
