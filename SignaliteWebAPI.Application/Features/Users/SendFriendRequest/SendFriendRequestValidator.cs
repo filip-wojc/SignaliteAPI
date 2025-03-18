@@ -6,9 +6,11 @@ namespace SignaliteWebAPI.Application.Features.Users.SendFriendRequest;
 
 public class SendFriendRequestValidator : AbstractValidator<SendFriendRequestCommand>
 {
+    private readonly IFriendRequestRepository _friendRequestRepository;
     private readonly IUserRepository _userRepository;
-    public SendFriendRequestValidator(IUserRepository userRepository)
+    public SendFriendRequestValidator(IFriendRequestRepository friendRequestRepositoryrepository, IUserRepository userRepository)
     {
+        _friendRequestRepository = friendRequestRepositoryrepository;
         _userRepository = userRepository;
         
         RuleFor(c => c.SendFriendRequestDTO.RecipientId)
@@ -22,6 +24,8 @@ public class SendFriendRequestValidator : AbstractValidator<SendFriendRequestCom
 
         RuleFor(c => c).MustAsync(FriendRequestNotExist)
             .WithMessage("Friend request between these users already exist");
+        RuleFor(c => c).Must(IsSenderAndRecipientNotSame)
+            .WithMessage("Sender and recipient cant be same");
     }
 
     private async Task<bool> UserExists(int userId, CancellationToken cancellationToken)
@@ -32,11 +36,16 @@ public class SendFriendRequestValidator : AbstractValidator<SendFriendRequestCom
     
     private async Task<bool> FriendRequestNotExist(SendFriendRequestCommand command, CancellationToken cancellationToken)
     {
-        bool exists = await _userRepository.IsFriendRequestExist(
+        bool exists = await _friendRequestRepository.IsFriendRequestExist(
             command.SendFriendRequestDTO.SenderId, 
             command.SendFriendRequestDTO.RecipientId
         );
         
         return !exists;
-    } 
+    }
+
+    private bool IsSenderAndRecipientNotSame(SendFriendRequestCommand command)
+    {
+        return command.SendFriendRequestDTO.SenderId != command.SendFriendRequestDTO.RecipientId;
+    }
 }

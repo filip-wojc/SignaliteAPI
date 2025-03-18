@@ -19,6 +19,7 @@ public static class InfrastructureExtensions
         });
         
         services.AddScoped<IUserRepository, UserRepository>();
+        services.AddScoped<IFriendRequestRepository, FriendRequestRepository>();
         services.AddScoped<ITokenService, TokenService>();
     }
 }

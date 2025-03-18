@@ -5,7 +5,7 @@ using SignaliteWebAPI.Domain.Models;
 
 namespace SignaliteWebAPI.Application.Features.Users.SendFriendRequest;
 
-public class SendFriendRequestHandler(IUserRepository repository, IMapper mapper) : IRequestHandler<SendFriendRequestCommand>
+public class SendFriendRequestHandler(IFriendRequestRepository repository, IMapper mapper) : IRequestHandler<SendFriendRequestCommand>
 {
     public async Task Handle(SendFriendRequestCommand request, CancellationToken cancellationToken)
     {
