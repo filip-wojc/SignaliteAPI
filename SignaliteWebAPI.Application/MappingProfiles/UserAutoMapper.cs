@@ -11,6 +11,6 @@ public class UserAutoMapper : Profile
     {
         CreateMap<RegisterUserDTO, User>();
         CreateMap<SendFriendRequestDTO, FriendRequest>();
-        CreateMap<FriendRequest, GetFriendRequestsDTO>();
+        CreateMap<FriendRequest, GetFriendRequestDTO>();
     }
 }

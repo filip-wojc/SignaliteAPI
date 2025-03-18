@@ -6,11 +6,11 @@ namespace SignaliteWebAPI.Application.Features.Users.SendFriendRequest;
 
 public class SendFriendRequestValidator : AbstractValidator<SendFriendRequestCommand>
 {
-    private readonly IFriendRequestRepository _friendRequestRepository;
+    private readonly IFriendsRepository _friendsRepository;
     private readonly IUserRepository _userRepository;
-    public SendFriendRequestValidator(IFriendRequestRepository friendRequestRepositoryrepository, IUserRepository userRepository)
+    public SendFriendRequestValidator(IFriendsRepository friendsRepositoryrepository, IUserRepository userRepository)
     {
-        _friendRequestRepository = friendRequestRepositoryrepository;
+        _friendsRepository = friendsRepositoryrepository;
         _userRepository = userRepository;
         
         RuleFor(c => c.SendFriendRequestDTO.RecipientId)
@@ -36,7 +36,7 @@ public class SendFriendRequestValidator : AbstractValidator<SendFriendRequestCom
     
     private async Task<bool> FriendRequestNotExist(SendFriendRequestCommand command, CancellationToken cancellationToken)
     {
-        bool exists = await _friendRequestRepository.IsFriendRequestExist(
+        bool exists = await _friendsRepository.IsFriendRequestExist(
             command.SendFriendRequestDTO.SenderId, 
             command.SendFriendRequestDTO.RecipientId
         );

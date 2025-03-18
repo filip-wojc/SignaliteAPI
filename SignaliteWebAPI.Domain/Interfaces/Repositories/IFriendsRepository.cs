@@ -2,7 +2,7 @@
 
 namespace SignaliteWebAPI.Domain.Interfaces.Repositories;
 
-public interface IFriendRequestRepository
+public interface IFriendsRepository
 {
     Task<bool> IsFriendRequestExist(int senderId, int recipientId);
     Task SendFriendRequest(FriendRequest friendRequest);

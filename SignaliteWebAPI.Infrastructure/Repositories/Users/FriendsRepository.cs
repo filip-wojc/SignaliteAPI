@@ -5,7 +5,7 @@ using SignaliteWebAPI.Infrastructure.Database;
 
 namespace SignaliteWebAPI.Infrastructure.Repositories.Users;
 
-public class FriendRequestRepository(SignaliteDbContext dbContext) : IFriendRequestRepository
+public class FriendsRepository(SignaliteDbContext dbContext) : IFriendsRepository
 {
     public async Task SendFriendRequest(FriendRequest friendRequest)
     {
