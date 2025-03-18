@@ -12,6 +12,12 @@ public class FriendRequestRepository(SignaliteDbContext dbContext) : IFriendRequ
         await dbContext.FriendRequests.AddAsync(friendRequest);
         await dbContext.SaveChangesAsync();
     }
+
+    public async Task<List<FriendRequest>> GetFriendRequests(int userId)
+    {
+         return await dbContext.FriendRequests.Where(fr => fr.RecipientId == userId).ToListAsync();
+    }
+
     public async Task<bool> IsFriendRequestExist(int senderId, int recipientId)
     {
         var friendRequests = await dbContext.FriendRequests

@@ -1,4 +1,4 @@
-﻿namespace SignaliteWebAPI.Domain.DTOs.Users;
+﻿namespace SignaliteWebAPI.Domain.DTOs.FriendRequests;
 
 public class SendFriendRequestDTO
 {

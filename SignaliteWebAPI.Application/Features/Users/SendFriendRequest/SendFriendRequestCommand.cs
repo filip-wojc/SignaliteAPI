@@ -1,4 +1,5 @@
 ﻿using MediatR;
+using SignaliteWebAPI.Domain.DTOs.FriendRequests;
 using SignaliteWebAPI.Domain.DTOs.Users;
 
 namespace SignaliteWebAPI.Application.Features.Users.SendFriendRequest;

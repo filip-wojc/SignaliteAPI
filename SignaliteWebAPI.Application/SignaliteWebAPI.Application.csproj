@@ -8,6 +8,7 @@
 
     <ItemGroup>
       <Folder Include="Features\Message\" />
+      <Folder Include="Features\Users\GetFriendRequests\" />
       <Folder Include="Helpers\" />
     </ItemGroup>
 
