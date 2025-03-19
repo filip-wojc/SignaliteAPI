@@ -23,7 +23,7 @@ public class RefreshTokenHandler(
             
         // Generate new tokens
         var newAccessToken = tokenService.GenerateAccessToken(user);
-        var newRefreshToken = tokenService.GenerateRefreshToken();
+        var newRefreshToken = tokenService.GenerateRefreshToken(); // renew refresh token
         
         // Set refresh token expiry to 30 days from now
         var refreshTokenExpiry = DateTime.UtcNow.AddDays(7);
