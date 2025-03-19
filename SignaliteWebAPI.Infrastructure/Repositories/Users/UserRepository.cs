@@ -13,7 +13,7 @@ public class UserRepository(SignaliteDbContext dbContext) : IUserRepository
         await dbContext.SaveChangesAsync();
     }
 
-    public async Task<User> GetUserByEmail(string email)
+    public async Task<User?> GetUserByEmail(string email)
     {
         return await dbContext.Users
             .FirstOrDefaultAsync(u => u.Email == email);
