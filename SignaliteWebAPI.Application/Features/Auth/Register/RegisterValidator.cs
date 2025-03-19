@@ -51,6 +51,6 @@ public class RegisterValidator : AbstractValidator<RegisterCommand>
         
     private async Task<bool> IsEmailUnique(string email, CancellationToken cancellationToken)
     { 
-        return await _userRepository.GetUserByUsername(email) == null;
+        return await _userRepository.GetUserByEmail(email) == null;
     }
 }
