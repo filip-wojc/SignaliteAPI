@@ -1,8 +1,6 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿namespace SignaliteWebAPI.Domain.DTOs.Auth;
 
-namespace SignaliteWebAPI.Domain.DTOs.Users;
-
-public class RegisterUserDTO
+public class RegisterDTO
 {
     public string Username { get; set; }
     public string Name { get; set; }
