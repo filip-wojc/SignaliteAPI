@@ -1,32 +1,27 @@
 using System.Security.Claims;
-using SignaliteWebAPI.Infrastructure.Exceptions;
+using SignaliteWebAPI.Application.Exceptions;
 
-namespace SignaliteWebAPI.Extensions
+namespace SignaliteWebAPI.Extensions;
+
+public static class ClaimsPrincipleExtensions
 {
-    public static class ClaimsPrincipalExtensions
+    public static int GetUserId(this ClaimsPrincipal user)
     {
-        public static string GetUserId(this ClaimsPrincipal user)
+        var userId = user.FindFirstValue(ClaimTypes.NameIdentifier);
+        if (userId == null)
         {
-            var userId = user?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-
-            if (userId == null)
-            {
-                throw new TokenException("Cannot get id from token");
-            }
-
-            return userId;
+            throw new AuthException("Cannot get id from token");
         }
+        return int.Parse(userId);
+    }
 
-        public static string GetUsername(this ClaimsPrincipal user)
+    public static string GetUsername(this ClaimsPrincipal user)
+    {
+        var username = user.FindFirstValue(ClaimTypes.Name);
+        if (username == null)
         {
-            var username = user?.FindFirst(ClaimTypes.Name)?.Value;
-
-            if (username == null)
-            {
-                throw new TokenException("Cannot get name from token");
-            }
-
-            return username;
+            throw new AuthException("Cannot get username from token");
         }
+        return username;
     }
 }
