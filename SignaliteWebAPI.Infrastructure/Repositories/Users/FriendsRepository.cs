@@ -49,12 +49,7 @@ public class FriendsRepository(SignaliteDbContext dbContext) : IFriendsRepositor
     {
         return await dbContext.UserFriends.ToListAsync();
     }
-
-    public Task DeleteFriend(UserFriend friend)
-    {
-        throw new NotImplementedException();
-    }
-
+    
     public async Task AddFriend(UserFriend userFriend)
     {
         await dbContext.UserFriends.AddAsync(userFriend);
