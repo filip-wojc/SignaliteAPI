@@ -6,7 +6,6 @@ using SignaliteWebAPI.Application.Features.Auth.Register;
 using SignaliteWebAPI.Application.Features.Users.AcceptFriendRequest;
 using SignaliteWebAPI.Application.Features.Users.GetFriendRequests;
 using SignaliteWebAPI.Application.Features.Users.SendFriendRequest;
-using SignaliteWebAPI.Domain.Interfaces.Services;
 using SignaliteWebAPI.Infrastructure.Services;
 using SignaliteWebAPI.Middlewares;
 

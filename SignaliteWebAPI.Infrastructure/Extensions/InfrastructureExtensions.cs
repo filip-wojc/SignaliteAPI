@@ -2,8 +2,8 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using SignaliteWebAPI.Domain.Interfaces.Repositories;
-using SignaliteWebAPI.Domain.Interfaces.Services;
 using SignaliteWebAPI.Infrastructure.Database;
+using SignaliteWebAPI.Infrastructure.Interfaces;
 using SignaliteWebAPI.Infrastructure.Repositories.Users;
 using SignaliteWebAPI.Infrastructure.Services;
 

@@ -1,7 +1,7 @@
 using System.Security.Claims;
 using SignaliteWebAPI.Domain.Models;
 
-namespace SignaliteWebAPI.Domain.Interfaces.Services;
+namespace SignaliteWebAPI.Infrastructure.Interfaces;
 
 public interface ITokenService
 {

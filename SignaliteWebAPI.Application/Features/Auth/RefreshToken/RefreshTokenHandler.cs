@@ -1,8 +1,8 @@
 using MediatR;
 using SignaliteWebAPI.Domain.DTOs.Auth;
 using SignaliteWebAPI.Domain.Interfaces.Repositories;
-using SignaliteWebAPI.Domain.Interfaces.Services;
 using SignaliteWebAPI.Infrastructure.Exceptions;
+using SignaliteWebAPI.Infrastructure.Interfaces;
 
 namespace SignaliteWebAPI.Application.Features.Auth.RefreshToken;
 

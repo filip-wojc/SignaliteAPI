@@ -4,9 +4,9 @@ using System.Security.Cryptography;
 using System.Text;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
-using SignaliteWebAPI.Domain.Interfaces.Services;
 using SignaliteWebAPI.Domain.Models;
 using SignaliteWebAPI.Infrastructure.Exceptions;
+using SignaliteWebAPI.Infrastructure.Interfaces;
 
 namespace SignaliteWebAPI.Infrastructure.Services;
 
