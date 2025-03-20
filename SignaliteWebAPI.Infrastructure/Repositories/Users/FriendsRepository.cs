@@ -2,6 +2,7 @@
 using SignaliteWebAPI.Domain.Interfaces.Repositories;
 using SignaliteWebAPI.Domain.Models;
 using SignaliteWebAPI.Infrastructure.Database;
+using SignaliteWebAPI.Infrastructure.Exceptions;
 
 namespace SignaliteWebAPI.Infrastructure.Repositories.Users;
 
@@ -16,6 +17,33 @@ public class FriendsRepository(SignaliteDbContext dbContext) : IFriendsRepositor
     public async Task<List<FriendRequest>> GetFriendRequests(int userId)
     {
          return await dbContext.FriendRequests.Include(fr => fr.Sender).Where(fr => fr.RecipientId == userId).ToListAsync();
+    }
+
+    public async Task<FriendRequest> GetFriendRequest(int friendRequestId)
+    {
+        var friendRequest = await dbContext.FriendRequests.FirstOrDefaultAsync(fr => fr.Id == friendRequestId);
+        if (friendRequest == null)
+        {
+            throw new NotFoundException("Friend request not found");
+        }
+        return friendRequest;
+    }
+
+    public async Task DeleteFriendRequest(FriendRequest friendRequest)
+    {
+        dbContext.FriendRequests.Remove(friendRequest);
+        await dbContext.SaveChangesAsync();
+    }
+
+    public Task DeleteFriend(UserFriend friend)
+    {
+        throw new NotImplementedException();
+    }
+
+    public async Task AddFriend(UserFriend userFriend)
+    {
+        await dbContext.UserFriends.AddAsync(userFriend);
+        await dbContext.SaveChangesAsync();
     }
 
     public async Task<bool> FriendRequestExists(int senderId, int recipientId)

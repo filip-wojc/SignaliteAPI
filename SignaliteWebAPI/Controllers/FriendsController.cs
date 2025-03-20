@@ -2,6 +2,7 @@
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using SignaliteWebAPI.Application.Features.Users.AcceptFriendRequest;
 using SignaliteWebAPI.Application.Features.Users.GetFriendRequests;
 using SignaliteWebAPI.Application.Features.Users.SendFriendRequest;
 using SignaliteWebAPI.Domain.DTOs.FriendRequests;
@@ -30,5 +31,17 @@ public class FriendsController(ISender mediator) : ControllerBase
     {
         var friendRequests = await mediator.Send(new GetFriendRequestsQuery { UserId = User.GetUserId() });
         return Ok(friendRequests);
+    }
+
+    [HttpPost("friend-request/accept/{friendRequestId}")]
+    public async Task<IActionResult> AcceptFriendRequest([FromRoute] int friendRequestId)
+    {
+        var command = new AcceptFriendRequestCommand
+        {
+            UserId = User.GetUserId(),
+            FriendRequestId = friendRequestId
+        };
+        await mediator.Send(command);
+        return Created();
     }
 }
