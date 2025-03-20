@@ -5,5 +5,5 @@ namespace SignaliteWebAPI.Application.Features.Users.DeclineFriendRequest;
 
 public class DeclineFriendRequestCommand : IRequest
 {
-    public AcceptOrDeclineFriendRequestDTO DeclineFriendRequestDto { get; set; }
+    public FriendRequestReplyDTO DeclineFriendRequestReplyDto { get; set; }
 }

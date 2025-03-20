@@ -39,7 +39,7 @@ public class FriendsController(ISender mediator) : ControllerBase
     {
         var command = new AcceptFriendRequestCommand
         {
-           AcceptFriendRequestDto = new AcceptOrDeclineFriendRequestDTO {UserId = User.GetUserId(), FriendRequestId = friendRequestId}
+           AcceptFriendRequestReplyDto = new FriendRequestReplyDTO {UserId = User.GetUserId(), FriendRequestId = friendRequestId}
         };
         await mediator.Send(command);
         return Created();
@@ -50,7 +50,7 @@ public class FriendsController(ISender mediator) : ControllerBase
     {
         var command = new DeclineFriendRequestCommand
         {
-            DeclineFriendRequestDto = new AcceptOrDeclineFriendRequestDTO { UserId = User.GetUserId(), FriendRequestId = friendRequestId }
+            DeclineFriendRequestReplyDto = new FriendRequestReplyDTO { UserId = User.GetUserId(), FriendRequestId = friendRequestId }
         };
         await mediator.Send(command);
         return NoContent();

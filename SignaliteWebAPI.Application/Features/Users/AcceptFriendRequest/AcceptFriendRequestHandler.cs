@@ -10,9 +10,9 @@ public class AcceptFriendRequestHandler(IFriendsRepository friendsRepository) : 
 {
     public async Task Handle(AcceptFriendRequestCommand request, CancellationToken cancellationToken)
     {
-        var friendsRequest = await friendsRepository.GetFriendRequests(request.AcceptFriendRequestDto.UserId);
+        var friendsRequest = await friendsRepository.GetFriendRequests(request.AcceptFriendRequestReplyDto.UserId);
         
-        var requestToAccept = friendsRequest.FirstOrDefault(fr => fr.Id == request.AcceptFriendRequestDto.FriendRequestId);
+        var requestToAccept = friendsRequest.FirstOrDefault(fr => fr.Id == request.AcceptFriendRequestReplyDto.FriendRequestId);
         if (requestToAccept == null)
         {
             throw new NotFoundException("User doesn't have a friend request with given id");
