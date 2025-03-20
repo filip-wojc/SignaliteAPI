@@ -7,7 +7,6 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <Folder Include="DTOs\Users\" />
       <Folder Include="Extensions\" />
       <Folder Include="Helpers\" />
     </ItemGroup>
