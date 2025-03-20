@@ -19,6 +19,12 @@ public class UserRepository(SignaliteDbContext dbContext) : IUserRepository
             .FirstOrDefaultAsync(u => u.Email == email);
     }
     
+    public async Task<User?> GetUserByUsername(string username)
+    {
+        return await dbContext.Users
+            .FirstOrDefaultAsync(u => u.Username == username);
+    }
+    
     public async Task<User?> GetUserById(int userId)
     {
         return await dbContext.Users.FirstOrDefaultAsync(u => u.Id == userId);
