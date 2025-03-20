@@ -25,6 +25,5 @@ public static class ApiExtensions
         services.AddScoped<IValidator<RegisterCommand>, RegisterValidator>();
         services.AddScoped<IValidator<SendFriendRequestCommand>, SendFriendRequestValidator>();
         services.AddScoped<IValidator<GetFriendRequestsQuery>, GetFriendRequestsValidator>();
-        services.AddScoped<IValidator<AcceptFriendRequestCommand>, AcceptFriendRequestValidator>();
     }
 }

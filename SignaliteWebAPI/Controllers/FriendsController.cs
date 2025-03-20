@@ -3,6 +3,7 @@ using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using SignaliteWebAPI.Application.Features.Users.AcceptFriendRequest;
+using SignaliteWebAPI.Application.Features.Users.DeclineFriendRequest;
 using SignaliteWebAPI.Application.Features.Users.GetFriendRequests;
 using SignaliteWebAPI.Application.Features.Users.SendFriendRequest;
 using SignaliteWebAPI.Domain.DTOs.FriendRequests;
@@ -38,10 +39,20 @@ public class FriendsController(ISender mediator) : ControllerBase
     {
         var command = new AcceptFriendRequestCommand
         {
-            UserId = User.GetUserId(),
-            FriendRequestId = friendRequestId
+           AcceptFriendRequestDto = new AcceptOrDeclineFriendRequestDTO {UserId = User.GetUserId(), FriendRequestId = friendRequestId}
         };
         await mediator.Send(command);
         return Created();
+    }
+
+    [HttpDelete("friend-request/decline/{friendRequestId}")]
+    public async Task<IActionResult> DeclineFriendRequest([FromRoute] int friendRequestId)
+    {
+        var command = new DeclineFriendRequestCommand
+        {
+            DeclineFriendRequestDto = new AcceptOrDeclineFriendRequestDTO { UserId = User.GetUserId(), FriendRequestId = friendRequestId }
+        };
+        await mediator.Send(command);
+        return NoContent();
     }
 }
