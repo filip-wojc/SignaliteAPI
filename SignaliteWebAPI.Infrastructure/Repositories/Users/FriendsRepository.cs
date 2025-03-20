@@ -35,6 +35,21 @@ public class FriendsRepository(SignaliteDbContext dbContext) : IFriendsRepositor
         await dbContext.SaveChangesAsync();
     }
 
+    public async Task<List<UserFriend>> GetUserFriends(int userId)
+    {
+        var user = await dbContext.Users.Include(u => u.Friends).FirstOrDefaultAsync(u => u.Id == userId);
+        if (user == null)
+        {
+            throw new NotFoundException("User not found");
+        }
+        return user.Friends;
+    }
+
+    public async Task<List<UserFriend>> GetAllUserFriends()
+    {
+        return await dbContext.UserFriends.ToListAsync();
+    }
+
     public Task DeleteFriend(UserFriend friend)
     {
         throw new NotImplementedException();
@@ -54,4 +69,5 @@ public class FriendsRepository(SignaliteDbContext dbContext) : IFriendsRepositor
                 (fr.RecipientId == senderId && fr.SenderId == recipientId)).ToListAsync();
         return friendRequests.Any();
     }
+    
 }

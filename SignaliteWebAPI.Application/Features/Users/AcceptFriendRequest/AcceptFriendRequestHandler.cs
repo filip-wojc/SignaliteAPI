@@ -1,6 +1,8 @@
 ﻿using MediatR;
+using SignaliteWebAPI.Application.Exceptions;
 using SignaliteWebAPI.Domain.Interfaces.Repositories;
 using SignaliteWebAPI.Domain.Models;
+using SignaliteWebAPI.Infrastructure.Exceptions;
 
 namespace SignaliteWebAPI.Application.Features.Users.AcceptFriendRequest;
 
@@ -8,13 +10,21 @@ public class AcceptFriendRequestHandler(IFriendsRepository friendsRepository) : 
 {
     public async Task Handle(AcceptFriendRequestCommand request, CancellationToken cancellationToken)
     {
-        var friendRequest = await friendsRepository.GetFriendRequest(request.FriendRequestId);
+        var friendsRequest = await friendsRepository.GetFriendRequests(request.UserId);
+        
+        var requestToAccept = friendsRequest.FirstOrDefault(fr => fr.Id == request.FriendRequestId);
+        if (requestToAccept == null)
+        {
+            throw new NotFoundException("User doesn't have a friend request with given id");
+        }
+        
         var userFriend = new UserFriend
         {
-            UserId = friendRequest.RecipientId,
-            FriendId = friendRequest.SenderId
+            UserId = requestToAccept.RecipientId,
+            FriendId = requestToAccept.SenderId
         };
+        
         await friendsRepository.AddFriend(userFriend);
-        await friendsRepository.DeleteFriendRequest(friendRequest);
+        await friendsRepository.DeleteFriendRequest(requestToAccept);
     }
 }

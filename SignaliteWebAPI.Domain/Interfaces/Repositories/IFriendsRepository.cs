@@ -9,6 +9,8 @@ public interface IFriendsRepository
     Task SendFriendRequest(FriendRequest friendRequest);
     Task<List<FriendRequest>> GetFriendRequests(int userId);
     Task DeleteFriendRequest(FriendRequest friendRequest);
+    Task<List<UserFriend>> GetUserFriends(int userId);
+    Task<List<UserFriend>> GetAllUserFriends();
     Task DeleteFriend(UserFriend friend);
     Task AddFriend(UserFriend userFriend);
 }

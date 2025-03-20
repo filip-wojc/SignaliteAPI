@@ -38,6 +38,20 @@ public class AppExceptionHandler : IExceptionHandler
                 errorList = ex.Errors;
                 break;
             }
+            case NotFoundException ex:
+            {
+                statusCode = ex.StatusCode;
+                message = ex.Message;
+                errorList = ex.Errors;
+                break;
+            }
+            case ForbidException ex:
+            {
+                statusCode = ex.StatusCode;
+                message = ex.Message;
+                errorList = ex.Errors;
+                break;
+            }
             default:
             {           
                 statusCode = 500;
