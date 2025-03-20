@@ -17,7 +17,7 @@ public class UserController(ISender mediator) : ControllerBase
     [HttpGet("me")]
     public async Task<IActionResult> GetMe()
     {
-        string id = User.GetUserId();
+        int id = User.GetUserId();
         string username = User.GetUsername();
         return Ok(new {id = id, username = username});
     }
