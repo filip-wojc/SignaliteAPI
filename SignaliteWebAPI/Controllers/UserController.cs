@@ -2,6 +2,7 @@
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using SignaliteWebAPI.Extensions;
 
 
 namespace SignaliteWebAPI.Controllers;
@@ -16,8 +17,10 @@ public class UserController(ISender mediator) : ControllerBase
     [HttpGet("me")]
     public async Task<IActionResult> GetMe()
     {
-        int id = int.Parse(User.FindFirst(c => c.Type == ClaimTypes.NameIdentifier).Value);
-        string username = User.FindFirst(c => c.Type == ClaimTypes.Name).Value;
+        int id = User.GetUserId();
+        string username = User.GetUsername();
         return Ok(new {id = id, username = username});
     }
+
+    
 }
