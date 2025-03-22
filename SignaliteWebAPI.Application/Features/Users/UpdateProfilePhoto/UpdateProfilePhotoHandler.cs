@@ -1,5 +1,6 @@
 // UploadUserPhotoHandler.cs
 
+using FluentValidation;
 using MediatR;
 using SignaliteWebAPI.Application.Features.Users.AddProfilePhoto;
 using SignaliteWebAPI.Domain.Models;
@@ -18,6 +19,12 @@ public class UpdateUserPhotoHandler(
 {
     public async Task Handle(UpdateProfilePhotoCommand request, CancellationToken cancellationToken)
     {
+        if (request.PhotoFile == null)
+        {
+            // TODO: Change to another exception
+            throw new ValidationException("PhotoFile is required");
+        }
+        
         var user = await userRepository.GetUserWithProfilePhotoAsync(request.UserId);
         if (user == null) 
             throw new NotFoundException("User not found");

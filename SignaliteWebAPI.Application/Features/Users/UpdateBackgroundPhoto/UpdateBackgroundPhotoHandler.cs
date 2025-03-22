@@ -1,3 +1,4 @@
+using System.ComponentModel.DataAnnotations;
 using MediatR;
 using SignaliteWebAPI.Domain.Models;
 using SignaliteWebAPI.Infrastructure.Exceptions;
@@ -13,6 +14,12 @@ public class UpdateBackgroundPhotoHandler(
 {
     public async Task Handle(UpdateBackgroundPhotoCommand request, CancellationToken cancellationToken)
     {
+        if (request.PhotoFile == null)
+        {
+            // TODO: Change to another exception
+            throw new ValidationException("PhotoFile is required");
+        }
+        
         var user = await userRepository.GetUserWithBackgroundPhotoAsync(request.UserId);
         if (user == null) 
             throw new NotFoundException("User not found");
