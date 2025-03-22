@@ -1,6 +1,6 @@
 ﻿using SignaliteWebAPI.Domain.Models;
 
-namespace SignaliteWebAPI.Domain.Interfaces.Repositories;
+namespace SignaliteWebAPI.Infrastructure.Interfaces.Repositories;
 
 public interface IUserRepository
 {
@@ -9,5 +9,8 @@ public interface IUserRepository
     Task<User?> GetUserByUsername(string username);
     Task<User?> GetUserById(int userId);
     Task UpdateRefreshToken(int userId, string refreshToken, DateTime expiry);
-    Task<User> GetUserByRefreshToken(string refreshToken);
+    Task<User?> GetUserByRefreshToken(string refreshToken);
+    Task<User?> GetUserWithProfilePhotoAsync(int userId);
+    Task<User?> GetUserWithBackgroundPhotoAsync(int userId);
+
 }

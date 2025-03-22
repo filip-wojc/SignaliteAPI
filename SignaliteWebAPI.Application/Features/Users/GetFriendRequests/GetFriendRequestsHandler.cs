@@ -1,7 +1,7 @@
 ﻿using AutoMapper;
 using MediatR;
 using SignaliteWebAPI.Domain.DTOs.FriendRequests;
-using SignaliteWebAPI.Domain.Interfaces.Repositories;
+using SignaliteWebAPI.Infrastructure.Interfaces.Repositories;
 
 namespace SignaliteWebAPI.Application.Features.Users.GetFriendRequests;
 

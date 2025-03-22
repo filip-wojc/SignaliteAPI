@@ -17,6 +17,7 @@ public class SignaliteDbContext : DbContext
     }
     
     public DbSet<User> Users { get; set; }
+    public DbSet<Photo> Photos { get; set; }
     public DbSet<UserFriend> UserFriends { get; set; }
     public DbSet<FriendRequest> FriendRequests { get; set; }
     public DbSet<Group> Groups { get; set; }
@@ -41,6 +42,18 @@ public class SignaliteDbContext : DbContext
             .HasOne(a => a.Message)
             .WithOne(m => m.Attachment)
             .HasForeignKey<Attachment>(a => a.MessageId);
+        
+        modelBuilder.Entity<User>()
+            .HasOne(u => u.ProfilePhoto)
+            .WithOne()
+            .HasForeignKey<User>(u => u.ProfilePhotoId)
+            .OnDelete(DeleteBehavior.SetNull);
+        
+        modelBuilder.Entity<User>()
+            .HasOne(u => u.BackgroundPhoto)
+            .WithOne()
+            .HasForeignKey<User>(u => u.BackgroundPhotoId)
+            .OnDelete(DeleteBehavior.SetNull);
     }
     
 }

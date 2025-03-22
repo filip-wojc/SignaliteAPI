@@ -21,7 +21,7 @@ public class FriendsController(ISender mediator) : ControllerBase
     {
         var command = new SendFriendRequestCommand
         {
-            SendFriendRequestDTO = new SendFriendRequestDTO { RecipientId = recipientId, SenderId = User.GetUserId() }
+            RecipientId = recipientId, SenderId = User.GetUserId()
         };
         await mediator.Send(command);
         return Created();
@@ -30,7 +30,8 @@ public class FriendsController(ISender mediator) : ControllerBase
     [HttpGet("friend-requests")]
     public async Task<ActionResult<List<FriendRequestDTO>>> GetFriendRequests()
     {
-        var friendRequests = await mediator.Send(new GetFriendRequestsQuery { UserId = User.GetUserId() });
+        var query = new GetFriendRequestsQuery { UserId = User.GetUserId() };
+        var friendRequests = await mediator.Send(query);
         return Ok(friendRequests);
     }
 
@@ -39,7 +40,8 @@ public class FriendsController(ISender mediator) : ControllerBase
     {
         var command = new AcceptFriendRequestCommand
         {
-           AcceptFriendRequestReplyDto = new FriendRequestReplyDTO {UserId = User.GetUserId(), FriendRequestId = friendRequestId}
+            UserId = User.GetUserId(),
+            FriendRequestId = friendRequestId 
         };
         await mediator.Send(command);
         return Created();
@@ -50,7 +52,8 @@ public class FriendsController(ISender mediator) : ControllerBase
     {
         var command = new DeclineFriendRequestCommand
         {
-            DeclineFriendRequestReplyDto = new FriendRequestReplyDTO { UserId = User.GetUserId(), FriendRequestId = friendRequestId }
+            UserId = User.GetUserId(),
+            FriendRequestId = friendRequestId
         };
         await mediator.Send(command);
         return NoContent();
