@@ -1,6 +1,6 @@
 ﻿using MediatR;
-using SignaliteWebAPI.Domain.Interfaces.Repositories;
 using SignaliteWebAPI.Infrastructure.Exceptions;
+using SignaliteWebAPI.Infrastructure.Interfaces.Repositories;
 
 namespace SignaliteWebAPI.Application.Features.Users.DeclineFriendRequest;
 

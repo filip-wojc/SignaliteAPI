@@ -1,6 +1,6 @@
 ﻿using SignaliteWebAPI.Domain.Models;
 
-namespace SignaliteWebAPI.Domain.Interfaces.Repositories;
+namespace SignaliteWebAPI.Infrastructure.Interfaces.Repositories;
 
 public interface IFriendsRepository
 {

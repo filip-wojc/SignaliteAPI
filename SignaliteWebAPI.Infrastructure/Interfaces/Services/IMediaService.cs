@@ -1,9 +1,9 @@
 using CloudinaryDotNet.Actions;
 using Microsoft.AspNetCore.Http;
 
-namespace SignaliteWebAPI.Infrastructure.Interfaces;
+namespace SignaliteWebAPI.Infrastructure.Interfaces.Services;
 
-public interface ICloudinaryService
+public interface IMediaService
 {
     Task<ImageUploadResult> AddPhotoAsync(IFormFile file);
     Task<DeletionResult> DeletePhotoAsync(string publicId);

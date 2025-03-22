@@ -144,14 +144,38 @@ namespace SignaliteWebAPI.Infrastructure.Database.Migrations
                     b.ToTable("ReadBy");
                 });
 
+            modelBuilder.Entity("SignaliteWebAPI.Domain.Models.Photo", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("PublicId")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Url")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("INTEGER");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("Photos");
+                });
+
             modelBuilder.Entity("SignaliteWebAPI.Domain.Models.User", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER");
 
-                    b.Property<string>("BackgroundUrl")
-                        .HasColumnType("TEXT");
+                    b.Property<int?>("BackgroundPhotoId")
+                        .HasColumnType("INTEGER");
 
                     b.Property<string>("Email")
                         .IsRequired()
@@ -165,8 +189,8 @@ namespace SignaliteWebAPI.Infrastructure.Database.Migrations
                         .IsRequired()
                         .HasColumnType("TEXT");
 
-                    b.Property<string>("PhotoUrl")
-                        .HasColumnType("TEXT");
+                    b.Property<int?>("ProfilePhotoId")
+                        .HasColumnType("INTEGER");
 
                     b.Property<string>("RefreshToken")
                         .HasColumnType("TEXT");
@@ -183,6 +207,12 @@ namespace SignaliteWebAPI.Infrastructure.Database.Migrations
                         .HasColumnType("TEXT");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("BackgroundPhotoId")
+                        .IsUnique();
+
+                    b.HasIndex("ProfilePhotoId")
+                        .IsUnique();
 
                     b.ToTable("Users");
                 });
@@ -309,6 +339,34 @@ namespace SignaliteWebAPI.Infrastructure.Database.Migrations
                     b.Navigation("Message");
 
                     b.Navigation("ReadBy");
+                });
+
+            modelBuilder.Entity("SignaliteWebAPI.Domain.Models.Photo", b =>
+                {
+                    b.HasOne("SignaliteWebAPI.Domain.Models.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("SignaliteWebAPI.Domain.Models.User", b =>
+                {
+                    b.HasOne("SignaliteWebAPI.Domain.Models.Photo", "BackgroundPhoto")
+                        .WithOne()
+                        .HasForeignKey("SignaliteWebAPI.Domain.Models.User", "BackgroundPhotoId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.HasOne("SignaliteWebAPI.Domain.Models.Photo", "ProfilePhoto")
+                        .WithOne()
+                        .HasForeignKey("SignaliteWebAPI.Domain.Models.User", "ProfilePhotoId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.Navigation("BackgroundPhoto");
+
+                    b.Navigation("ProfilePhoto");
                 });
 
             modelBuilder.Entity("SignaliteWebAPI.Domain.Models.UserFriend", b =>
