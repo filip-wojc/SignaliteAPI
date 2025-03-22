@@ -28,7 +28,7 @@ public class RegisterValidator : AbstractValidator<RegisterCommand>
             .MinimumLength(minLengthPassword).WithMessage("Password must be at least 8 characters long.")
             .Matches(@"[a-z]").WithMessage("Password  must contain at least one lowercase letter.")
             .Matches(@"[A-Z]").WithMessage("Password  must contain at least one uppercase letter.")
-            .Matches(@"[@$!%*?&]").WithMessage("Password  must contain at least one special character.")
+            .Matches(@"[@$!%*?&\.\^]").WithMessage("Password  must contain at least one special character.")
             .Matches(@"\d").WithMessage("Password  must contain at least one number.");;
         
         RuleFor(u => u.RegisterDto.Username)
