@@ -1,7 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using SignaliteWebAPI.Domain.Interfaces.Repositories;
 using SignaliteWebAPI.Domain.Models;
 using SignaliteWebAPI.Infrastructure.Database;
+using SignaliteWebAPI.Infrastructure.Interfaces.Repositories;
 
 namespace SignaliteWebAPI.Infrastructure.Repositories.Users;
 
@@ -41,9 +41,43 @@ public class UserRepository(SignaliteDbContext dbContext) : IUserRepository
         await dbContext.SaveChangesAsync();
     }
 
-    public async Task<User> GetUserByRefreshToken(string refreshToken)
+    public async Task<User?> GetUserByRefreshToken(string refreshToken)
     {
         return await dbContext.Users
             .FirstOrDefaultAsync(u => u.RefreshToken == refreshToken);
+    }
+    
+    public async Task<User?> GetUserWithProfilePhotoAsync(int userId)
+    {
+        return await dbContext.Users
+            .Include(u => u.ProfilePhoto)
+            .FirstOrDefaultAsync(u => u.Id == userId);
+    }
+    
+    public async Task<User?> GetUserWithBackgroundPhotoAsync(int userId)
+    {
+        return await dbContext.Users
+            .Include(u => u.BackgroundPhoto)
+            .FirstOrDefaultAsync(u => u.Id == userId);
+    }
+    
+    public async Task RemoveProfilePhotoReferenceAsync(int userId)
+    {
+        var user = await dbContext.Users.FindAsync(userId);
+        if (user != null)
+        {
+            user.ProfilePhotoId = null;
+            await dbContext.SaveChangesAsync();
+        }
+    }
+    
+    public async Task RemoveBackgroundPhotoReferenceAsync(int userId)
+    {
+        var user = await dbContext.Users.FindAsync(userId);
+        if (user != null)
+        {
+            user.BackgroundPhotoId = null;
+            await dbContext.SaveChangesAsync();
+        }
     }
 }
