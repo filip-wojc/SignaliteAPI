@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using SignaliteWebAPI.Application.Features.Users.SendFriendRequest;
 using SignaliteWebAPI.Domain.DTOs.FriendRequests;
 using SignaliteWebAPI.Domain.Models;
 
@@ -8,7 +9,7 @@ public class FriendsAutoMapper : Profile
 {
     public FriendsAutoMapper()
     {
-        CreateMap<SendFriendRequestDTO, FriendRequest>();
+        CreateMap<SendFriendRequestCommand, FriendRequest>();
         CreateMap<FriendRequest, FriendRequestDTO>()
             .ForMember(f => f.RequestDate, o
                 => o.MapFrom(f => f.RequestDate.ToString("yyyy/MM/dd HH:mm:ss")))

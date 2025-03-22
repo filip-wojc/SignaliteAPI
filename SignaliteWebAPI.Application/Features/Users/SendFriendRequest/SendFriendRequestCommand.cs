@@ -5,5 +5,6 @@ namespace SignaliteWebAPI.Application.Features.Users.SendFriendRequest;
 
 public class SendFriendRequestCommand : IRequest
 {
-    public SendFriendRequestDTO SendFriendRequestDTO { get; set; }
+    public int SenderId { get; set; }
+    public int RecipientId { get; set; }
 }
