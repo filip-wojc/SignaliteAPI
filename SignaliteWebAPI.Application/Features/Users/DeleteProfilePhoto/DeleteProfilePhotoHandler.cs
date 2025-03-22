@@ -21,9 +21,6 @@ public class DeleteProfilePhotoHandler(
         // remove photo from database
         await photoRepository.RemovePhotoAsync(user.ProfilePhoto.Id);
         
-        // update user to remove reference to photo
-        await userRepository.RemoveProfilePhotoReferenceAsync(user.Id);
-        
         return true;
     }
 }

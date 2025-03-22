@@ -12,6 +12,5 @@ public interface IUserRepository
     Task<User?> GetUserByRefreshToken(string refreshToken);
     Task<User?> GetUserWithProfilePhotoAsync(int userId);
     Task<User?> GetUserWithBackgroundPhotoAsync(int userId);
-    Task RemoveProfilePhotoReferenceAsync(int userId);
-    Task RemoveBackgroundPhotoReferenceAsync(int userId);
+
 }

@@ -61,23 +61,5 @@ public class UserRepository(SignaliteDbContext dbContext) : IUserRepository
             .FirstOrDefaultAsync(u => u.Id == userId);
     }
     
-    public async Task RemoveProfilePhotoReferenceAsync(int userId)
-    {
-        var user = await dbContext.Users.FindAsync(userId);
-        if (user != null)
-        {
-            user.ProfilePhotoId = null;
-            await dbContext.SaveChangesAsync();
-        }
-    }
-    
-    public async Task RemoveBackgroundPhotoReferenceAsync(int userId)
-    {
-        var user = await dbContext.Users.FindAsync(userId);
-        if (user != null)
-        {
-            user.BackgroundPhotoId = null;
-            await dbContext.SaveChangesAsync();
-        }
-    }
+
 }

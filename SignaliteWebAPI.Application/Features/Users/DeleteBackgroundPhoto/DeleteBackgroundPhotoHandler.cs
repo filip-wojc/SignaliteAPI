@@ -22,8 +22,6 @@ public class DeleteBackgroundPhotoHandler(
         // remove photo from database
         await photoRepository.RemovePhotoAsync(user.BackgroundPhoto.Id);
         
-        // update user to remove reference to photo
-        await userRepository.RemoveBackgroundPhotoReferenceAsync(user.Id);
         
         return true;
     }
