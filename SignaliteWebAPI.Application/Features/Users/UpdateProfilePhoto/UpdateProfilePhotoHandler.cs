@@ -4,6 +4,7 @@ using MediatR;
 using SignaliteWebAPI.Application.Features.Users.AddProfilePhoto;
 using SignaliteWebAPI.Domain.Models;
 using SignaliteWebAPI.Infrastructure.Database;
+using SignaliteWebAPI.Infrastructure.Exceptions;
 using SignaliteWebAPI.Infrastructure.Interfaces;
 using SignaliteWebAPI.Infrastructure.Interfaces.Repositories;
 using SignaliteWebAPI.Infrastructure.Interfaces.Services;
@@ -13,16 +14,18 @@ namespace SignaliteWebAPI.Application.Features.Photos;
 public class UpdateUserPhotoHandler(
     IUserRepository userRepository,
     IPhotoRepository photoRepository,
-    IMediaService mediaService) : IRequestHandler<UpdateProfilePhotoCommand, bool>
+    IMediaService mediaService) : IRequestHandler<UpdateProfilePhotoCommand>
 {
-    public async Task<bool> Handle(UpdateProfilePhotoCommand request, CancellationToken cancellationToken)
+    public async Task Handle(UpdateProfilePhotoCommand request, CancellationToken cancellationToken)
     {
         var user = await userRepository.GetUserWithProfilePhotoAsync(request.UserId);
-        if (user == null) return false; // TODO: Throw something here
+        if (user == null) 
+            throw new NotFoundException("User not found");
 
         // Upload new photo
         var uploadResult = await mediaService.AddPhotoAsync(request.PhotoFile);
-        if (uploadResult.Error != null) return false; // TODO: same here
+        if (uploadResult.Error != null) 
+            throw new CloudinaryException(uploadResult.Error.Message);
 
         // Create new photo entity
         var photo = new Photo
@@ -43,6 +46,5 @@ public class UpdateUserPhotoHandler(
         await photoRepository.AddPhotoAsync(photo);
         await photoRepository.SetUserProfilePhotoAsync(user.Id, photo.Id);
         
-        return true;
     }
 }

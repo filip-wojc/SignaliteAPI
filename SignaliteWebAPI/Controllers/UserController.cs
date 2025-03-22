@@ -45,12 +45,9 @@ public class UserController(ISender mediator, IMediaService mediaService) : Cont
             UserId = userId
         };
     
-        var result = await mediator.Send(command);
-    
-        if (result)
-            return NoContent();
-        else
-            return BadRequest("Failed to delete profile photo");
+        await mediator.Send(command);
+        return NoContent();
+
     }
 
     // tested: works
@@ -79,12 +76,9 @@ public class UserController(ISender mediator, IMediaService mediaService) : Cont
             UserId = userId
         };
     
-        var result = await mediator.Send(command);
-    
-        if (result)
-            return NoContent();
-        else
-            return BadRequest("Failed to delete profile photo");
+        await mediator.Send(command); 
+        
+        return NoContent();
     }
     
 }

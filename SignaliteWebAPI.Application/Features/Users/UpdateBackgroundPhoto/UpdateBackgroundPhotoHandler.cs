@@ -1,5 +1,6 @@
 using MediatR;
 using SignaliteWebAPI.Domain.Models;
+using SignaliteWebAPI.Infrastructure.Exceptions;
 using SignaliteWebAPI.Infrastructure.Interfaces.Repositories;
 using SignaliteWebAPI.Infrastructure.Interfaces.Services;
 
@@ -8,16 +9,18 @@ namespace SignaliteWebAPI.Application.Features.Users.UpdateBackgroundPhoto;
 public class UpdateBackgroundPhotoHandler(
     IUserRepository userRepository,
     IPhotoRepository photoRepository,
-    IMediaService mediaService ) : IRequestHandler<UpdateBackgroundPhotoCommand, bool>
+    IMediaService mediaService ) : IRequestHandler<UpdateBackgroundPhotoCommand>
 {
-    public async Task<bool> Handle(UpdateBackgroundPhotoCommand request, CancellationToken cancellationToken)
+    public async Task Handle(UpdateBackgroundPhotoCommand request, CancellationToken cancellationToken)
     {
         var user = await userRepository.GetUserWithBackgroundPhotoAsync(request.UserId);
-        if (user == null) return false; // TODO: Throw something here
+        if (user == null) 
+            throw new NotFoundException("User not found");
 
         // Upload new photo
         var uploadResult = await mediaService.AddPhotoAsync(request.PhotoFile);
-        if (uploadResult.Error != null) return false; // TODO: same here
+        if (uploadResult.Error != null) 
+            throw new CloudinaryException(uploadResult.Error.Message);
 
         // Create new photo entity
         var photo = new Photo
@@ -38,6 +41,5 @@ public class UpdateBackgroundPhotoHandler(
         await photoRepository.AddPhotoAsync(photo);
         await photoRepository.SetUserBackgroundPhotoAsync(user.Id, photo.Id);
         
-        return true;
     }
 }
