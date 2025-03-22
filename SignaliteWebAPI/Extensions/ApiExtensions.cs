@@ -1,12 +1,8 @@
 ﻿using FluentValidation;
-using MediatR;
 using Microsoft.AspNetCore.Mvc;
-using SignaliteWebAPI.Application.Behaviors;
 using SignaliteWebAPI.Application.Features.Auth.Register;
-using SignaliteWebAPI.Application.Features.Users.AcceptFriendRequest;
 using SignaliteWebAPI.Application.Features.Users.GetFriendRequests;
 using SignaliteWebAPI.Application.Features.Users.SendFriendRequest;
-using SignaliteWebAPI.Infrastructure.Services;
 using SignaliteWebAPI.Middlewares;
 
 namespace SignaliteWebAPI.Extensions;

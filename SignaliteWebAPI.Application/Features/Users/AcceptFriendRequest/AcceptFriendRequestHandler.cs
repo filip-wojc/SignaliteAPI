@@ -1,8 +1,8 @@
 ﻿using MediatR;
 using SignaliteWebAPI.Application.Exceptions;
-using SignaliteWebAPI.Domain.Interfaces.Repositories;
 using SignaliteWebAPI.Domain.Models;
 using SignaliteWebAPI.Infrastructure.Exceptions;
+using SignaliteWebAPI.Infrastructure.Interfaces.Repositories;
 
 namespace SignaliteWebAPI.Application.Features.Users.AcceptFriendRequest;
 
