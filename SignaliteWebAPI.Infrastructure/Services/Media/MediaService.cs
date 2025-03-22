@@ -4,14 +4,15 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Options;
 using SignaliteWebAPI.Infrastructure.Helpers;
 using SignaliteWebAPI.Infrastructure.Interfaces;
+using SignaliteWebAPI.Infrastructure.Interfaces.Services;
 
 namespace SignaliteWebAPI.Infrastructure.Services.Media;
 
-public class CloudinaryService : ICloudinaryService
+public class MediaService : IMediaService
 {
     private readonly Cloudinary _cloudinary;
 
-    public CloudinaryService(IOptions<CloudinarySettings> config)
+    public MediaService(IOptions<CloudinarySettings> config)
     {
         var account = new Account(config.Value.CloudName, config.Value.ApiKey, config.Value.ApiSecret);
         _cloudinary = new Cloudinary(account);
@@ -26,9 +27,9 @@ public class CloudinaryService : ICloudinaryService
             var uploadParams = new ImageUploadParams
             {
                 File = new FileDescription(file.FileName, stream),
-                Transformation = new Transformation()
-                    .Height(500).Width(500).Crop("fill").Gravity("face"),
-                Folder = "SocialApp"
+                //Transformation = new Transformation()
+                //    .Height(500).Width(500).Crop("fill").Gravity("face"),
+                Folder = "Signalite"
             };
 
             uploadResult = await _cloudinary.UploadAsync(uploadParams);
