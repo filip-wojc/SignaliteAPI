@@ -10,6 +10,7 @@ using Scalar.AspNetCore;
 using Serilog;
 using Serilog.Events;
 using Microsoft.AspNetCore.HttpLogging;
+using SignaliteWebAPI.Infrastructure.SignalR;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -58,6 +59,7 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
+app.MapHub<PresenceHub>("hubs/presence");
 
 app.Run();
 

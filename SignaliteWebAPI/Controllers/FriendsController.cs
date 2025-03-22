@@ -8,6 +8,7 @@ using SignaliteWebAPI.Application.Features.Users.GetFriendRequests;
 using SignaliteWebAPI.Application.Features.Users.SendFriendRequest;
 using SignaliteWebAPI.Domain.DTOs.FriendRequests;
 using SignaliteWebAPI.Extensions;
+using SignaliteWebAPI.Infrastructure.Extensions;
 
 namespace SignaliteWebAPI.Controllers;
 

@@ -3,6 +3,7 @@ using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using SignaliteWebAPI.Extensions;
+using SignaliteWebAPI.Infrastructure.Extensions;
 
 
 namespace SignaliteWebAPI.Controllers;
