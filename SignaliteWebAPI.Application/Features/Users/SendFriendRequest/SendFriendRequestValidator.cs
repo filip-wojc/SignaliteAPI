@@ -13,11 +13,11 @@ public class SendFriendRequestValidator : AbstractValidator<SendFriendRequestCom
         _friendsRepository = friendsRepositoryrepository;
         _userRepository = userRepository;
         
-        RuleFor(c => c.SendFriendRequestDTO.RecipientId)
+        RuleFor(c => c.RecipientId)
             .NotEmpty()
             .NotNull()
             .MustAsync(UserExists).WithMessage("Recipient with given id does not exist");
-        RuleFor(c => c.SendFriendRequestDTO.SenderId)
+        RuleFor(c => c.SenderId)
             .NotEmpty()
             .NotNull()
             .MustAsync(UserExists).WithMessage("Sender with given id does not exist");
@@ -37,8 +37,8 @@ public class SendFriendRequestValidator : AbstractValidator<SendFriendRequestCom
     private async Task<bool> FriendRequestNotExist(SendFriendRequestCommand command, CancellationToken cancellationToken)
     {
         bool exists = await _friendsRepository.FriendRequestExists(
-            command.SendFriendRequestDTO.SenderId, 
-            command.SendFriendRequestDTO.RecipientId
+            command.SenderId, 
+            command.RecipientId
         );
         
         return !exists;
@@ -46,6 +46,6 @@ public class SendFriendRequestValidator : AbstractValidator<SendFriendRequestCom
 
     private bool IsSenderAndRecipientNotSame(SendFriendRequestCommand command)
     {
-        return command.SendFriendRequestDTO.SenderId != command.SendFriendRequestDTO.RecipientId;
+        return command.SenderId != command.RecipientId;
     }
 }

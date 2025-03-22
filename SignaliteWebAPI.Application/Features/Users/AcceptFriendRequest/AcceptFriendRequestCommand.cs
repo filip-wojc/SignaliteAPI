@@ -5,5 +5,6 @@ namespace SignaliteWebAPI.Application.Features.Users.AcceptFriendRequest;
 
 public class AcceptFriendRequestCommand : IRequest
 {
-    public FriendRequestReplyDTO AcceptFriendRequestReplyDto { get; set; }
+    public int UserId { get; set; }
+    public int FriendRequestId { get; set; }
 }
