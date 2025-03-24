@@ -19,7 +19,7 @@ public class FriendsRepository(SignaliteDbContext dbContext) : IFriendsRepositor
         return await dbContext.FriendRequests.Include(fr => fr.Sender).Where(fr => fr.RecipientId == userId)
             .ToListAsync();
     }
-    
+
     public async Task DeleteFriendRequest(FriendRequest friendRequest)
     {
         dbContext.FriendRequests.Remove(friendRequest);
@@ -29,9 +29,9 @@ public class FriendsRepository(SignaliteDbContext dbContext) : IFriendsRepositor
     public async Task<List<User>> GetUserFriends(int userId)
     {
         var userFriends = await dbContext.UserFriends.Include(uf => uf.User).ThenInclude(u => u.ProfilePhoto)
-            .Include(uf => uf.Friend).ThenInclude(u => u.ProfilePhoto).ToListAsync();
-        var friends = userFriends.Where(uf => uf.UserId == userId || uf.FriendId == userId)
-            .Select(u => userId == u.UserId ? u.Friend : u.User).ToList();
+            .Include(uf => uf.Friend).ThenInclude(u => u.ProfilePhoto)
+            .Where(uf => uf.UserId == userId || uf.FriendId == userId).ToListAsync();
+        var friends = userFriends.Select(u => userId == u.UserId ? u.Friend : u.User).ToList();
         return friends;
     }
 
