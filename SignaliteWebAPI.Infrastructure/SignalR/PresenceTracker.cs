@@ -220,7 +220,9 @@ namespace SignaliteWebAPI.Infrastructure.SignalR
             try
             {
                 // Get all connections for this instance
+                _logger.LogInformation($"Looking for connections in key {instanceConnectionsKey}");
                 var connections = await _db.SetMembersAsync(instanceConnectionsKey);
+                _logger.LogInformation($"Found {connections.Length} connections for instance {instanceId}");
                 
                 foreach (var connection in connections)
                 {
@@ -232,15 +234,22 @@ namespace SignaliteWebAPI.Infrastructure.SignalR
                         var username = parts[0];
                         var connectionId = parts[1];
                         
-                        _logger.LogInformation($"Cleaning up connection {connectionId} for user {username} from instance {instanceId}");
+                        _logger.LogWarning($"Cleaning up connection {connectionId} for user {username} from instance {instanceId}");
                         
                         // Remove this connection for the user
-                        await UserDisconnected(username, connectionId);
+                        var isOffline = await UserDisconnected(username, connectionId);
+                        _logger.LogWarning($"Connection {connectionId} for user {username} cleaned up. User is now {(isOffline ? "offline" : "still online with other connections")}");
+                    }
+                    else
+                    {
+                        _logger.LogWarning($"Invalid connection format: {connectionInfo}");
                     }
                 }
                 
                 // Finally, remove the instance connections key
-                await _db.KeyDeleteAsync(instanceConnectionsKey);
+                _logger.LogWarning($"Removing instance connections key {instanceConnectionsKey}");
+                var deleted = await _db.KeyDeleteAsync(instanceConnectionsKey);
+                _logger.LogWarning($"Instance connections key deleted: {deleted}");
             }
             catch (Exception ex)
             {
@@ -259,32 +268,46 @@ namespace SignaliteWebAPI.Infrastructure.SignalR
             {
                 // Get all app instances
                 var instances = await _db.SetMembersAsync(AppInstancesSetKey);
+                _logger.LogInformation($"Found {instances.Length} instances in Redis");
                 
                 foreach (var instance in instances)
                 {
                     var instanceId = instance.ToString();
-                    if (instanceId == _instanceId) continue; // Skip current instance
+                    if (instanceId == _instanceId)
+                    {
+                        _logger.LogInformation($"Skipping current instance {instanceId}");
+                        continue; // Skip current instance
+                    }
                     
                     var instanceKey = $"{AppInstanceKeyPrefix}{instanceId}";
+                    _logger.LogInformation($"Checking instance {instanceId} with key {instanceKey}");
                     
                     // Check if the instance key still exists (hasn't expired)
                     var exists = await _db.KeyExistsAsync(instanceKey);
                     if (!exists)
                     {
-                        _logger.LogInformation($"Found dead instance {instanceId}, cleaning up its connections");
+                        _logger.LogWarning($"Found dead instance {instanceId}, cleaning up its connections");
                         
                         // Clean up connections for this dead instance
                         await CleanupInstanceConnections(instanceId);
                         
                         // Remove instance from instances set
+                        _logger.LogWarning($"Removing dead instance {instanceId} from instances set");
                         await _db.SetRemoveAsync(AppInstancesSetKey, instanceId);
+                        _logger.LogWarning($"Successfully removed dead instance {instanceId}");
+                    }
+                    else
+                    {
+                        _logger.LogInformation($"Instance {instanceId} is still active (key exists)");
                     }
                 }
                 
                 // Also clean up this instance's connections on startup (in case of crash and restart)
+                _logger.LogInformation($"Cleaning up current instance {_instanceId} connections (in case of previous crash)");
                 await CleanupInstanceConnections(_instanceId);
                 
                 // Re-register this instance
+                _logger.LogInformation($"Re-registering current instance {_instanceId}");
                 await RegisterInstance();
                 
                 _logger.LogInformation("Dead connection cleanup completed");

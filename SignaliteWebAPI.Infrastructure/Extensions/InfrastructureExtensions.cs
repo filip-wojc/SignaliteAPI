@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using SignaliteWebAPI.Domain.Interfaces.Repositories;
 using SignaliteWebAPI.Domain.Interfaces.Services;
 using SignaliteWebAPI.Infrastructure.Database;
@@ -33,8 +34,18 @@ public static class InfrastructureExtensions
 
         services.AddSingleton<PresenceTracker>();
         services.AddSignalR();
-        
-        services.AddHostedService<ConnectionCleanupService>();
+        services.AddSingleton<ConnectionCleanupService>(sp => 
+        {
+            var logger = sp.GetRequiredService<ILogger<ConnectionCleanupService>>();
+            var serviceProvider = sp;
+            return new ConnectionCleanupService(
+                serviceProvider, 
+                logger,
+                cleanupInterval: TimeSpan.FromMinutes(1),
+                heartbeatInterval: TimeSpan.FromSeconds(30),
+                skipInitialCleanup: true); // This flag will prevent redundant initial cleanup
+        });
+        services.AddHostedService(sp => sp.GetRequiredService<ConnectionCleanupService>()); // grab the service created above
     }
     
     

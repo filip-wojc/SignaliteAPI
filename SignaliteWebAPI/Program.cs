@@ -62,33 +62,27 @@ app.UseAuthorization();
 app.MapControllers();
 app.MapHub<PresenceHub>("hubs/presence");
 
-using (var scope = app.Services.CreateScope())
-{
-    var services = scope.ServiceProvider;
-    var presenceTracker = services.GetRequiredService<PresenceTracker>();
-    await presenceTracker.CleanupDeadConnections();
-}
 
-app.Lifetime.ApplicationStarted.Register(() =>
-{
-    using var scope = app.Services.CreateScope();
-    var logger = scope.ServiceProvider.GetRequiredService<ILogger<Program>>();
-    var presenceTracker = scope.ServiceProvider.GetRequiredService<PresenceTracker>();
+bool cleanupPerformed = false;
+
+if (cleanupPerformed) return;
     
-    try
-    {
-        logger.LogInformation("Application started - initializing presence tracking");
-        
-        // Initial cleanup of dead connections from previous runs
-        presenceTracker.CleanupDeadConnections();
-        
-        logger.LogInformation("Presence tracking initialized successfully");
-    }
-    catch (Exception ex)
-    {
-        logger.LogError(ex, "Error initializing presence tracking on startup");
-    }
-});
+using var scope = app.Services.CreateScope();
+var logger = scope.ServiceProvider.GetRequiredService<ILogger<Program>>();
+var presenceTracker = scope.ServiceProvider.GetRequiredService<PresenceTracker>();
+    
+try
+{
+    logger.LogInformation("Initializing presence tracking - performing one-time cleanup");
+    // Use Task.Run to execute the async code and wait for it to complete
+    Task.Run(async () => await presenceTracker.CleanupDeadConnections()).GetAwaiter().GetResult();
+    cleanupPerformed = true;
+    logger.LogInformation("One-time presence cleanup completed successfully");
+}
+catch (Exception ex)
+{
+    logger.LogError(ex, "Error performing initial presence cleanup");
+}
 
 app.Lifetime.ApplicationStopping.Register(() =>
 {
@@ -99,7 +93,8 @@ app.Lifetime.ApplicationStopping.Register(() =>
     try
     {
         logger.LogInformation("Application stopping - unregistering presence instance");
-        presenceTracker.UnregisterInstance();
+        // Use Task.Run to execute the async code and wait for it to complete
+        Task.Run(async () => await presenceTracker.UnregisterInstance()).GetAwaiter().GetResult();
         logger.LogInformation("Presence instance unregistered successfully");
     }
     catch (Exception ex)
@@ -108,12 +103,15 @@ app.Lifetime.ApplicationStopping.Register(() =>
     }
 });
 
+
+
 app.Run();
 
-internal sealed class BearerSecuritySchemeTransformer(IAuthenticationSchemeProvider authenticationSchemeProvider) 
+internal sealed class BearerSecuritySchemeTransformer(IAuthenticationSchemeProvider authenticationSchemeProvider)
     : IOpenApiDocumentTransformer
 {
-    public async Task TransformAsync(OpenApiDocument document, OpenApiDocumentTransformerContext context, CancellationToken cancellationToken)
+    public async Task TransformAsync(OpenApiDocument document, OpenApiDocumentTransformerContext context,
+        CancellationToken cancellationToken)
     {
         var authSchemes = await authenticationSchemeProvider.GetAllSchemesAsync();
         if (authSchemes.Any(authscheme => authscheme.Name == JwtBearerDefaults.AuthenticationScheme))
@@ -141,4 +139,7 @@ internal sealed class BearerSecuritySchemeTransformer(IAuthenticationSchemeProvi
             });
         }
     }
+
+
+    
 }
