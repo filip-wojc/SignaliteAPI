@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using ILogger = Serilog.ILogger;
 
 namespace SignaliteWebAPI.Infrastructure.SignalR
 {
@@ -11,7 +12,7 @@ namespace SignaliteWebAPI.Infrastructure.SignalR
     {
         private readonly IConnectionMultiplexer _redis;
         private readonly IDatabase _db;
-        private readonly ILogger<PresenceTracker> _logger;
+        private readonly ILogger _logger;
         
         // Key prefixes and constants
         private const string UserConnectionPrefix = "user:";
@@ -21,15 +22,18 @@ namespace SignaliteWebAPI.Infrastructure.SignalR
         private const string InstanceConnectionPrefix = "instance:connections:";
         
         // Timeouts and expiration times
+        // How often each application instance refreshes its "I'm alive" marker in Redis
         private static readonly TimeSpan InstanceHeartbeatInterval = TimeSpan.FromMinutes(5);
+        // How long an instance is considered alive without a heartbeat update
         private static readonly TimeSpan InstanceExpirationTime = TimeSpan.FromMinutes(15);
-        private static readonly TimeSpan KeyExpirationTime = TimeSpan.FromDays(1); // Failsafe
+        // Failsafe expiration for user-related keys, ensures Redis doesn't accumulate stale data even if other cleanup mechanisms fail
+        private static readonly TimeSpan KeyExpirationTime = TimeSpan.FromDays(1); 
         
         private readonly string _instanceId;
         private readonly string _instanceKey;
         private readonly string _instanceConnectionsKey;
         
-        public PresenceTracker(IConnectionMultiplexer redis, ILogger<PresenceTracker> logger)
+        public PresenceTracker(IConnectionMultiplexer redis, ILogger logger)
         {
             _redis = redis;
             _db = _redis.GetDatabase();
@@ -53,7 +57,7 @@ namespace SignaliteWebAPI.Infrastructure.SignalR
             // Create a set for tracking connections associated with this instance
             await _db.KeyExpireAsync(_instanceConnectionsKey, KeyExpirationTime);
             
-            _logger.LogInformation($"Instance {_instanceId} registered");
+            _logger.Information($"Instance {_instanceId} registered");
         }
 
         /// <summary>
@@ -71,7 +75,7 @@ namespace SignaliteWebAPI.Infrastructure.SignalR
         {
             try
             {
-                _logger.LogInformation($"Unregistering instance {_instanceId}");
+                _logger.Information($"Unregistering instance {_instanceId}");
                 
                 // Clean up all connections for this instance
                 await CleanupInstanceConnections(_instanceId);
@@ -82,11 +86,11 @@ namespace SignaliteWebAPI.Infrastructure.SignalR
                 // Delete the instance key
                 await _db.KeyDeleteAsync(_instanceKey);
                 
-                _logger.LogInformation($"Instance {_instanceId} unregistered successfully");
+                _logger.Information($"Instance {_instanceId} unregistered successfully");
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, $"Error unregistering instance {_instanceId}");
+                _logger.Error(ex, $"Error unregistering instance {_instanceId}");
             }
         }
         
@@ -114,11 +118,11 @@ namespace SignaliteWebAPI.Infrastructure.SignalR
                     // First connection, add to online users set
                     await _db.SetAddAsync(OnlineUsersKey, username);
                     isOnline = true;
-                    _logger.LogDebug($"User {username} is now online with connection {connectionId}");
+                    _logger.Debug($"User {username} is now online with connection {connectionId}");
                 }
                 else
                 {
-                    _logger.LogDebug($"Additional connection {connectionId} for user {username}");
+                    _logger.Debug($"Additional connection {connectionId} for user {username}");
                 }
                 
                 // Update the instance heartbeat
@@ -126,7 +130,7 @@ namespace SignaliteWebAPI.Infrastructure.SignalR
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, $"Error connecting user {username} with connection {connectionId}");
+                _logger.Error(ex, $"Error connecting user {username} with connection {connectionId}");
             }
             
             return isOnline;
@@ -156,11 +160,11 @@ namespace SignaliteWebAPI.Infrastructure.SignalR
                     await _db.KeyDeleteAsync(userKey);
                     await _db.SetRemoveAsync(OnlineUsersKey, username);
                     isOffline = true;
-                    _logger.LogDebug($"User {username} is now offline (removed connection {connectionId})");
+                    _logger.Debug($"User {username} is now offline (removed connection {connectionId})");
                 }
                 else
                 {
-                    _logger.LogDebug($"Removed connection {connectionId} for user {username}, but user still has other connections");
+                    _logger.Debug($"Removed connection {connectionId} for user {username}, but user still has other connections");
                 }
                 
                 // Update the instance heartbeat
@@ -168,7 +172,7 @@ namespace SignaliteWebAPI.Infrastructure.SignalR
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, $"Error disconnecting user {username} with connection {connectionId}");
+                _logger.Error(ex, $"Error disconnecting user {username} with connection {connectionId}");
             }
             
             return isOffline;
@@ -186,7 +190,7 @@ namespace SignaliteWebAPI.Infrastructure.SignalR
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error getting online users");
+                _logger.Error(ex, "Error getting online users");
                 return Array.Empty<string>();
             }
         }
@@ -205,7 +209,7 @@ namespace SignaliteWebAPI.Infrastructure.SignalR
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, $"Error getting connections for user {username}");
+                _logger.Error(ex, $"Error getting connections for user {username}");
                 return new List<string>();
             }
         }
@@ -220,9 +224,9 @@ namespace SignaliteWebAPI.Infrastructure.SignalR
             try
             {
                 // Get all connections for this instance
-                _logger.LogInformation($"Looking for connections in key {instanceConnectionsKey}");
+                _logger.Debug($"Looking for connections in this instance: {instanceConnectionsKey}");
                 var connections = await _db.SetMembersAsync(instanceConnectionsKey);
-                _logger.LogInformation($"Found {connections.Length} connections for instance {instanceId}");
+                _logger.Debug($"Found {connections.Length} connections for this instance: {instanceId}");
                 
                 foreach (var connection in connections)
                 {
@@ -234,26 +238,26 @@ namespace SignaliteWebAPI.Infrastructure.SignalR
                         var username = parts[0];
                         var connectionId = parts[1];
                         
-                        _logger.LogWarning($"Cleaning up connection {connectionId} for user {username} from instance {instanceId}");
+                        _logger.Debug($"Cleaning up connection {connectionId} for user {username} from instance {instanceId}");
                         
                         // Remove this connection for the user
                         var isOffline = await UserDisconnected(username, connectionId);
-                        _logger.LogWarning($"Connection {connectionId} for user {username} cleaned up. User is now {(isOffline ? "offline" : "still online with other connections")}");
+                        _logger.Debug($"Connection {connectionId} for user {username} cleaned up. User is now {(isOffline ? "offline" : "still online with other connections")}");
                     }
                     else
                     {
-                        _logger.LogWarning($"Invalid connection format: {connectionInfo}");
+                        _logger.Warning($"Invalid connection format: {connectionInfo}");
                     }
                 }
                 
                 // Finally, remove the instance connections key
-                _logger.LogWarning($"Removing instance connections key {instanceConnectionsKey}");
+                _logger.Debug($"Removing instance connections key {instanceConnectionsKey}");
                 var deleted = await _db.KeyDeleteAsync(instanceConnectionsKey);
-                _logger.LogWarning($"Instance connections key deleted: {deleted}");
+                _logger.Debug($"Instance connections key deleted: {deleted}");
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, $"Error cleaning up connections for instance {instanceId}");
+                _logger.Error(ex, $"Error cleaning up connections for instance {instanceId}");
             }
         }
         
@@ -262,59 +266,55 @@ namespace SignaliteWebAPI.Infrastructure.SignalR
         /// </summary>
         public async Task CleanupDeadConnections()
         {
-            _logger.LogInformation("Starting cleanup of dead connections from previous instances");
-            
+            _logger.Information("Starting cleanup of dead connections from previous instances");
             try
             {
                 // Get all app instances
                 var instances = await _db.SetMembersAsync(AppInstancesSetKey);
-                _logger.LogInformation($"Found {instances.Length} instances in Redis");
+                _logger.Debug($"Found {instances.Length} instances in Redis");
                 
                 foreach (var instance in instances)
                 {
                     var instanceId = instance.ToString();
                     if (instanceId == _instanceId)
                     {
-                        _logger.LogInformation($"Skipping current instance {instanceId}");
+                        _logger.Debug($"Skipping current instance {instanceId}");
                         continue; // Skip current instance
                     }
                     
                     var instanceKey = $"{AppInstanceKeyPrefix}{instanceId}";
-                    _logger.LogInformation($"Checking instance {instanceId} with key {instanceKey}");
+                    _logger.Debug($"Checking instance {instanceId} with key {instanceKey}");
                     
                     // Check if the instance key still exists (hasn't expired)
                     var exists = await _db.KeyExistsAsync(instanceKey);
                     if (!exists)
                     {
-                        _logger.LogWarning($"Found dead instance {instanceId}, cleaning up its connections");
+                        _logger.Warning($"Found dead instance {instanceId}, cleaning up its connections");
                         
                         // Clean up connections for this dead instance
                         await CleanupInstanceConnections(instanceId);
                         
                         // Remove instance from instances set
-                        _logger.LogWarning($"Removing dead instance {instanceId} from instances set");
+                        _logger.Warning($"Removing dead instance {instanceId} from instances set");
                         await _db.SetRemoveAsync(AppInstancesSetKey, instanceId);
-                        _logger.LogWarning($"Successfully removed dead instance {instanceId}");
+                        _logger.Warning($"Successfully removed dead instance {instanceId}");
                     }
                     else
                     {
-                        _logger.LogInformation($"Instance {instanceId} is still active (key exists)");
+                        _logger.Debug($"Instance {instanceId} is still active (key exists)");
                     }
                 }
                 
-                // Also clean up this instance's connections on startup (in case of crash and restart)
-                _logger.LogInformation($"Cleaning up current instance {_instanceId} connections (in case of previous crash)");
-                await CleanupInstanceConnections(_instanceId);
                 
                 // Re-register this instance
-                _logger.LogInformation($"Re-registering current instance {_instanceId}");
+                _logger.Warning($"Re-registering current instance {_instanceId}");
                 await RegisterInstance();
                 
-                _logger.LogInformation("Dead connection cleanup completed");
+                _logger.Information("Dead connection cleanup completed");
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error during dead connection cleanup");
+                _logger.Error(ex, "Error during dead connection cleanup");
             }
         }
         
@@ -342,7 +342,7 @@ namespace SignaliteWebAPI.Infrastructure.SignalR
                         
                         if (!isValid)
                         {
-                            _logger.LogInformation($"Removing invalid connection {connectionId} for user {username}");
+                            _logger.Warning($"Removing invalid connection {connectionId} for user {username}");
                             
                             // Remove the invalid connection
                             await UserDisconnected(username, connectionId);
@@ -353,7 +353,7 @@ namespace SignaliteWebAPI.Infrastructure.SignalR
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error validating connections");
+                _logger.Error(ex, "Error validating connections");
             }
             
             return removedCount;

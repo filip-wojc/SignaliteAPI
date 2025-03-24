@@ -10,6 +10,7 @@ using SignaliteWebAPI.Infrastructure.Repositories.Users;
 using SignaliteWebAPI.Infrastructure.Services;
 using SignaliteWebAPI.Infrastructure.SignalR;
 using StackExchange.Redis;
+using ILogger = Serilog.ILogger;
 
 namespace SignaliteWebAPI.Infrastructure.Extensions;
 
@@ -36,7 +37,7 @@ public static class InfrastructureExtensions
         services.AddSignalR();
         services.AddSingleton<ConnectionCleanupService>(sp => 
         {
-            var logger = sp.GetRequiredService<ILogger<ConnectionCleanupService>>();
+            var logger = sp.GetRequiredService<ILogger>();
             var serviceProvider = sp;
             return new ConnectionCleanupService(
                 serviceProvider, 

@@ -6,20 +6,26 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using SignaliteWebAPI.Infrastructure.SignalR;
+using ILogger = Serilog.ILogger;
 
 namespace SignaliteWebAPI.Infrastructure.Services
 {
     public class ConnectionCleanupService : BackgroundService
     {
+        
         private readonly IServiceProvider _serviceProvider;
-        private readonly ILogger<ConnectionCleanupService> _logger;
+        private readonly ILogger _logger;
+        // Two parallel timers:
+        // 1. Heartbeat timer - keeps the instance marked as alive in Redis
+        // 2. Cleanup timer - performs full validation of connections
         private readonly TimeSpan _cleanupInterval;
         private readonly TimeSpan _heartbeatInterval;
         private readonly bool _skipInitialCleanup;
 
+        
         public ConnectionCleanupService(
             IServiceProvider serviceProvider,
-            ILogger<ConnectionCleanupService> logger,
+            ILogger logger,
             TimeSpan? cleanupInterval = null,
             TimeSpan? heartbeatInterval = null,
             bool skipInitialCleanup = false)
@@ -30,15 +36,11 @@ namespace SignaliteWebAPI.Infrastructure.Services
             _heartbeatInterval = heartbeatInterval ?? TimeSpan.FromMinutes(5);
             _skipInitialCleanup = skipInitialCleanup;
         }
-
+        
+        
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
-            _logger.LogInformation($"Connection Cleanup Service is starting. Cleanup interval: {_cleanupInterval}, Heartbeat interval: {_heartbeatInterval}");
-
-            // Two parallel timers:
-            // 1. Heartbeat timer - keeps the instance marked as alive in Redis
-            // 2. Cleanup timer - performs full validation of connections
-
+            _logger.Information($"ConnectionCleanupService starting. Cleanup interval: {_cleanupInterval}, Heartbeat interval: {_heartbeatInterval}");
             // Start the heartbeat timer
             _ = StartHeartbeatTimer(stoppingToken);
 
@@ -46,19 +48,19 @@ namespace SignaliteWebAPI.Infrastructure.Services
             // Skip the first immediate cleanup if configured to do so
             if (!_skipInitialCleanup)
             {
-                _logger.LogInformation("Running initial connection cleanup");
+                _logger.Information("Running initial connection cleanup");
                 try
                 {
                     await CleanupStaleConnections(stoppingToken);
                 }
                 catch (Exception ex)
                 {
-                    _logger.LogError(ex, "Error occurred during initial connection cleanup");
+                    _logger.Error(ex, "Error occurred during initial connection cleanup");
                 }
             }
             else
             {
-                _logger.LogInformation("Skipping initial connection cleanup as configured");
+                _logger.Information("Skipping initial connection cleanup as configured");
             }
 
             // Start the regular cleanup loop
@@ -67,7 +69,7 @@ namespace SignaliteWebAPI.Infrastructure.Services
                 try
                 {
                     await Task.Delay(_cleanupInterval, stoppingToken);
-                    _logger.LogInformation("Scheduled connection cleanup cycle starting");
+                    _logger.Information("Scheduled connection cleanup cycle starting");
                     await CleanupStaleConnections(stoppingToken);
                 }
                 catch (TaskCanceledException)
@@ -77,11 +79,11 @@ namespace SignaliteWebAPI.Infrastructure.Services
                 }
                 catch (Exception ex)
                 {
-                    _logger.LogError(ex, "Error occurred during scheduled connection cleanup");
+                    _logger.Error(ex, "Error occurred during scheduled connection cleanup");
                 }
             }
 
-            _logger.LogInformation("Connection Cleanup Service is stopping");
+            _logger.Information("Connection Cleanup Service is stopping");
         }
 
         private async Task StartHeartbeatTimer(CancellationToken stoppingToken)
@@ -95,11 +97,11 @@ namespace SignaliteWebAPI.Infrastructure.Services
                     
                     // Update heartbeat
                     await presenceTracker.UpdateInstanceHeartbeat();
-                    _logger.LogDebug("Instance heartbeat updated");
+                    _logger.Debug("Instance heartbeat updated");
                 }
                 catch (Exception ex)
                 {
-                    _logger.LogError(ex, "Error updating instance heartbeat");
+                    _logger.Error(ex, "Error updating instance heartbeat");
                 }
 
                 try
@@ -116,51 +118,51 @@ namespace SignaliteWebAPI.Infrastructure.Services
 
         private async Task CleanupStaleConnections(CancellationToken stoppingToken)
         {
-            _logger.LogInformation("========== STARTING CONNECTION CLEANUP CYCLE ==========");
+            _logger.Information("========== STARTING CONNECTION CLEANUP CYCLE ==========");
             
             using var scope = _serviceProvider.CreateScope();
             var presenceTracker = scope.ServiceProvider.GetRequiredService<PresenceTracker>();
             var hubContext = scope.ServiceProvider.GetRequiredService<IHubContext<PresenceHub>>();
             
             // First, clean up any dead instances
-            _logger.LogInformation("Phase 1: Cleaning up dead instances");
+            _logger.Debug("Phase 1: Cleaning up dead instances");
             await presenceTracker.CleanupDeadConnections();
             
             // Next, validate existing connections using ping mechanism
-            _logger.LogInformation("Phase 2: Validating existing connections");
+            _logger.Debug("Phase 2: Validating existing connections");
             
             var onlineUsers = await presenceTracker.GetOnlineUsers();
-            _logger.LogInformation($"Found {onlineUsers.Length} online users to validate connections for");
+            _logger.Debug($"Found {onlineUsers.Length} online users to validate connections for");
             
             var removedCount = await presenceTracker.ValidateConnections(async connectionId =>
             {
                 try
                 {
-                    _logger.LogInformation($"Validating connection {connectionId}...");
+                    _logger.Debug($"Validating connection {connectionId}...");
                     
                     // Create a cancellation token that times out after 5 seconds
                     using var timeoutCts = new CancellationTokenSource(TimeSpan.FromSeconds(5));
                     using var linkedCts = CancellationTokenSource.CreateLinkedTokenSource(timeoutCts.Token, stoppingToken);
                     
                     // Try to ping the connection to see if it's still alive
-                    _logger.LogInformation($"Sending KeepAlive ping to connection {connectionId}");
+                    _logger.Debug($"Sending KeepAlive ping to connection {connectionId}");
                     await hubContext.Clients.Client(connectionId).SendAsync(
                         "KeepAlive", 
                         DateTime.UtcNow, 
                         linkedCts.Token);
                     
-                    _logger.LogInformation($"Connection {connectionId} is alive");
+                    _logger.Debug($"Connection {connectionId} is alive");
                     return true;
                 }
                 catch (Exception ex)
                 {
-                    _logger.LogWarning(ex, $"Connection {connectionId} appears to be dead. Marking for cleanup.");
+                    _logger.Warning(ex, $"Connection {connectionId} appears to be dead. Marking for cleanup.");
                     return false;
                 }
             });
             
-            _logger.LogInformation($"========== CONNECTION CLEANUP CYCLE COMPLETED ==========");
-            _logger.LogWarning($"Cleanup summary: Removed {removedCount} stale connections");
+            _logger.Information($"========== CONNECTION CLEANUP CYCLE COMPLETED ==========");
+            _logger.Warning($"Cleanup summary: Removed {removedCount} stale connections");
         }
     }
 }
