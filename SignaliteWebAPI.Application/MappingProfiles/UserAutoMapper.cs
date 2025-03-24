@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using SignaliteWebAPI.Domain.DTOs.Auth;
+using SignaliteWebAPI.Domain.DTOs.Users;
 using SignaliteWebAPI.Domain.Models;
 
 namespace SignaliteWebAPI.Application.MappingProfiles;
@@ -9,5 +10,8 @@ public class UserAutoMapper : Profile
     public UserAutoMapper()
     {
         CreateMap<RegisterDTO, User>();
+        CreateMap<User, UserListDTO>()
+            .ForMember(u => u.ProfilePhotoUrl, o 
+                => o.MapFrom(u => u.ProfilePhoto.Url));
     }
 }

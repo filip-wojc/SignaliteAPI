@@ -1,4 +1,4 @@
-namespace SignaliteWebAPI.Infrastructure.Helpers;
+namespace SignaliteWebAPI.Domain.DTOs.Photos;
 
 public class PhotoDTO
 {
