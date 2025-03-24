@@ -1,4 +1,4 @@
-﻿using API.SignalR;
+﻿
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -7,6 +7,7 @@ using SignaliteWebAPI.Domain.Interfaces.Services;
 using SignaliteWebAPI.Infrastructure.Database;
 using SignaliteWebAPI.Infrastructure.Repositories.Users;
 using SignaliteWebAPI.Infrastructure.Services;
+using SignaliteWebAPI.Infrastructure.SignalR;
 using StackExchange.Redis;
 
 namespace SignaliteWebAPI.Infrastructure.Extensions;
@@ -32,6 +33,8 @@ public static class InfrastructureExtensions
 
         services.AddSingleton<PresenceTracker>();
         services.AddSignalR();
+        
+        services.AddHostedService<ConnectionCleanupService>();
     }
     
     

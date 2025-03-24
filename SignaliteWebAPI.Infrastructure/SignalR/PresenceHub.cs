@@ -1,47 +1,92 @@
-using API.SignalR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.SignalR;
-using Microsoft.AspNetCore.Authorization;
+using Microsoft.Extensions.Logging;
 using SignaliteWebAPI.Infrastructure.Extensions;
+using System;
+using System.Threading.Tasks;
 
-namespace SignaliteWebAPI.Infrastructure.SignalR;
-
-[Authorize]
-public class PresenceHub : Hub
+namespace SignaliteWebAPI.Infrastructure.SignalR
 {
-    private readonly PresenceTracker _presenceTracker;
-
-    public PresenceHub(PresenceTracker presenceTracker)
+    [Authorize]
+    public class PresenceHub : Hub
     {
-        _presenceTracker = presenceTracker;
-    }
+        private readonly PresenceTracker _presenceTracker;
+        private readonly ILogger<PresenceHub> _logger;
 
-    public override async Task OnConnectedAsync()
-    {
-        var username = Context.User?.GetUsername();
-        if (username == null)
-            throw new HubException("Cannot get current user claims");
+        public PresenceHub(PresenceTracker presenceTracker, ILogger<PresenceHub> logger)
+        {
+            _presenceTracker = presenceTracker;
+            _logger = logger;
+        }
 
-        var isOnline = await _presenceTracker.UserConnected(username, Context.ConnectionId);
+        public override async Task OnConnectedAsync()
+        {
+            try
+            {
+                var username = Context.User?.GetUsername();
+                if (string.IsNullOrEmpty(username))
+                    throw new HubException("Cannot get current user claims");
 
-        if (isOnline)
-            await Clients.Others.SendAsync("UserIsOnline", username);
+                _logger.LogInformation($"User {username} connected with connection {Context.ConnectionId}");
+                
+                var isOnline = await _presenceTracker.UserConnected(username, Context.ConnectionId);
 
-        var currentUsers = await _presenceTracker.GetOnlineUsers();
-        await Clients.Caller.SendAsync("GetOnlineUsers", currentUsers);
-    }
+                if (isOnline)
+                {
+                    // Broadcast the online status only if this is the first connection for this user
+                    await Clients.Others.SendAsync("UserIsOnline", username);
+                }
 
-    public override async Task OnDisconnectedAsync(Exception? exception)
-    {
-        var username = Context.User?.GetUsername();
-        if (username == null)
-            throw new HubException("Cannot get current user claims");
+                var currentUsers = await _presenceTracker.GetOnlineUsers();
+                await Clients.Caller.SendAsync("GetOnlineUsers", currentUsers);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"Error in OnConnectedAsync for connection {Context.ConnectionId}");
+                throw;
+            }
+        }
 
-        var isOffline = await _presenceTracker.UserDisconnected(username, Context.ConnectionId);
+        public override async Task OnDisconnectedAsync(Exception? exception)
+        {
+            try
+            {
+                var username = Context.User?.GetUsername();
+                if (string.IsNullOrEmpty(username))
+                    throw new HubException("Cannot get current user claims");
 
-        if (isOffline)
-            await Clients.Others.SendAsync("UserIsOffline", username);
+                _logger.LogInformation($"User {username} disconnected with connection {Context.ConnectionId}. Reason: {exception?.Message ?? "Normal disconnect"}");
+                
+                var isOffline = await _presenceTracker.UserDisconnected(username, Context.ConnectionId);
 
-        await base.OnDisconnectedAsync(exception);
+                if (isOffline)
+                {
+                    // Broadcast the offline status only if this was the last connection for this user
+                    await Clients.Others.SendAsync("UserIsOffline", username);
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"Error in OnDisconnectedAsync for connection {Context.ConnectionId}");
+            }
+            finally
+            {
+                await base.OnDisconnectedAsync(exception);
+            }
+        }
+        
+        // Add a handler for the keep-alive message
+        public async Task KeepAliveResponse(DateTime timestamp)
+        {
+            // This method just needs to exist so clients can respond to the keep-alive ping
+            // The client can send back the timestamp to confirm it's alive
+            var username = Context.User?.GetUsername();
+            if (!string.IsNullOrEmpty(username))
+            {
+                _logger.LogDebug($"Received keep-alive response from {username} on connection {Context.ConnectionId}");
+            }
+            
+            await Task.CompletedTask;
+        }
     }
 }

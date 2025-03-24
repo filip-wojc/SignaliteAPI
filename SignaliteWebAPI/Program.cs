@@ -1,3 +1,4 @@
+using SignaliteWebAPI.Infrastructure.SignalR;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.OpenApi;
 using Microsoft.OpenApi.Models;
@@ -60,6 +61,52 @@ app.UseAuthorization();
 
 app.MapControllers();
 app.MapHub<PresenceHub>("hubs/presence");
+
+using (var scope = app.Services.CreateScope())
+{
+    var services = scope.ServiceProvider;
+    var presenceTracker = services.GetRequiredService<PresenceTracker>();
+    await presenceTracker.CleanupDeadConnections();
+}
+
+app.Lifetime.ApplicationStarted.Register(() =>
+{
+    using var scope = app.Services.CreateScope();
+    var logger = scope.ServiceProvider.GetRequiredService<ILogger<Program>>();
+    var presenceTracker = scope.ServiceProvider.GetRequiredService<PresenceTracker>();
+    
+    try
+    {
+        logger.LogInformation("Application started - initializing presence tracking");
+        
+        // Initial cleanup of dead connections from previous runs
+        presenceTracker.CleanupDeadConnections();
+        
+        logger.LogInformation("Presence tracking initialized successfully");
+    }
+    catch (Exception ex)
+    {
+        logger.LogError(ex, "Error initializing presence tracking on startup");
+    }
+});
+
+app.Lifetime.ApplicationStopping.Register(() =>
+{
+    using var scope = app.Services.CreateScope();
+    var logger = scope.ServiceProvider.GetRequiredService<ILogger<Program>>();
+    var presenceTracker = scope.ServiceProvider.GetRequiredService<PresenceTracker>();
+    
+    try
+    {
+        logger.LogInformation("Application stopping - unregistering presence instance");
+        presenceTracker.UnregisterInstance();
+        logger.LogInformation("Presence instance unregistered successfully");
+    }
+    catch (Exception ex)
+    {
+        logger.LogError(ex, "Error unregistering presence instance on shutdown");
+    }
+});
 
 app.Run();
 

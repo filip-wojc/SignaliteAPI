@@ -1,7 +1,8 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using API.SignalR;
+using SignaliteWebAPI.Infrastructure.SignalR;
 using Microsoft.AspNetCore.Mvc;
+using SignaliteWebAPI.Infrastructure.SignalR;
 
 namespace API.Controllers
 {
