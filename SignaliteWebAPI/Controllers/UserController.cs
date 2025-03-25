@@ -7,6 +7,7 @@ using SignaliteWebAPI.Application.Features.Users.DeleteBackgroundPhoto;
 using SignaliteWebAPI.Application.Features.Users.DeleteProfilePhoto;
 using SignaliteWebAPI.Application.Features.Users.UpdateBackgroundPhoto;
 using SignaliteWebAPI.Extensions;
+using SignaliteWebAPI.Infrastructure.Extensions;
 using SignaliteWebAPI.Infrastructure.Interfaces;
 using SignaliteWebAPI.Infrastructure.Interfaces.Services;
 

@@ -1,9 +1,9 @@
 using System.Security.Claims;
-using SignaliteWebAPI.Application.Exceptions;
+using SignaliteWebAPI.Infrastructure.Exceptions;
 
-namespace SignaliteWebAPI.Extensions;
+namespace SignaliteWebAPI.Infrastructure.Extensions;
 
-public static class ClaimsPrincipleExtensions
+public static class ClaimsPrincipalExtensions
 {
     public static int GetUserId(this ClaimsPrincipal user)
     {
