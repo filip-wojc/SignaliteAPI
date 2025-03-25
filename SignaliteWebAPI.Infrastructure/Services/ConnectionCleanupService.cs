@@ -119,48 +119,32 @@ namespace SignaliteWebAPI.Infrastructure.Services
         private async Task CleanupStaleConnections(CancellationToken stoppingToken)
         {
             _logger.Information("========== STARTING CONNECTION CLEANUP CYCLE ==========");
-            
+        
             using var scope = _serviceProvider.CreateScope();
             var presenceTracker = scope.ServiceProvider.GetRequiredService<PresenceTracker>();
             var hubContext = scope.ServiceProvider.GetRequiredService<IHubContext<PresenceHub>>();
-            
+        
             // First, clean up any dead instances
             _logger.Debug("Phase 1: Cleaning up dead instances");
             await presenceTracker.CleanupDeadConnections();
-            
-            // Next, validate existing connections using ping mechanism
+        
+            // Next, validate existing connections using ping-response mechanism
             _logger.Debug("Phase 2: Validating existing connections");
-            
+        
             var onlineUsers = await presenceTracker.GetOnlineUsers();
             _logger.Debug($"Found {onlineUsers.Length} online users to validate connections for");
-            
+        
             var removedCount = await presenceTracker.ValidateConnections(async connectionId =>
             {
-                try
-                {
-                    _logger.Debug($"Validating connection {connectionId}...");
-                    
-                    // Create a cancellation token that times out after 5 seconds
-                    using var timeoutCts = new CancellationTokenSource(TimeSpan.FromSeconds(5));
-                    using var linkedCts = CancellationTokenSource.CreateLinkedTokenSource(timeoutCts.Token, stoppingToken);
-                    
-                    // Try to ping the connection to see if it's still alive
-                    _logger.Debug($"Sending KeepAlive ping to connection {connectionId}");
-                    await hubContext.Clients.Client(connectionId).SendAsync(
-                        "KeepAlive", 
-                        DateTime.UtcNow, 
-                        linkedCts.Token);
-                    
-                    _logger.Debug($"Connection {connectionId} is alive");
-                    return true;
-                }
-                catch (Exception ex)
-                {
-                    _logger.Warning(ex, $"Connection {connectionId} appears to be dead. Marking for cleanup.");
-                    return false;
-                }
-            });
+                _logger.Debug($"Sending KeepAlive ping to connection {connectionId}");
             
+                // Send the ping with the current timestamp
+                await hubContext.Clients.Client(connectionId).SendAsync(
+                    "KeepAlive", 
+                    DateTime.UtcNow,
+                    stoppingToken);
+            });
+        
             _logger.Information($"========== CONNECTION CLEANUP CYCLE COMPLETED ==========");
             _logger.Warning($"Cleanup summary: Removed {removedCount} stale connections");
         }

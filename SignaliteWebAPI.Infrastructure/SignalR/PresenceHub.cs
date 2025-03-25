@@ -4,6 +4,7 @@ using Microsoft.Extensions.Logging;
 using SignaliteWebAPI.Infrastructure.Extensions;
 using System;
 using System.Threading.Tasks;
+using ILogger = Serilog.ILogger;
 
 namespace SignaliteWebAPI.Infrastructure.SignalR
 {
@@ -11,9 +12,9 @@ namespace SignaliteWebAPI.Infrastructure.SignalR
     public class PresenceHub : Hub
     {
         private readonly PresenceTracker _presenceTracker;
-        private readonly ILogger<PresenceHub> _logger;
+        private readonly ILogger _logger;
 
-        public PresenceHub(PresenceTracker presenceTracker, ILogger<PresenceHub> logger)
+        public PresenceHub(PresenceTracker presenceTracker, ILogger logger)
         {
             _presenceTracker = presenceTracker;
             _logger = logger;
@@ -27,7 +28,7 @@ namespace SignaliteWebAPI.Infrastructure.SignalR
                 if (string.IsNullOrEmpty(username))
                     throw new HubException("Cannot get current user claims");
 
-                _logger.LogInformation($"User {username} connected with connection {Context.ConnectionId}");
+                _logger.Debug($"User {username} connected with connection {Context.ConnectionId}");
                 
                 var isOnline = await _presenceTracker.UserConnected(username, Context.ConnectionId);
 
@@ -42,11 +43,16 @@ namespace SignaliteWebAPI.Infrastructure.SignalR
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, $"Error in OnConnectedAsync for connection {Context.ConnectionId}");
+                _logger.Error(ex, $"Error in OnConnectedAsync for connection {Context.ConnectionId}");
                 throw;
             }
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="exception"></param>
+        /// <exception cref="HubException"></exception>
         public override async Task OnDisconnectedAsync(Exception? exception)
         {
             try
@@ -55,7 +61,7 @@ namespace SignaliteWebAPI.Infrastructure.SignalR
                 if (string.IsNullOrEmpty(username))
                     throw new HubException("Cannot get current user claims");
 
-                _logger.LogInformation($"User {username} disconnected with connection {Context.ConnectionId}. Reason: {exception?.Message ?? "Normal disconnect"}");
+                _logger.Debug($"User {username} disconnected with connection {Context.ConnectionId}. Reason: {exception?.Message ?? "Normal disconnect"}");
                 
                 var isOffline = await _presenceTracker.UserDisconnected(username, Context.ConnectionId);
 
@@ -67,7 +73,7 @@ namespace SignaliteWebAPI.Infrastructure.SignalR
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, $"Error in OnDisconnectedAsync for connection {Context.ConnectionId}");
+                _logger.Error(ex, $"Error in OnDisconnectedAsync for connection {Context.ConnectionId}");
             }
             finally
             {
@@ -78,14 +84,15 @@ namespace SignaliteWebAPI.Infrastructure.SignalR
         // Add a handler for the keep-alive message
         public async Task KeepAliveResponse(DateTime timestamp)
         {
-            // This method just needs to exist so clients can respond to the keep-alive ping
-            // The client can send back the timestamp to confirm it's alive
             var username = Context.User?.GetUsername();
             if (!string.IsNullOrEmpty(username))
             {
-                _logger.LogDebug($"Received keep-alive response from {username} on connection {Context.ConnectionId}");
-            }
+                _logger.Debug($"Received keep-alive response from {username} on connection {Context.ConnectionId}");
             
+                // Pass to presence tracker to handle validation completion
+                _presenceTracker.HandleKeepAliveResponse(Context.ConnectionId);
+            }
+        
             await Task.CompletedTask;
         }
     }

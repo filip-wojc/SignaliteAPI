@@ -55,6 +55,8 @@ if (app.Environment.IsDevelopment())
 app.ConfigureSerilogHttpLogging(); // extension
 app.UseHttpLogging(); // Logs request & response headers, body, etc.
 app.UseExceptionHandler(_ => { });
+app.UseCors(x => x.AllowAnyHeader().AllowAnyMethod().AllowCredentials() // allow credentials to make passing the token to SignalR hubs possible
+    .WithOrigins("http://localhost:4200", "https://localhost:4200")); // must be declared before MapControllers() to work
 app.UseHttpsRedirection();
 app.UseAuthentication();
 app.UseAuthorization();
