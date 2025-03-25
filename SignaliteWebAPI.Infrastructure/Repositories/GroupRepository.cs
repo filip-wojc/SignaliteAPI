@@ -20,19 +20,41 @@ public class GroupRepository(SignaliteDbContext dbContext) : IGroupRepository
         await dbContext.SaveChangesAsync();
     }
 
-    public Task DeleteUserFromGroup(UserGroup userGroup)
+    public async Task DeleteUserFromGroup(Group group, int userId)
     {
-        throw new NotImplementedException();
+        var userToDelete = group.Users.FirstOrDefault(u => u.UserId == userId);
+        if (userToDelete == null)
+        {
+            throw new NotFoundException("User is not a member of this group");
+        }
+        dbContext.UserGroups.Remove(userToDelete);
+        await dbContext.SaveChangesAsync();
     }
 
-    public Task DeleteGroup(Group group)
+    public async Task DeleteGroup(Group group)
     {
-        throw new NotImplementedException();
+        foreach (var user in group.Users)
+        {
+            dbContext.UserGroups.Remove(user);
+        }
+        dbContext.Groups.Remove(group);
+        await dbContext.SaveChangesAsync();
     }
     
     public async Task<Group> GetGroupWithPhoto(int groupId)
     {
         var group = await dbContext.Groups.Include(g => g.Photo).FirstOrDefaultAsync(g => g.Id == groupId);
+        if (group == null)
+        {
+            throw new NotFoundException("Group not found");
+        }
+
+        return group;
+    }
+
+    public async Task<Group> GetGroupWithUsers(int groupId)
+    {
+        var group = await dbContext.Groups.Include(g => g.Users).FirstOrDefaultAsync(g => g.Id == groupId);
         if (group == null)
         {
             throw new NotFoundException("Group not found");

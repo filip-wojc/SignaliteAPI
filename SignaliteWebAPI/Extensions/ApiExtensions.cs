@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using SignaliteWebAPI.Application.Features.Auth.Register;
 using SignaliteWebAPI.Application.Features.Friends.GetUserFriends;
+using SignaliteWebAPI.Application.Features.Groups.AddUserToGroup;
 using SignaliteWebAPI.Application.Features.Groups.CreateGroup;
 using SignaliteWebAPI.Application.Features.Groups.UpdateGroupPhoto;
 using SignaliteWebAPI.Application.Features.Users.AddProfilePhoto;
@@ -31,5 +32,6 @@ public static class ApiExtensions
         services.AddScoped<IValidator<UpdateGroupPhotoCommand>, UpdateGroupPhotoValidator>();
         services.AddScoped<IValidator<UpdateProfilePhotoCommand>, UpdateProfilePhotoValidator>();
         services.AddScoped<IValidator<UpdateBackgroundPhotoCommand>, UpdateBackgroundPhotoValidator>();
+        services.AddScoped<IValidator<AddUserToGroupCommand>, AddUserToGroupValidator>();
     }
 }

@@ -1,7 +1,10 @@
 ﻿using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using SignaliteWebAPI.Application.Features.Groups.AddUserToGroup;
 using SignaliteWebAPI.Application.Features.Groups.CreateGroup;
+using SignaliteWebAPI.Application.Features.Groups.DeleteGroup;
+using SignaliteWebAPI.Application.Features.Groups.DeleteUserFromGroup;
 using SignaliteWebAPI.Application.Features.Groups.GetGroupDetails;
 using SignaliteWebAPI.Application.Features.Groups.UpdateGroupPhoto;
 using SignaliteWebAPI.Domain.Models;
@@ -50,6 +53,42 @@ public class GroupsController(ISender mediator) : ControllerBase
         var groups = await mediator.Send(query);
         return Ok(groups);
     }
+
+    [HttpDelete("{groupId}")]
+    public async Task<IActionResult> DeleteGroup([FromRoute] int groupId)
+    {
+        var command = new DeleteGroupCommand
+        {
+            GroupId = groupId,
+            OwnerId = User.GetUserId()
+        };
+        await mediator.Send(command);
+        return NoContent();
+    }
+
+    [HttpDelete("{groupId}/users/{userId}")]
+    public async Task<IActionResult> DeleteUserFromGroup([FromRoute] int groupId, [FromRoute] int userId)
+    {
+        var command = new DeleteUserFromGroupCommand
+        {
+            GroupId = groupId,
+            UserId = userId,
+            OwnerId = User.GetUserId()
+        };
+        await mediator.Send(command);
+        return NoContent();
+    }
     
-    // TODO: HttpDelete Leave group, HttpDelete Delete group
+    [HttpPost("{groupId}/users/{userId}")]
+    public async Task<IActionResult> AddUserToGroup([FromRoute] int groupId, [FromRoute] int userId)
+    {
+        var command = new AddUserToGroupCommand
+        {
+            GroupId = groupId,
+            UserId = userId,
+            OwnerId = User.GetUserId()
+        };
+        await mediator.Send(command);
+        return NoContent();
+    }
 }
