@@ -14,12 +14,6 @@ public class UpdateBackgroundPhotoHandler(
 {
     public async Task Handle(UpdateBackgroundPhotoCommand request, CancellationToken cancellationToken)
     {
-        if (request.PhotoFile == null)
-        {
-            // TODO: Change to another exception
-            throw new ValidationException("PhotoFile is required");
-        }
-        
         var user = await userRepository.GetUserWithBackgroundPhotoAsync(request.UserId);
         if (user == null) 
             throw new NotFoundException("User not found");
@@ -40,8 +34,10 @@ public class UpdateBackgroundPhotoHandler(
         // remove old photo if exists
         if (user.BackgroundPhoto != null)
         {
+            var photoId = user.BackgroundPhoto.Id;
             await mediaService.DeletePhotoAsync(user.BackgroundPhoto.PublicId);
-            await photoRepository.RemoveUserBackgroundPhotoAsync(user.BackgroundPhoto.Id);
+            await photoRepository.RemoveUserBackgroundPhotoAsync(user.Id);
+            await photoRepository.RemovePhotoAsync(photoId);
         }
         
         // save new photo

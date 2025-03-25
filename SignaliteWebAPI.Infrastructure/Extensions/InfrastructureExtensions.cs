@@ -24,6 +24,7 @@ public static class InfrastructureExtensions
         services.AddScoped<IUserRepository, UserRepository>();
         services.AddScoped<IFriendsRepository, FriendsRepository>();
         services.AddScoped<IPhotoRepository, PhotoRepository>();
+        services.AddScoped<IGroupRepository, GroupRepository>();
         services.AddScoped<ITokenService, TokenService>();
         services.Configure<CloudinarySettings>(config.GetSection("CloudinarySettings")); // fill CloudinarySettings class with fields from appsettings
         services.AddScoped<IMediaService, MediaService>();

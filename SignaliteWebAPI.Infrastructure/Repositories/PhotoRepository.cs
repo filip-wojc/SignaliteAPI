@@ -1,3 +1,4 @@
+using Microsoft.EntityFrameworkCore;
 using SignaliteWebAPI.Domain.Models;
 using SignaliteWebAPI.Infrastructure.Database;
 using SignaliteWebAPI.Infrastructure.Interfaces.Repositories;
@@ -87,5 +88,25 @@ public class PhotoRepository(SignaliteDbContext dbContext, IMediaService mediaSe
     public Task<List<Photo>> GetUserPhotosAsync(int userId)
     {
         throw new NotImplementedException();
+    }
+    
+    public async Task SetGroupPhotoAsync(int groupId, int photoId)
+    {
+        var group = await dbContext.Groups.FindAsync(groupId);
+        if (group != null)
+        {
+            group.PhotoId = photoId;
+            await dbContext.SaveChangesAsync();
+        }
+    }
+
+    public async Task RemoveGroupPhotoAsync(int groupId)
+    {
+        var group = await dbContext.Groups.FindAsync(groupId);
+        if (group != null)
+        {
+            group.PhotoId = null;
+            await dbContext.SaveChangesAsync();
+        }
     }
 }

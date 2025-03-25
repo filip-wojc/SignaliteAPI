@@ -61,7 +61,7 @@ public class FriendsController(ISender mediator) : ControllerBase
         return NoContent();
     }
     [HttpGet]
-    public async Task<ActionResult<List<UserListDTO>>> GetUserFriends()
+    public async Task<ActionResult<List<UserDTO>>> GetUserFriends()
     {
         var query = new GetUserFriendsQuery{ UserId = User.GetUserId() };
         var friends = await mediator.Send(query);

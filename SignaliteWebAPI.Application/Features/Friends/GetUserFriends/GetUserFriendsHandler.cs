@@ -6,13 +6,13 @@ using SignaliteWebAPI.Infrastructure.Interfaces.Repositories;
 namespace SignaliteWebAPI.Application.Features.Friends.GetUserFriends;
 
 public class GetUserFriendsHandler(IFriendsRepository repository, IMapper mapper)
-    : IRequestHandler<GetUserFriendsQuery, List<UserListDTO>>
+    : IRequestHandler<GetUserFriendsQuery, List<UserDTO>>
 {
-    public async Task<List<UserListDTO>> Handle(GetUserFriendsQuery request, CancellationToken cancellationToken)
+    public async Task<List<UserDTO>> Handle(GetUserFriendsQuery request, CancellationToken cancellationToken)
     {
         
         var friends = await repository.GetUserFriends(request.UserId);
-        var friendsDto = mapper.Map<List<UserListDTO>>(friends);
+        var friendsDto = mapper.Map<List<UserDTO>>(friends);
         return friendsDto;
     }
 }

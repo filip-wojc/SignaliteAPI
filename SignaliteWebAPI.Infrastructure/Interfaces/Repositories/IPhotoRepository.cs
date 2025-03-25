@@ -13,4 +13,8 @@ public interface IPhotoRepository
     Task<Photo> GetProfilePhotoAsync(int photoId);
     Task<Photo> GetBackgroundPhotoAsync(int userId);
     Task<List<Photo>> GetUserPhotosAsync(int userId);
+    
+    // Groups
+    Task SetGroupPhotoAsync(int groupId, int photoId);
+    Task RemoveGroupPhotoAsync(int groupId);
 }

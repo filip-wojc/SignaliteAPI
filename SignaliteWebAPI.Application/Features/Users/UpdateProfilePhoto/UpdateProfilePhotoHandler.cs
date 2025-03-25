@@ -19,12 +19,6 @@ public class UpdateUserPhotoHandler(
 {
     public async Task Handle(UpdateProfilePhotoCommand request, CancellationToken cancellationToken)
     {
-        if (request.PhotoFile == null)
-        {
-            // TODO: Change to another exception
-            throw new ValidationException("PhotoFile is required");
-        }
-        
         var user = await userRepository.GetUserWithProfilePhotoAsync(request.UserId);
         if (user == null) 
             throw new NotFoundException("User not found");
@@ -45,8 +39,10 @@ public class UpdateUserPhotoHandler(
         // remove old photo if exists
         if (user.ProfilePhoto != null)
         {
+            var photoId = user.ProfilePhoto.Id;
             await mediaService.DeletePhotoAsync(user.ProfilePhoto.PublicId);
-            await photoRepository.RemoveUserProfilePhotoAsync(user.ProfilePhoto.Id);
+            await photoRepository.RemoveUserProfilePhotoAsync(user.Id);
+            await photoRepository.RemovePhotoAsync(photoId);
         }
         
         // save new photo
