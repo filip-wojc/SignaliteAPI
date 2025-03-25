@@ -10,7 +10,7 @@ public class UserAutoMapper : Profile
     public UserAutoMapper()
     {
         CreateMap<RegisterDTO, User>();
-        CreateMap<User, UserListDTO>()
+        CreateMap<User, UserDTO>()
             .ForMember(u => u.ProfilePhotoUrl, o 
                 => o.MapFrom(u => u.ProfilePhoto.Url));
     }

@@ -1,6 +1,6 @@
 ﻿namespace SignaliteWebAPI.Domain.DTOs.Users;
 
-public class UserListDTO
+public class UserDTO
 {
     public int Id { get; set; }
     public string Name { get; set; }
