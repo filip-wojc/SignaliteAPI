@@ -1,10 +1,9 @@
-using Microsoft.EntityFrameworkCore;
 using SignaliteWebAPI.Domain.Models;
 using SignaliteWebAPI.Infrastructure.Database;
 using SignaliteWebAPI.Infrastructure.Interfaces.Repositories;
 using SignaliteWebAPI.Infrastructure.Interfaces.Services;
 
-namespace SignaliteWebAPI.Infrastructure.Repositories.Users;
+namespace SignaliteWebAPI.Infrastructure.Repositories;
 
 // Repository used only to add and remove photos from db, 
 // The photos have PublicId's and Url's that lead to a cloudinary cloud media storage

@@ -3,7 +3,7 @@ using SignaliteWebAPI.Domain.Models;
 using SignaliteWebAPI.Infrastructure.Database;
 using SignaliteWebAPI.Infrastructure.Interfaces.Repositories;
 
-namespace SignaliteWebAPI.Infrastructure.Repositories.Users;
+namespace SignaliteWebAPI.Infrastructure.Repositories;
 
 public class UserRepository(SignaliteDbContext dbContext) : IUserRepository
 {

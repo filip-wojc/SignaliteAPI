@@ -6,7 +6,7 @@ using SignaliteWebAPI.Infrastructure.Helpers;
 using SignaliteWebAPI.Infrastructure.Interfaces;
 using SignaliteWebAPI.Infrastructure.Interfaces.Repositories;
 using SignaliteWebAPI.Infrastructure.Interfaces.Services;
-using SignaliteWebAPI.Infrastructure.Repositories.Users;
+using SignaliteWebAPI.Infrastructure.Repositories;
 using SignaliteWebAPI.Infrastructure.Services;
 using SignaliteWebAPI.Infrastructure.Services.Media;
 
