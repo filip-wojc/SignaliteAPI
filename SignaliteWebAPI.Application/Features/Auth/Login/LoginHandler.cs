@@ -3,9 +3,10 @@ using MediatR;
 using Microsoft.AspNetCore.Identity;
 using SignaliteWebAPI.Application.Exceptions;
 using SignaliteWebAPI.Domain.DTOs.Auth;
-using SignaliteWebAPI.Domain.Interfaces.Repositories;
-using SignaliteWebAPI.Domain.Interfaces.Services;
 using SignaliteWebAPI.Infrastructure.Exceptions;
+using SignaliteWebAPI.Infrastructure.Interfaces;
+using SignaliteWebAPI.Infrastructure.Interfaces.Repositories;
+using SignaliteWebAPI.Infrastructure.Interfaces.Services;
 
 namespace SignaliteWebAPI.Application.Features.Auth.Login;
 

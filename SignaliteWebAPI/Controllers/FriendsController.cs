@@ -2,11 +2,13 @@
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using SignaliteWebAPI.Application.Features.Friends.GetUserFriends;
 using SignaliteWebAPI.Application.Features.Users.AcceptFriendRequest;
 using SignaliteWebAPI.Application.Features.Users.DeclineFriendRequest;
 using SignaliteWebAPI.Application.Features.Users.GetFriendRequests;
 using SignaliteWebAPI.Application.Features.Users.SendFriendRequest;
 using SignaliteWebAPI.Domain.DTOs.FriendRequests;
+using SignaliteWebAPI.Domain.DTOs.Users;
 using SignaliteWebAPI.Extensions;
 using SignaliteWebAPI.Infrastructure.Extensions;
 
@@ -22,7 +24,7 @@ public class FriendsController(ISender mediator) : ControllerBase
     {
         var command = new SendFriendRequestCommand
         {
-            SendFriendRequestDTO = new SendFriendRequestDTO { RecipientId = recipientId, SenderId = User.GetUserId() }
+            RecipientId = recipientId, SenderId = User.GetUserId()
         };
         await mediator.Send(command);
         return Created();
@@ -31,7 +33,8 @@ public class FriendsController(ISender mediator) : ControllerBase
     [HttpGet("friend-requests")]
     public async Task<ActionResult<List<FriendRequestDTO>>> GetFriendRequests()
     {
-        var friendRequests = await mediator.Send(new GetFriendRequestsQuery { UserId = User.GetUserId() });
+        var query = new GetFriendRequestsQuery { UserId = User.GetUserId() };
+        var friendRequests = await mediator.Send(query);
         return Ok(friendRequests);
     }
 
@@ -40,7 +43,8 @@ public class FriendsController(ISender mediator) : ControllerBase
     {
         var command = new AcceptFriendRequestCommand
         {
-           AcceptFriendRequestReplyDto = new FriendRequestReplyDTO {UserId = User.GetUserId(), FriendRequestId = friendRequestId}
+            UserId = User.GetUserId(),
+            FriendRequestId = friendRequestId 
         };
         await mediator.Send(command);
         return Created();
@@ -51,9 +55,17 @@ public class FriendsController(ISender mediator) : ControllerBase
     {
         var command = new DeclineFriendRequestCommand
         {
-            DeclineFriendRequestReplyDto = new FriendRequestReplyDTO { UserId = User.GetUserId(), FriendRequestId = friendRequestId }
+            UserId = User.GetUserId(),
+            FriendRequestId = friendRequestId
         };
         await mediator.Send(command);
         return NoContent();
+    }
+    [HttpGet]
+    public async Task<ActionResult<List<UserListDTO>>> GetUserFriends()
+    {
+        var query = new GetUserFriendsQuery{ UserId = User.GetUserId() };
+        var friends = await mediator.Send(query);
+        return Ok(friends);
     }
 }

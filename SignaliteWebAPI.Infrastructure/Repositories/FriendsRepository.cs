@@ -1,10 +1,9 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using SignaliteWebAPI.Domain.Interfaces.Repositories;
 using SignaliteWebAPI.Domain.Models;
 using SignaliteWebAPI.Infrastructure.Database;
-using SignaliteWebAPI.Infrastructure.Exceptions;
+using SignaliteWebAPI.Infrastructure.Interfaces.Repositories;
 
-namespace SignaliteWebAPI.Infrastructure.Repositories.Users;
+namespace SignaliteWebAPI.Infrastructure.Repositories;
 
 public class FriendsRepository(SignaliteDbContext dbContext) : IFriendsRepository
 {
@@ -16,17 +15,8 @@ public class FriendsRepository(SignaliteDbContext dbContext) : IFriendsRepositor
 
     public async Task<List<FriendRequest>> GetFriendRequests(int userId)
     {
-         return await dbContext.FriendRequests.Include(fr => fr.Sender).Where(fr => fr.RecipientId == userId).ToListAsync();
-    }
-
-    public async Task<FriendRequest> GetFriendRequest(int friendRequestId)
-    {
-        var friendRequest = await dbContext.FriendRequests.FirstOrDefaultAsync(fr => fr.Id == friendRequestId);
-        if (friendRequest == null)
-        {
-            throw new NotFoundException("Friend request not found");
-        }
-        return friendRequest;
+        return await dbContext.FriendRequests.Include(fr => fr.Sender).Where(fr => fr.RecipientId == userId)
+            .ToListAsync();
     }
 
     public async Task DeleteFriendRequest(FriendRequest friendRequest)
@@ -35,21 +25,20 @@ public class FriendsRepository(SignaliteDbContext dbContext) : IFriendsRepositor
         await dbContext.SaveChangesAsync();
     }
 
-    public async Task<List<UserFriend>> GetUserFriends(int userId)
+    public async Task<List<User>> GetUserFriends(int userId)
     {
-        var user = await dbContext.Users.Include(u => u.Friends).FirstOrDefaultAsync(u => u.Id == userId);
-        if (user == null)
-        {
-            throw new NotFoundException("User not found");
-        }
-        return user.Friends;
+        var userFriends = await dbContext.UserFriends.Include(uf => uf.User).ThenInclude(u => u.ProfilePhoto)
+            .Include(uf => uf.Friend).ThenInclude(u => u.ProfilePhoto)
+            .Where(uf => uf.UserId == userId || uf.FriendId == userId).ToListAsync();
+        var friends = userFriends.Select(u => userId == u.UserId ? u.Friend : u.User).ToList();
+        return friends;
     }
 
     public async Task<List<UserFriend>> GetAllUserFriends()
     {
         return await dbContext.UserFriends.ToListAsync();
     }
-    
+
     public async Task AddFriend(UserFriend userFriend)
     {
         await dbContext.UserFriends.AddAsync(userFriend);
@@ -64,5 +53,4 @@ public class FriendsRepository(SignaliteDbContext dbContext) : IFriendsRepositor
                 (fr.RecipientId == senderId && fr.SenderId == recipientId)).ToListAsync();
         return friendRequests.Any();
     }
-    
 }

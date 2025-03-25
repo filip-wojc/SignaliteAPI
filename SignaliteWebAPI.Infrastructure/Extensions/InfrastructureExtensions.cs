@@ -1,22 +1,26 @@
-﻿
+
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using SignaliteWebAPI.Domain.Interfaces.Repositories;
-using SignaliteWebAPI.Domain.Interfaces.Services;
 using SignaliteWebAPI.Infrastructure.Database;
-using SignaliteWebAPI.Infrastructure.Repositories.Users;
+using SignaliteWebAPI.Infrastructure.Helpers;
+using SignaliteWebAPI.Infrastructure.Interfaces;
+using SignaliteWebAPI.Infrastructure.Interfaces.Repositories;
+using SignaliteWebAPI.Infrastructure.Interfaces.Services;
+using SignaliteWebAPI.Infrastructure.Repositories;
 using SignaliteWebAPI.Infrastructure.Services;
 using SignaliteWebAPI.Infrastructure.SignalR;
 using StackExchange.Redis;
 using ILogger = Serilog.ILogger;
+using SignaliteWebAPI.Infrastructure.Services.Media;
+
 
 namespace SignaliteWebAPI.Infrastructure.Extensions;
 
 public static class InfrastructureExtensions
 {
-    public static void AddInfrastructureServices(this IServiceCollection services, IConfiguration configuration)
+    public static void AddInfrastructureServices(this IServiceCollection services, IConfiguration config)
     {
         services.AddDbContext<SignaliteDbContext>(options =>
         {
@@ -26,6 +30,7 @@ public static class InfrastructureExtensions
         
         services.AddScoped<IUserRepository, UserRepository>();
         services.AddScoped<IFriendsRepository, FriendsRepository>();
+        services.AddScoped<IPhotoRepository, PhotoRepository>();
         services.AddScoped<ITokenService, TokenService>();
         
         // redis config
@@ -47,7 +52,8 @@ public static class InfrastructureExtensions
                 skipInitialCleanup: true); // This flag will prevent redundant initial cleanup
         });
         services.AddHostedService(sp => sp.GetRequiredService<ConnectionCleanupService>()); // grab the service created above
-    }
-    
-    
+
+        services.Configure<CloudinarySettings>(config.GetSection("CloudinarySettings")); // fill CloudinarySettings class with fields from appsettings
+        services.AddScoped<IMediaService, MediaService>();
+    }     
 }

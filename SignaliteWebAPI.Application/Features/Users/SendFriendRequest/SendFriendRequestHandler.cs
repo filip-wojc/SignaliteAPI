@@ -1,8 +1,8 @@
 ﻿using AutoMapper;
 using MediatR;
 using SignaliteWebAPI.Application.Exceptions;
-using SignaliteWebAPI.Domain.Interfaces.Repositories;
 using SignaliteWebAPI.Domain.Models;
+using SignaliteWebAPI.Infrastructure.Interfaces.Repositories;
 
 namespace SignaliteWebAPI.Application.Features.Users.SendFriendRequest;
 
@@ -10,11 +10,11 @@ public class SendFriendRequestHandler(IFriendsRepository repository, IMapper map
 {
     public async Task Handle(SendFriendRequestCommand request, CancellationToken cancellationToken)
     {
-        var friendRequest = mapper.Map<FriendRequest>(request.SendFriendRequestDTO);
+        var friendRequest = mapper.Map<FriendRequest>(request);
         var userFriends = await repository.GetAllUserFriends();
         var isFriendAdded = userFriends.Where(uf =>
-            (uf.UserId == request.SendFriendRequestDTO.RecipientId && uf.FriendId == request.SendFriendRequestDTO.SenderId) ||
-            (uf.UserId == request.SendFriendRequestDTO.SenderId && uf.FriendId == request.SendFriendRequestDTO.RecipientId)
+            (uf.UserId == request.RecipientId && uf.FriendId == request.SenderId) ||
+            (uf.UserId == request.SenderId && uf.FriendId == request.RecipientId)
         ).Any();
 
         if (isFriendAdded)

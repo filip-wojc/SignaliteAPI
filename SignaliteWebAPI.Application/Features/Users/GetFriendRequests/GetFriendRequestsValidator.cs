@@ -1,5 +1,5 @@
 ﻿using FluentValidation;
-using SignaliteWebAPI.Domain.Interfaces.Repositories;
+using SignaliteWebAPI.Infrastructure.Interfaces.Repositories;
 
 namespace SignaliteWebAPI.Application.Features.Users.GetFriendRequests;
 

@@ -1,9 +1,9 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using SignaliteWebAPI.Domain.Interfaces.Repositories;
 using SignaliteWebAPI.Domain.Models;
 using SignaliteWebAPI.Infrastructure.Database;
+using SignaliteWebAPI.Infrastructure.Interfaces.Repositories;
 
-namespace SignaliteWebAPI.Infrastructure.Repositories.Users;
+namespace SignaliteWebAPI.Infrastructure.Repositories;
 
 public class UserRepository(SignaliteDbContext dbContext) : IUserRepository
 {
@@ -41,9 +41,25 @@ public class UserRepository(SignaliteDbContext dbContext) : IUserRepository
         await dbContext.SaveChangesAsync();
     }
 
-    public async Task<User> GetUserByRefreshToken(string refreshToken)
+    public async Task<User?> GetUserByRefreshToken(string refreshToken)
     {
         return await dbContext.Users
             .FirstOrDefaultAsync(u => u.RefreshToken == refreshToken);
     }
+    
+    public async Task<User?> GetUserWithProfilePhotoAsync(int userId)
+    {
+        return await dbContext.Users
+            .Include(u => u.ProfilePhoto)
+            .FirstOrDefaultAsync(u => u.Id == userId);
+    }
+    
+    public async Task<User?> GetUserWithBackgroundPhotoAsync(int userId)
+    {
+        return await dbContext.Users
+            .Include(u => u.BackgroundPhoto)
+            .FirstOrDefaultAsync(u => u.Id == userId);
+    }
+    
+
 }
