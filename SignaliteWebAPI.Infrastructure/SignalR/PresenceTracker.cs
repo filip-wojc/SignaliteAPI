@@ -5,6 +5,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using SignaliteWebAPI.Infrastructure.Helpers;
 using ILogger = Serilog.ILogger;
 
 namespace SignaliteWebAPI.Infrastructure.SignalR
@@ -17,6 +18,7 @@ namespace SignaliteWebAPI.Infrastructure.SignalR
 
         // Key prefixes and constants
         private const string UserConnectionPrefix = "user:";
+        private const string UserIdMappingPrefix = "userid:";
         private const string OnlineUsersKey = "online-users";
         private const string AppInstancesSetKey = "app:instances";
         private const string AppInstanceKeyPrefix = "app:instance:";
@@ -26,7 +28,7 @@ namespace SignaliteWebAPI.Infrastructure.SignalR
         private readonly ConcurrentDictionary<string, TaskCompletionSource<bool>> _pendingValidations =
             new ConcurrentDictionary<string, TaskCompletionSource<bool>>();
 
-        private readonly TimeSpan _connectionValidationTimeout = TimeSpan.FromSeconds(5);
+        private readonly TimeSpan _connectionValidationTimeout = TimeSpan.FromSeconds(10);
 
         // Timeouts and expiration times
         // How often each application instance refreshes its "I'm alive" marker in Redis
@@ -106,14 +108,37 @@ namespace SignaliteWebAPI.Infrastructure.SignalR
         /// <summary>
         /// Marks a user as connected with the specified connection ID
         /// </summary>
-        public async Task<bool> UserConnected(string username, string connectionId)
+        public async Task<bool> UserConnected(string username, string connectionId, int userId)
         {
+            // Validate inputs
+            if (string.IsNullOrEmpty(username))
+            {
+                _logger.Warning("Attempted to connect user with null or empty username");
+                return false;
+            }
+
+            if (userId <= 0)
+            {
+                _logger.Warning($"Attempted to connect user {username} with invalid userId: {userId}");
+                return false;
+            }
+
+            if (string.IsNullOrEmpty(connectionId))
+            {
+                _logger.Warning($"Attempted to connect user {username} with null or empty connectionId");
+                return false;
+            }
+
             var isOnline = false;
             var userKey = $"{UserConnectionPrefix}{username}";
-            var connectionInfo = $"{username}:{connectionId}";
+            var userIdMapping = $"{UserIdMappingPrefix}{username}";
+            var connectionInfo = $"{username}:{userId}:{connectionId}";
 
             try
             {
+                // Store user ID mapping
+                await _db.StringSetAsync(userIdMapping, userId.ToString(), KeyExpirationTime);
+
                 // Add connection ID to user's set with expiration
                 await _db.SetAddAsync(userKey, connectionId);
                 await _db.KeyExpireAsync(userKey, KeyExpirationTime);
@@ -124,14 +149,14 @@ namespace SignaliteWebAPI.Infrastructure.SignalR
                 // Check if this is the first connection for the user
                 if (await _db.SetLengthAsync(userKey) == 1)
                 {
-                    // First connection, add to online users set
-                    await _db.SetAddAsync(OnlineUsersKey, username);
+                    // First connection, add to online users set with the format "username:userId"
+                    await _db.SetAddAsync(OnlineUsersKey, $"{username}:{userId}");
                     isOnline = true;
-                    _logger.Debug($"User {username} is now online with connection {connectionId}");
+                    _logger.Debug($"User {username} (ID: {userId}) is now online with connection {connectionId}");
                 }
                 else
                 {
-                    _logger.Debug($"Additional connection {connectionId} for user {username}");
+                    _logger.Debug($"Additional connection {connectionId} for user {username} (ID: {userId})");
                 }
 
                 // Update the instance heartbeat
@@ -139,7 +164,7 @@ namespace SignaliteWebAPI.Infrastructure.SignalR
             }
             catch (Exception ex)
             {
-                _logger.Error(ex, $"Error connecting user {username} with connection {connectionId}");
+                _logger.Error(ex, $"Error connecting user {username} (ID: {userId}) with connection {connectionId}");
             }
 
             return isOnline;
@@ -150,26 +175,64 @@ namespace SignaliteWebAPI.Infrastructure.SignalR
         /// </summary>
         public async Task<bool> UserDisconnected(string username, string connectionId)
         {
+            if (string.IsNullOrEmpty(username) || string.IsNullOrEmpty(connectionId))
+            {
+                _logger.Warning($"Attempted to disconnect user with invalid data. Username: {username}, ConnectionId: {connectionId}");
+                return false;
+            }
+
             var isOffline = false;
             var userKey = $"{UserConnectionPrefix}{username}";
-            var connectionInfo = $"{username}:{connectionId}";
+            var userIdMapping = $"{UserIdMappingPrefix}{username}";
 
             try
             {
+                // Get the userId from the mapping
+                var userIdStr = await _db.StringGetAsync(userIdMapping);
+                int userId = 0;
+                
+                if (!userIdStr.IsNullOrEmpty)
+                {
+                    int.TryParse(userIdStr.ToString(), out userId);
+                }
+
+                if (userId <= 0)
+                {
+                    _logger.Warning($"Could not find valid userId for username {username} during disconnection");
+                }
+
                 // Remove connection ID from user's set
                 await _db.SetRemoveAsync(userKey, connectionId);
 
-                // Remove connection from instance connections
-                await _db.SetRemoveAsync(_instanceConnectionsKey, connectionInfo);
+                // Remove connection from instance connections (find all matching connections)
+                var allConnections = await _db.SetMembersAsync(_instanceConnectionsKey);
+                foreach (var conn in allConnections)
+                {
+                    var connStr = conn.ToString();
+                    if (connStr.Contains($":{connectionId}") && connStr.StartsWith(username))
+                    {
+                        await _db.SetRemoveAsync(_instanceConnectionsKey, conn);
+                    }
+                }
 
                 // Check if user has no more connections
                 if (await _db.SetLengthAsync(userKey) == 0)
                 {
                     // No more connections, remove from online users set
                     await _db.KeyDeleteAsync(userKey);
-                    await _db.SetRemoveAsync(OnlineUsersKey, username);
+                    
+                    // Remove from online users using pattern matching
+                    var onlineUsers = await _db.SetMembersAsync(OnlineUsersKey);
+                    foreach (var user in onlineUsers)
+                    {
+                        if (user.ToString().StartsWith($"{username}:"))
+                        {
+                            await _db.SetRemoveAsync(OnlineUsersKey, user);
+                        }
+                    }
+                    
                     isOffline = true;
-                    _logger.Debug($"User {username} is now offline (removed connection {connectionId})");
+                    _logger.Debug($"User {username} (ID: {userId}) is now offline (removed connection {connectionId})");
                 }
                 else
                 {
@@ -189,19 +252,69 @@ namespace SignaliteWebAPI.Infrastructure.SignalR
         }
 
         /// <summary>
-        /// Gets all currently online users
+        /// Gets just the IDs of all currently online users (simple version)
         /// </summary>
-        public async Task<string[]> GetOnlineUsers()
+        public async Task<List<int>> GetOnlineUserIds()
         {
             try
             {
+                var result = new List<int>();
                 var onlineUsers = await _db.SetMembersAsync(OnlineUsersKey);
-                return onlineUsers.Select(m => m.ToString()).OrderBy(x => x).ToArray();
+        
+                foreach (var userEntry in onlineUsers)
+                {
+                    string userEntryStr = userEntry.ToString();
+                    string[] parts = userEntryStr.Split(':');
+            
+                    if (parts.Length >= 2 && int.TryParse(parts[1], out int userId))
+                    {
+                        result.Add(userId);
+                    }
+                }
+        
+                return result.Distinct().ToList();
             }
             catch (Exception ex)
             {
-                _logger.Error(ex, "Error getting online users");
-                return Array.Empty<string>();
+                _logger.Error(ex, "Error getting online user IDs");
+                return new List<int>();
+            }
+        }
+        
+        /// <summary>
+        /// Gets detailed information about all currently online users
+        /// </summary>
+        public async Task<List<OnlineUserInfo>> GetOnlineUsersDetailed()
+        {
+            try
+            {
+                var result = new List<OnlineUserInfo>();
+                var onlineUsers = await _db.SetMembersAsync(OnlineUsersKey);
+        
+                foreach (var userEntry in onlineUsers)
+                {
+                    string userEntryStr = userEntry.ToString();
+                    string[] parts = userEntryStr.Split(':');
+            
+                    if (parts.Length >= 2 && int.TryParse(parts[1], out int userId))
+                    {
+                        result.Add(new OnlineUserInfo { 
+                            Username = parts[0], 
+                            UserId = userId 
+                        });
+                    }
+                    else
+                    {
+                        _logger.Warning($"Invalid user entry format in online users set: {userEntryStr}");
+                    }
+                }
+        
+                return result.OrderBy(x => x.Username).ToList();
+            }
+            catch (Exception ex)
+            {
+                _logger.Error(ex, "Error getting detailed online users");
+                return new List<OnlineUserInfo>();
             }
         }
 
@@ -210,6 +323,12 @@ namespace SignaliteWebAPI.Infrastructure.SignalR
         /// </summary>
         public async Task<List<string>> GetConnectionsForUser(string username)
         {
+            if (string.IsNullOrEmpty(username))
+            {
+                _logger.Warning("Attempted to get connections for null or empty username");
+                return new List<string>();
+            }
+
             try
             {
                 var userKey = $"{UserConnectionPrefix}{username}";
@@ -233,7 +352,6 @@ namespace SignaliteWebAPI.Infrastructure.SignalR
 
             try
             {
-                // Get all connections for this instance
                 _logger.Debug($"Looking for connections in this instance: {instanceConnectionsKey}");
                 var connections = await _db.SetMembersAsync(instanceConnectionsKey);
                 _logger.Debug($"Found {connections.Length} connections for this instance: {instanceId}");
@@ -243,10 +361,10 @@ namespace SignaliteWebAPI.Infrastructure.SignalR
                     var connectionInfo = connection.ToString();
                     var parts = connectionInfo.Split(':');
 
-                    if (parts.Length == 2)
+                    if (parts.Length >= 3)
                     {
                         var username = parts[0];
-                        var connectionId = parts[1];
+                        var connectionId = parts[2];
 
                         _logger.Debug(
                             $"Cleaning up connection {connectionId} for user {username} from instance {instanceId}");
@@ -302,11 +420,7 @@ namespace SignaliteWebAPI.Infrastructure.SignalR
                     if (!exists)
                     {
                         _logger.Warning($"Found dead instance {instanceId}, cleaning up its connections");
-
-                        // Clean up connections for this dead instance
                         await CleanupInstanceConnections(instanceId);
-
-                        // Remove instance from instances set
                         _logger.Warning($"Removing dead instance {instanceId} from instances set");
                         await _db.SetRemoveAsync(AppInstancesSetKey, instanceId);
                         _logger.Warning($"Successfully removed dead instance {instanceId}");
@@ -316,7 +430,6 @@ namespace SignaliteWebAPI.Infrastructure.SignalR
                         _logger.Debug($"Instance {instanceId} is still active (key exists)");
                     }
                 }
-
 
                 // Re-register this instance
                 _logger.Warning($"Re-registering current instance {_instanceId}");
@@ -340,12 +453,12 @@ namespace SignaliteWebAPI.Infrastructure.SignalR
             try
             {
                 // Get all online users
-                var onlineUsers = await GetOnlineUsers();
+                var onlineUsers = await GetOnlineUsersDetailed();
 
-                foreach (var username in onlineUsers)
+                foreach (var userInfo in onlineUsers)
                 {
                     // Get all connections for this user
-                    var connections = await GetConnectionsForUser(username);
+                    var connections = await GetConnectionsForUser(userInfo.Username);
 
                     foreach (var connectionId in connections)
                     {
@@ -367,19 +480,19 @@ namespace SignaliteWebAPI.Infrastructure.SignalR
                             if (!isValid)
                             {
                                 _logger.Warning(
-                                    $"Connection {connectionId} for user {username} did not respond to keep-alive within timeout");
+                                    $"Connection {connectionId} for user {userInfo.Username} (ID: {userInfo.UserId}) did not respond to keep-alive within timeout");
 
                                 // Remove the connection
-                                await UserDisconnected(username, connectionId);
+                                await UserDisconnected(userInfo.Username, connectionId);
                                 removedCount++;
                             }
                         }
                         catch (Exception ex)
                         {
-                            _logger.Warning(ex, $"Error validating connection {connectionId} for user {username}");
+                            _logger.Warning(ex, $"Error validating connection {connectionId} for user {userInfo.Username}");
 
                             // Remove the invalid connection
-                            await UserDisconnected(username, connectionId);
+                            await UserDisconnected(userInfo.Username, connectionId);
                             removedCount++;
                         }
                         finally

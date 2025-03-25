@@ -4,6 +4,7 @@ using Microsoft.Extensions.Logging;
 using SignaliteWebAPI.Infrastructure.Extensions;
 using System;
 using System.Threading.Tasks;
+using Serilog;
 using ILogger = Serilog.ILogger;
 
 namespace SignaliteWebAPI.Infrastructure.SignalR
@@ -24,22 +25,42 @@ namespace SignaliteWebAPI.Infrastructure.SignalR
         {
             try
             {
+                // Get the username from the claims
                 var username = Context.User?.GetUsername();
                 if (string.IsNullOrEmpty(username))
-                    throw new HubException("Cannot get current user claims");
+                {
+                    _logger.Warning($"Connection {Context.ConnectionId} attempted to connect without a valid username claim");
+                    throw new HubException("Cannot get user - no valid username claim found");
+                }
 
-                _logger.Debug($"User {username} connected with connection {Context.ConnectionId}");
-                
-                var isOnline = await _presenceTracker.UserConnected(username, Context.ConnectionId);
+                // Get the user ID from the claims
+                var userId = Context.User?.GetUserId() ?? -1; // default case for protection
+                if (userId <= 0)
+                {
+                    _logger.Warning($"User {username} attempted to connect without a valid ID claim");
+                    throw new HubException("Cannot get user - no valid user ID claim found");
+                }
+
+                _logger.Debug($"User {username} (ID: {userId}) connected with connection {Context.ConnectionId}");
+        
+                var isOnline = await _presenceTracker.UserConnected(username, Context.ConnectionId, userId);
 
                 if (isOnline)
                 {
                     // Broadcast the online status only if this is the first connection for this user
-                    await Clients.Others.SendAsync("UserIsOnline", username);
+                    // Include both username and userId in the notification
+                    await Clients.Others.SendAsync("UserIsOnline", new { username, userId });
                 }
 
-                var currentUsers = await _presenceTracker.GetOnlineUsers();
-                await Clients.Caller.SendAsync("GetOnlineUsers", currentUsers);
+                // Send the simple list of user IDs to the client
+                var onlineUserIds = await _presenceTracker.GetOnlineUserIds();
+                await Clients.Caller.SendAsync("GetOnlineUserIds", onlineUserIds);
+
+        
+                // Also send detailed user information for debugging purposes
+                // TODO : REMOVE AFTER TESTING
+                var onlineUsersDetailed = await _presenceTracker.GetOnlineUsersDetailed();
+                await Clients.Caller.SendAsync("GetOnlineUsersDetailed", onlineUsersDetailed);
             }
             catch (Exception ex)
             {
@@ -48,27 +69,28 @@ namespace SignaliteWebAPI.Infrastructure.SignalR
             }
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="exception"></param>
-        /// <exception cref="HubException"></exception>
         public override async Task OnDisconnectedAsync(Exception? exception)
         {
             try
             {
                 var username = Context.User?.GetUsername();
                 if (string.IsNullOrEmpty(username))
-                    throw new HubException("Cannot get current user claims");
+                {
+                    _logger.Warning($"Connection {Context.ConnectionId} disconnected without a valid username claim");
+                    throw new HubException("Cannot get current user claims - no valid username found");
+                }
 
-                _logger.Debug($"User {username} disconnected with connection {Context.ConnectionId}. Reason: {exception?.Message ?? "Normal disconnect"}");
+                var userId = Context.User?.GetUserId();
+                
+                _logger.Debug($"User {username} (ID: {userId}) disconnected with connection {Context.ConnectionId}. Reason: {exception?.Message ?? "Normal disconnect"}");
                 
                 var isOffline = await _presenceTracker.UserDisconnected(username, Context.ConnectionId);
 
                 if (isOffline)
                 {
                     // Broadcast the offline status only if this was the last connection for this user
-                    await Clients.Others.SendAsync("UserIsOffline", username);
+                    // Include both username and userId in the notification
+                    await Clients.Others.SendAsync("UserIsOffline", new { username, userId });
                 }
             }
             catch (Exception ex)
@@ -87,10 +109,15 @@ namespace SignaliteWebAPI.Infrastructure.SignalR
             var username = Context.User?.GetUsername();
             if (!string.IsNullOrEmpty(username))
             {
-                _logger.Debug($"Received keep-alive response from {username} on connection {Context.ConnectionId}");
+                var userId = Context.User?.GetUserId();
+                _logger.Debug($"Received keep-alive response from {username} (ID: {userId}) on connection {Context.ConnectionId}");
             
                 // Pass to presence tracker to handle validation completion
                 _presenceTracker.HandleKeepAliveResponse(Context.ConnectionId);
+            }
+            else
+            {
+                _logger.Warning($"Received keep-alive response from unknown user on connection {Context.ConnectionId}");
             }
         
             await Task.CompletedTask;

@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using SignaliteWebAPI.Infrastructure.SignalR;
 using Microsoft.AspNetCore.Mvc;
+using SignaliteWebAPI.Infrastructure.Extensions;
 using SignaliteWebAPI.Infrastructure.SignalR;
 
 namespace API.Controllers
@@ -21,8 +22,9 @@ namespace API.Controllers
         public async Task<IActionResult> TestConnect(string username)
         {
             // Simulate a connection
+            var userID = User.GetUserId();
             var connectionId = "test-connection-" + System.Guid.NewGuid().ToString();
-            var isOnline = await _presenceTracker.UserConnected(username, connectionId);
+            var isOnline = await _presenceTracker.UserConnected(username, connectionId, userID);
             
             return Ok(new { 
                 username, 
@@ -47,9 +49,9 @@ namespace API.Controllers
         [HttpGet("online-users")]
         public async Task<IActionResult> GetOnlineUsers()
         {
-            var onlineUsers = await _presenceTracker.GetOnlineUsers();
+            var onlineUsers = await _presenceTracker.GetOnlineUserIds();
             
-            return Ok(new { users = onlineUsers, count = onlineUsers.Length });
+            return Ok(new { users = onlineUsers, count = onlineUsers.Count() });
         }
 
         [HttpGet("user-connections")]

@@ -131,8 +131,8 @@ namespace SignaliteWebAPI.Infrastructure.Services
             // Next, validate existing connections using ping-response mechanism
             _logger.Debug("Phase 2: Validating existing connections");
         
-            var onlineUsers = await presenceTracker.GetOnlineUsers();
-            _logger.Debug($"Found {onlineUsers.Length} online users to validate connections for");
+            var onlineUsers = await presenceTracker.GetOnlineUsersDetailed();
+            _logger.Debug($"Found {onlineUsers.Count} online users to validate connections for");
         
             var removedCount = await presenceTracker.ValidateConnections(async connectionId =>
             {
