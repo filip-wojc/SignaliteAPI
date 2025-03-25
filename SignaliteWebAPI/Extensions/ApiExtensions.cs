@@ -1,9 +1,10 @@
-﻿using FluentValidation;
+using FluentValidation;
 using Microsoft.AspNetCore.Mvc;
+using Serilog;
 using SignaliteWebAPI.Application.Features.Auth.Register;
-using SignaliteWebAPI.Application.Features.Friends.GetUserFriends;
 using SignaliteWebAPI.Application.Features.Users.GetFriendRequests;
 using SignaliteWebAPI.Application.Features.Users.SendFriendRequest;
+using SignaliteWebAPI.Application.Features.Friends.GetUserFriends;
 using SignaliteWebAPI.Middlewares;
 
 namespace SignaliteWebAPI.Extensions;
@@ -20,7 +21,8 @@ public static class ApiExtensions
         services.AddExceptionHandler<AppExceptionHandler>();
         services.AddScoped<IValidator<RegisterCommand>, RegisterValidator>();
         services.AddScoped<IValidator<SendFriendRequestCommand>, SendFriendRequestValidator>();
-        services.AddScoped<IValidator<GetFriendRequestsQuery>, GetFriendRequestsValidator>();
+        services.AddScoped<IValidator<GetFriendRequestsQuery>, GetFriendRequestsValidator>(); 
         services.AddScoped<IValidator<GetUserFriendsQuery>, GetUserFriendsValidator>();
+        services.AddSingleton(Log.Logger);
     }
 }
