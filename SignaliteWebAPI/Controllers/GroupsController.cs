@@ -9,6 +9,7 @@ using SignaliteWebAPI.Application.Features.Groups.GetGroupDetails;
 using SignaliteWebAPI.Application.Features.Groups.UpdateGroupPhoto;
 using SignaliteWebAPI.Domain.Models;
 using SignaliteWebAPI.Extensions;
+using SignaliteWebAPI.Infrastructure.Extensions;
 using SignaliteWebAPI.Infrastructure.Interfaces.Repositories;
 
 namespace SignaliteWebAPI.Controllers;
