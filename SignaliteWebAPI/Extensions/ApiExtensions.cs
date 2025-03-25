@@ -1,10 +1,20 @@
-﻿using FluentValidation;
-using MediatR;
+using FluentValidation;
 using Microsoft.AspNetCore.Mvc;
-using SignaliteWebAPI.Application.Features.User.AddUser;
-using SignaliteWebAPI.Behaviors;
+using Serilog;
+using SignaliteWebAPI.Application.Features.Auth.Register;
+using SignaliteWebAPI.Application.Features.Friends.GetUserFriends;
+using SignaliteWebAPI.Application.Features.Groups.AddUserToGroup;
+using SignaliteWebAPI.Application.Features.Groups.CreateGroup;
+using SignaliteWebAPI.Application.Features.Groups.UpdateGroupPhoto;
+using SignaliteWebAPI.Application.Features.Users.AddProfilePhoto;
+using SignaliteWebAPI.Application.Features.Users.GetFriendRequests;
+using SignaliteWebAPI.Application.Features.Users.SendFriendRequest;
+using SignaliteWebAPI.Application.Features.Users.UpdateBackgroundPhoto;
+using SignaliteWebAPI.Application.Features.Users.UpdateProfilePhoto;
+using SignaliteWebAPI.Application.Features.Users.GetFriendRequests;
+using SignaliteWebAPI.Application.Features.Users.SendFriendRequest;
+using SignaliteWebAPI.Application.Features.Friends.GetUserFriends;
 using SignaliteWebAPI.Middlewares;
-using SignaliteWebAPI.Validators.Users;
 
 namespace SignaliteWebAPI.Extensions;
 
@@ -18,7 +28,16 @@ public static class ApiExtensions
         });
 
         services.AddExceptionHandler<AppExceptionHandler>();
-        services.AddScoped<IValidator<AddUserCommand>, RegisterUserValidator>();
-        services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>));
+        services.AddScoped<IValidator<RegisterCommand>, RegisterValidator>();
+        services.AddScoped<IValidator<SendFriendRequestCommand>, SendFriendRequestValidator>();
+        services.AddScoped<IValidator<GetFriendRequestsQuery>, GetFriendRequestsValidator>(); 
+        services.AddScoped<IValidator<GetUserFriendsQuery>, GetUserFriendsValidator>();
+        services.AddScoped<IValidator<CreateGroupCommand>, CreateGroupValidator>();
+        services.AddScoped<IValidator<UpdateGroupPhotoCommand>, UpdateGroupPhotoValidator>();
+        services.AddScoped<IValidator<UpdateProfilePhotoCommand>, UpdateProfilePhotoValidator>();
+        services.AddScoped<IValidator<UpdateBackgroundPhotoCommand>, UpdateBackgroundPhotoValidator>();
+        services.AddScoped<IValidator<AddUserToGroupCommand>, AddUserToGroupValidator>();
+        services.AddSingleton(Log.Logger);
+
     }
 }

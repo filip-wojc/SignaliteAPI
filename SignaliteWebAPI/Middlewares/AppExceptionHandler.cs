@@ -1,6 +1,9 @@
-﻿using System.Text.Json;
+﻿using System.Security.Authentication;
+using System.Text.Json;
 using Microsoft.AspNetCore.Diagnostics;
+using SignaliteWebAPI.Application.Exceptions;
 using SignaliteWebAPI.Exceptions;
+using SignaliteWebAPI.Infrastructure.Exceptions;
 
 namespace SignaliteWebAPI.Middlewares;
 
@@ -21,7 +24,34 @@ public class AppExceptionHandler : IExceptionHandler
                 errorList = ex.Errors;
                 break;
             }
-            // TODO Add more cases
+            case AuthException ex:
+            {
+                statusCode = ex.StatusCode;
+                message = ex.Message;
+                errorList = ex.Errors;
+                break;
+            }
+            case TokenException ex:
+            {
+                statusCode = ex.StatusCode;
+                message = ex.Message;
+                errorList = ex.Errors;
+                break;
+            }
+            case NotFoundException ex:
+            {
+                statusCode = ex.StatusCode;
+                message = ex.Message;
+                errorList = ex.Errors;
+                break;
+            }
+            case ForbidException ex:
+            {
+                statusCode = ex.StatusCode;
+                message = ex.Message;
+                errorList = ex.Errors;
+                break;
+            }
             default:
             {           
                 statusCode = 500;
