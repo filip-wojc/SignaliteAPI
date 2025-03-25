@@ -20,7 +20,7 @@ namespace SignaliteWebAPI.Infrastructure.Extensions;
 
 public static class InfrastructureExtensions
 {
-    public static void AddInfrastructureServices(this IServiceCollection services, IConfiguration config)
+    public static void AddInfrastructureServices(this IServiceCollection services, IConfiguration configuration)
     {
         services.AddDbContext<SignaliteDbContext>(options =>
         {
@@ -53,7 +53,7 @@ public static class InfrastructureExtensions
         });
         services.AddHostedService(sp => sp.GetRequiredService<ConnectionCleanupService>()); // grab the service created above
 
-        services.Configure<CloudinarySettings>(config.GetSection("CloudinarySettings")); // fill CloudinarySettings class with fields from appsettings
+        services.Configure<CloudinarySettings>(configuration.GetSection("CloudinarySettings")); // fill CloudinarySettings class with fields from appsettings
         services.AddScoped<IMediaService, MediaService>();
     }     
 }
