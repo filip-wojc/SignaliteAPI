@@ -42,8 +42,13 @@ public class AcceptFriendRequestHandler(IFriendsRepository friendsRepository, IG
             UserId = user.Id,
             GroupId = group.Id
         };
-        
+        var userGroup2 = new UserGroup
+        {
+            UserId = friend.Id,
+            GroupId = group.Id
+        };
         await groupRepository.AddUserToGroup(userGroup);
+        await groupRepository.AddUserToGroup(userGroup2);
         
         // TODO: Notification "GroupCreated"
     }
