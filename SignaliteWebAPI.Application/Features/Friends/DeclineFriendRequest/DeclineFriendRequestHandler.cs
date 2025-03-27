@@ -2,7 +2,7 @@
 using SignaliteWebAPI.Infrastructure.Exceptions;
 using SignaliteWebAPI.Infrastructure.Interfaces.Repositories;
 
-namespace SignaliteWebAPI.Application.Features.Users.DeclineFriendRequest;
+namespace SignaliteWebAPI.Application.Features.Friends.DeclineFriendRequest;
 
 public class DeclineFriendRequestHandler(IFriendsRepository friendsRepository) : IRequestHandler<DeclineFriendRequestCommand>
 {

@@ -7,7 +7,7 @@ public class Attachment
     public required double FileSize { get; set; }
     public required string Type { get; set; }
     public required string Url { get; set; }
-    public required int PublicId { get; set; }
+    public required string PublicId { get; set; }
     public Message Message { get; set; }
     public required int MessageId { get; set; }
 }

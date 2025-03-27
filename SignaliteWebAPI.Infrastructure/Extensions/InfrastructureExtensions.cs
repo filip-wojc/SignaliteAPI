@@ -32,6 +32,8 @@ public static class InfrastructureExtensions
         services.AddScoped<IFriendsRepository, FriendsRepository>();
         services.AddScoped<IPhotoRepository, PhotoRepository>();
         services.AddScoped<IGroupRepository, GroupRepository>();
+        services.AddScoped<IMessageRepository, MessageRepository>();
+        services.AddScoped<IAttachmentRepository, AttachmentRepository>();
         services.AddScoped<ITokenService, TokenService>();
         
         // redis config

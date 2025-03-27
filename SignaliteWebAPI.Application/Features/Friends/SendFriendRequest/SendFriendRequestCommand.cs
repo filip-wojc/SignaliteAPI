@@ -1,7 +1,6 @@
 ﻿using MediatR;
-using SignaliteWebAPI.Domain.DTOs.FriendRequests;
 
-namespace SignaliteWebAPI.Application.Features.Users.SendFriendRequest;
+namespace SignaliteWebAPI.Application.Features.Friends.SendFriendRequest;
 
 public class SendFriendRequestCommand : IRequest
 {

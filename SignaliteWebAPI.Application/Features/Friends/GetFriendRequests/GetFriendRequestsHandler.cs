@@ -3,7 +3,7 @@ using MediatR;
 using SignaliteWebAPI.Domain.DTOs.FriendRequests;
 using SignaliteWebAPI.Infrastructure.Interfaces.Repositories;
 
-namespace SignaliteWebAPI.Application.Features.Users.GetFriendRequests;
+namespace SignaliteWebAPI.Application.Features.Friends.GetFriendRequests;
 
 public class GetFriendRequestsHandler(IFriendsRepository repository, IMapper mapper) : IRequestHandler<GetFriendRequestsQuery, List<FriendRequestDTO>>
 {

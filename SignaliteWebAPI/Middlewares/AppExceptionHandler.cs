@@ -39,7 +39,7 @@ public class AppExceptionHandler : IExceptionHandler
         httpContext.Response.ContentType = "application/json";
         var jsonResponse = JsonSerializer.Serialize(errorResponse);
         httpContext.Response.StatusCode = statusCode;
-        await httpContext.Response.WriteAsync(jsonResponse);
+        await httpContext.Response.WriteAsync(jsonResponse, cancellationToken: cancellationToken);
         
         return true;
     }

@@ -1,7 +1,7 @@
 ﻿using FluentValidation;
 using SignaliteWebAPI.Infrastructure.Interfaces.Repositories;
 
-namespace SignaliteWebAPI.Application.Features.Users.GetFriendRequests;
+namespace SignaliteWebAPI.Application.Features.Friends.GetFriendRequests;
 
 public class GetFriendRequestsValidator : AbstractValidator<GetFriendRequestsQuery>
 {
