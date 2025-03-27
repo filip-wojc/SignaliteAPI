@@ -7,10 +7,6 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <Folder Include="Helpers\" />
-    </ItemGroup>
-
-    <ItemGroup>
       <ProjectReference Include="..\SignaliteWebAPI.Infrastructure\SignaliteWebAPI.Infrastructure.csproj" />
     </ItemGroup>
 

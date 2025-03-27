@@ -2,11 +2,11 @@
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using SignaliteWebAPI.Application.Features.Friends.AcceptFriendRequest;
+using SignaliteWebAPI.Application.Features.Friends.DeclineFriendRequest;
+using SignaliteWebAPI.Application.Features.Friends.GetFriendRequests;
 using SignaliteWebAPI.Application.Features.Friends.GetUserFriends;
-using SignaliteWebAPI.Application.Features.Users.AcceptFriendRequest;
-using SignaliteWebAPI.Application.Features.Users.DeclineFriendRequest;
-using SignaliteWebAPI.Application.Features.Users.GetFriendRequests;
-using SignaliteWebAPI.Application.Features.Users.SendFriendRequest;
+using SignaliteWebAPI.Application.Features.Friends.SendFriendRequest;
 using SignaliteWebAPI.Domain.DTOs.FriendRequests;
 using SignaliteWebAPI.Domain.DTOs.Users;
 using SignaliteWebAPI.Extensions;

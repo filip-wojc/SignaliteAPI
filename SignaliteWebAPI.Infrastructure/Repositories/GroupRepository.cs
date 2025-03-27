@@ -75,4 +75,9 @@ public class GroupRepository(SignaliteDbContext dbContext) : IGroupRepository
 
         return group;
     }
+
+    public async Task<bool> GroupExists(int groupId)
+    {
+        return await dbContext.Groups.AnyAsync(g => g.Id == groupId);
+    }
 }

@@ -11,4 +11,5 @@ public interface IGroupRepository
     Task<Group> GetGroupWithPhoto(int groupId);
     Task<Group> GetGroupWithUsers(int groupId);
     Task<Group> GetGroupDetails(int groupId);
+    Task<bool> GroupExists(int groupId);
 }

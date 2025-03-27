@@ -1,5 +1,5 @@
 ﻿using AutoMapper;
-using SignaliteWebAPI.Application.Features.Users.SendFriendRequest;
+using SignaliteWebAPI.Application.Features.Friends.SendFriendRequest;
 using SignaliteWebAPI.Domain.DTOs.FriendRequests;
 using SignaliteWebAPI.Domain.Models;
 

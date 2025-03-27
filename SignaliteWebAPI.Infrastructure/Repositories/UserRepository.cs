@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using SignaliteWebAPI.Domain.Models;
 using SignaliteWebAPI.Infrastructure.Database;
+using SignaliteWebAPI.Infrastructure.Exceptions;
 using SignaliteWebAPI.Infrastructure.Interfaces.Repositories;
 
 namespace SignaliteWebAPI.Infrastructure.Repositories;
@@ -27,7 +28,12 @@ public class UserRepository(SignaliteDbContext dbContext) : IUserRepository
     
     public async Task<User?> GetUserById(int userId)
     {
-        return await dbContext.Users.FirstOrDefaultAsync(u => u.Id == userId);
+        var user = await dbContext.Users.FirstOrDefaultAsync(u => u.Id == userId);
+        if (user == null)
+        {
+            throw new NotFoundException("User not found");
+        }
+        return user;
     }
     
     public async Task UpdateRefreshToken(int userId, string refreshToken, DateTime expiry)

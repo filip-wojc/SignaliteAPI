@@ -1,7 +1,6 @@
 ﻿using MediatR;
-using SignaliteWebAPI.Domain.DTOs.FriendRequests;
 
-namespace SignaliteWebAPI.Application.Features.Users.DeclineFriendRequest;
+namespace SignaliteWebAPI.Application.Features.Friends.DeclineFriendRequest;
 
 public class DeclineFriendRequestCommand : IRequest
 {

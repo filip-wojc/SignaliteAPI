@@ -4,7 +4,7 @@ using SignaliteWebAPI.Application.Exceptions;
 using SignaliteWebAPI.Domain.Models;
 using SignaliteWebAPI.Infrastructure.Interfaces.Repositories;
 
-namespace SignaliteWebAPI.Application.Features.Users.SendFriendRequest;
+namespace SignaliteWebAPI.Application.Features.Friends.SendFriendRequest;
 
 public class SendFriendRequestHandler(IFriendsRepository repository, IMapper mapper) : IRequestHandler<SendFriendRequestCommand>
 {
