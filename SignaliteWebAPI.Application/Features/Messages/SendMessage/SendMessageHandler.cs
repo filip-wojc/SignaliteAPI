@@ -50,7 +50,8 @@ public class SendMessageHandler(
         // TODO Add cloudinary - videos, gifs, sounds
         // TODO Add azure blob - other file types
         string? uploadedPublicId = null;
-        
+        string? mimeType = null;
+
         try
         {
             // beginning of the transaction
@@ -75,7 +76,7 @@ public class SendMessageHandler(
                 }
                 
                 uploadedPublicId = uploadResult.PublicId;
-
+                mimeType = file.ContentType;
                 // Create attachment entity
                 var attachment = new Attachment
                 {
@@ -110,7 +111,7 @@ public class SendMessageHandler(
             if (string.IsNullOrEmpty(uploadedPublicId)) throw; // throw to exception handler
             try
             {
-                await mediaService.DeleteMediaAsync(uploadedPublicId);
+                await mediaService.DeleteMediaAsync(uploadedPublicId, mimeType ?? "image/jpeg");
             }
             catch
             {
@@ -132,7 +133,7 @@ public class SendMessageHandler(
             FileType.Image => await mediaService.AddPhotoAsync(file),
             FileType.Video => await mediaService.AddVideoAsync(file),
             FileType.Audio => await mediaService.AddAudioAsync(file),
-            FileType.Document => await mediaService.AddDocumentAsync(file),
+            // FileType.Other => await mediaService.AddOtherAsync(file), // use other service
             _ => throw new BadRequestException($"Unsupported file type: {file.ContentType}")
         };
     }

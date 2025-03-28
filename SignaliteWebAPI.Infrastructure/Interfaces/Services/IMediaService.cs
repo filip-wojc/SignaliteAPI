@@ -9,7 +9,7 @@ public interface IMediaService
     Task<ImageUploadResult> AddPhotoAsync(IFormFile file);
     Task<VideoUploadResult> AddVideoAsync(IFormFile file);
     Task<VideoUploadResult> AddAudioAsync(IFormFile file);
-    Task<RawUploadResult> AddDocumentAsync(IFormFile file);
-    Task<DeletionResult> DeleteMediaAsync(string publicId);
-    Task<DeletionResult> DeletePhotoAsync(string publicId);
+    Task<DeletionResult> DeleteMediaAsync(string publicId, string mimeType);
+
+
 }

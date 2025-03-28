@@ -8,12 +8,12 @@ public class SupportedFileTypes
     
     public static ImmutableDictionary<FileType, string[]> MimeTypes = new Dictionary<FileType, string[]>
     {
-        { FileType.Image, ["image/jpeg", "image/png", "image/gif"] },
-        { FileType.Video, ["video/mp4", "video/webm", "video/quicktime"] },
-        { FileType.Audio, ["audio/mpeg", "audio/wav", "audio/ogg"] },
-        { FileType.Document, ["application/pdf", "application/msword", "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
-            ]
-        }
+        { FileType.Image, ["image/jpeg", "image/png", "image/gif","image/webp","image/svg+xml","image/bmp","image/avif"] },
+        { FileType.Video, ["video/mp4", "video/webm"] },
+        { FileType.Audio, ["audio/mpeg", "audio/wav"] },
+        { FileType.Other, ["application/pdf", "application/msword", "application/zip",
+                "application/x-zip-compressed", "application/vnd.rar", "application/vnd.ms-powerpoint",
+                "application/vnd.openxmlformats-officedocument.presentationml.presentation" ] }
     }.ToImmutableDictionary();
     
     

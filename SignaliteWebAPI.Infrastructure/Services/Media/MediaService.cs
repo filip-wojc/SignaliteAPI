@@ -2,6 +2,8 @@ using CloudinaryDotNet;
 using CloudinaryDotNet.Actions;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Options;
+using SignaliteWebAPI.Domain.Enums;
+using SignaliteWebAPI.Infrastructure.Exceptions;
 using SignaliteWebAPI.Infrastructure.Helpers;
 using SignaliteWebAPI.Infrastructure.Interfaces;
 using SignaliteWebAPI.Infrastructure.Interfaces.Services;
@@ -19,39 +21,51 @@ public class MediaService : IMediaService
         var account = new Account(config.Value.CloudName, config.Value.ApiKey, config.Value.ApiSecret);
         _cloudinary = new Cloudinary(account);
     }
+
     public async Task<ImageUploadResult> AddPhotoAsync(IFormFile file)
     {
-        var uploadResult = new ImageUploadResult();
-
-        if (file.Length > 0)
+        if (file == null || file.Length <= 0)
         {
-            using var stream = file.OpenReadStream();
-            var uploadParams = new ImageUploadParams
-            {
-                File = new FileDescription(file.FileName, stream),
-                //Transformation = new Transformation()
-                //    .Height(500).Width(500).Crop("fill").Gravity("face"),
-                Folder = "Signalite"
-            };
-
-            uploadResult = await _cloudinary.UploadAsync(uploadParams);
-        }
-
-        return uploadResult;
-    }
-
-    public async Task<VideoUploadResult> AddVideoAsync(IFormFile file)
-    {
-        if (file.Length <= 0)
-        {
-            return new VideoUploadResult 
-            { 
-                Error = new Error { Message = "Empty file provided" } 
-            };
+            throw new CloudinaryException("Empty file provided");
         }
 
         try
         {
+            await using var stream = file.OpenReadStream();
+            var uploadParams = new ImageUploadParams
+            {
+                File = new FileDescription(file.FileName, stream),
+                Folder = "Signalite/Photos"
+            };
+
+            var uploadResult = await _cloudinary.UploadAsync(uploadParams);
+            
+            if (uploadResult.Error != null)
+            {
+                throw new CloudinaryException($"Failed to upload photo: {uploadResult.Error.Message}");
+            }
+            
+            return uploadResult;
+        }
+        catch (Exception ex) when (ex is not CloudinaryException)
+        {
+            // only wrap non-cloudinaryExceptions
+            throw new MediaServiceException($"Photo upload failed: {ex.Message}");
+        }
+    }
+
+
+    public async Task<VideoUploadResult> AddVideoAsync(IFormFile file)
+    {
+        if (file == null || file.Length <= 0)
+        {
+            throw new CloudinaryException("Empty file provided");
+        }
+
+        try
+        {
+            VideoUploadResult uploadResult;
+
             // For smaller videos, use standard upload
             if (file.Length < VIDEO_SIZE_THRESHOLD)
             {
@@ -59,31 +73,30 @@ public class MediaService : IMediaService
                 var uploadParams = new VideoUploadParams
                 {
                     File = new FileDescription(file.FileName, stream),
-                    Folder = "Signalite/Videos",
-                    // Optional video settings
-                    // EagerTransforms = new List<Transformation>
-                    // {
-                    //     new Transformation().Quality("auto")
-                    // }
+                    Folder = "Signalite/Videos"
                 };
 
-                return await _cloudinary.UploadAsync(uploadParams);
+                uploadResult = await _cloudinary.UploadAsync(uploadParams);
             }
             // For larger videos, use UploadLargeAsync which handles chunking internally
             else
             {
-                return await UploadLargeVideoAsync(file);
+                uploadResult = await UploadLargeVideoAsync(file);
             }
-        }
-        catch (Exception ex)
-        {
-            return new VideoUploadResult
+
+            if (uploadResult.Error != null)
             {
-                Error = new Error { Message = $"Video upload failed: {ex.Message}" }
-            };
+                throw new CloudinaryException($"Failed to upload video: {uploadResult.Error.Message}");
+            }
+
+            return uploadResult;
+        }
+        catch (Exception ex) when (!(ex is CloudinaryException))
+        {
+            throw new MediaServiceException($"Video upload failed: {ex.Message}");
         }
     }
-    
+
     private async Task<VideoUploadResult> UploadLargeVideoAsync(IFormFile file)
     {
         // Create a temporary file to ensure reliable stream handling for large files
@@ -101,14 +114,15 @@ public class MediaService : IMediaService
             {
                 File = new FileDescription(file.FileName, tempFilePath),
                 Folder = "Signalite/Videos",
-
-                // ChunkSize = CHUNK_SIZE, // Default is 20MB
-                // Timeout = 600000, // Increase timeout for large uploads (in milliseconds)
                 UseFilename = true,
                 UniqueFilename = true
             };
 
             return await _cloudinary.UploadLargeAsync(uploadParams);
+        }
+        catch (Exception ex)
+        {
+            throw new MediaServiceException($"Failed to upload large video: {ex.Message}");
         }
         finally
         {
@@ -120,25 +134,68 @@ public class MediaService : IMediaService
         }
     }
 
-    public Task<VideoUploadResult> AddAudioAsync(IFormFile file)
+    public async Task<VideoUploadResult> AddAudioAsync(IFormFile file)
     {
-        throw new NotImplementedException();
+        if (file == null || file.Length <= 0)
+        {
+            throw new CloudinaryException("Empty file provided");
+        }
+        
+        try
+        {
+            await using var stream = file.OpenReadStream();
+            var uploadParams = new VideoUploadParams
+            {
+                File = new FileDescription(file.FileName, stream),
+                Folder = "Signalite/Audio"
+            };
+            var uploadResult = await _cloudinary.UploadAsync(uploadParams);
+
+            if (uploadResult.Error != null)
+            {
+                throw new CloudinaryException($"Failed to upload audio: {uploadResult.Error.Message}");
+            }
+            
+            return uploadResult;
+        }
+        catch (Exception ex) when (ex is not CloudinaryException)
+        {
+            throw new MediaServiceException($"Audio upload failed: {ex.Message}");
+        }
     }
 
-    public Task<RawUploadResult> AddDocumentAsync(IFormFile file)
-    {
-        throw new NotImplementedException();
-    }
 
-    public Task<DeletionResult> DeleteMediaAsync(string publicId)
-    {
-        throw new NotImplementedException();
-    }
 
-    public async Task<DeletionResult> DeletePhotoAsync(string publicId)
+    // TODO: MIME TYPES FINISH FOR DIFFERENT TYPES OF FILES
+    public async Task<DeletionResult> DeleteMediaAsync(string publicId, string mimeType)
     {
-        var deleteParams = new DeletionParams(publicId);
+        if (string.IsNullOrEmpty(publicId))
+        {
+            throw new CloudinaryException("Public ID cannot be null or empty");
+        }
+        
+        var fileType = SupportedFileTypes.GetFileTypeFromMimeType(mimeType);
 
-        return await _cloudinary.DestroyAsync(deleteParams);
+        var resourceType = fileType switch
+        {
+            FileType.Image => ResourceType.Image,
+            FileType.Video or FileType.Audio => ResourceType.Video,
+            FileType.Other => throw new NotImplementedException("Other file types not implemented"),
+            FileType.Unsupported => throw new CloudinaryException("Unsupported file type"),
+            _ => throw new MediaServiceException("Error handling file type in MediaService")
+        };
+        
+        var deleteParams = new DeletionParams(publicId){ResourceType = resourceType};
+
+        try
+        {
+            return await _cloudinary.DestroyAsync(deleteParams);
+        }
+        catch (Exception ex)
+        {
+            throw new MediaServiceException($"Failed to delete media: {ex.Message}");
+        }
     }
+    
+
 }

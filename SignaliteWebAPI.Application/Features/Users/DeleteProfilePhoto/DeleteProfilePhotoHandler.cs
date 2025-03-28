@@ -17,7 +17,7 @@ public class DeleteProfilePhotoHandler(
             throw new NotFoundException("Profile photo is missing");
 
         // delete photo from cloud storage
-        var deletionResult = await mediaService.DeletePhotoAsync(user.ProfilePhoto.PublicId);
+        var deletionResult = await mediaService.DeleteMediaAsync(user.ProfilePhoto.PublicId, "image/jpeg");
         if (deletionResult.Error != null) 
             throw new CloudinaryException(deletionResult.Error.Message);
 
@@ -25,4 +25,5 @@ public class DeleteProfilePhotoHandler(
         await photoRepository.RemovePhotoAsync(user.ProfilePhoto.Id);
         
     }
+    
 }

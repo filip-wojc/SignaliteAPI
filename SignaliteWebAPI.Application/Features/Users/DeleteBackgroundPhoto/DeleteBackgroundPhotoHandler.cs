@@ -17,7 +17,7 @@ public class DeleteBackgroundPhotoHandler(
             throw new NotFoundException("Background photo is missing");// TODO: throw exception or something idk
 
         // delete photo from cloud storage
-        var deletionResult = await mediaService.DeletePhotoAsync(user.BackgroundPhoto.PublicId);
+        var deletionResult = await mediaService.DeleteMediaAsync(user.BackgroundPhoto.PublicId, "image/jpeg");
         if (deletionResult.Error != null) 
             throw new CloudinaryException(deletionResult.Error.Message);
 

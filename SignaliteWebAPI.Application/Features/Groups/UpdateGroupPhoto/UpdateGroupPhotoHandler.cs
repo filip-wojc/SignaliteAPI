@@ -14,6 +14,7 @@ public class UpdateGroupPhotoHandler(
 {
     public async Task Handle(UpdateGroupPhotoCommand request, CancellationToken cancellationToken)
     {
+        // TODO: CHECK IF PHOTO IS OF IMAGE TYPE XD
         var group = await groupRepository.GetGroupWithPhoto(request.GroupId);
         if (group.OwnerId != request.OwnerId)
         {
@@ -34,7 +35,7 @@ public class UpdateGroupPhotoHandler(
         if (group.Photo != null)
         {
             var photoId = group.Photo.Id;
-            await mediaService.DeletePhotoAsync(group.Photo.PublicId);
+            await mediaService.DeleteMediaAsync(group.Photo.PublicId, "image/jpeg");
             await photoRepository.RemoveGroupPhotoAsync(group.Id);
             await photoRepository.RemovePhotoAsync(photoId);
         }
