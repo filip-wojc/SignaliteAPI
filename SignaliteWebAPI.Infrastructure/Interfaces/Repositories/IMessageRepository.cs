@@ -5,4 +5,5 @@ namespace SignaliteWebAPI.Infrastructure.Interfaces.Repositories;
 public interface IMessageRepository
 {
     Task AddMessage(Message message);
+    Task<List<Message>> GetMessages(int groupId);
 }

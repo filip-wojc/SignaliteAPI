@@ -1,8 +1,10 @@
 ﻿using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using SignaliteWebAPI.Application.Features.Messages.GetMessageThread;
 using SignaliteWebAPI.Application.Features.Messages.SendMessage;
 using SignaliteWebAPI.Application.Helpers;
+using SignaliteWebAPI.Domain.DTOs.Messages;
 using SignaliteWebAPI.Domain.Models;
 using SignaliteWebAPI.Infrastructure.Extensions;
 using SignaliteWebAPI.Infrastructure.Interfaces.Services;
@@ -25,5 +27,16 @@ public class MessageController(ISender mediator, IMediaService mediaService) : C
         await mediator.Send(command);
         return Created();
     }
-    
+
+    [HttpGet("{groupId}")]
+    public async Task<ActionResult<List<MessageDTO>>> GetMessageThread([FromRoute] int groupId)
+    {
+        var query = new GetMessageThreadQuery
+        {
+            GroupId = groupId,
+            UserId = User.GetUserId()
+        };
+        var messages = await mediator.Send(query);
+        return Ok(messages);
+    }
 }
