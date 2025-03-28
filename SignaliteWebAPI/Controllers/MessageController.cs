@@ -25,12 +25,5 @@ public class MessageController(ISender mediator, IMediaService mediaService) : C
         await mediator.Send(command);
         return Created();
     }
-
-    [HttpPost("test")]
-    public async Task<IActionResult> DeleteMediaAsync(string publicId, string mimeType)
-    {
-        var result = await mediaService.DeleteMediaAsync(publicId, mimeType);
-
-        return Ok();
-    }
+    
 }

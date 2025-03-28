@@ -46,9 +46,8 @@ public class SendMessageHandler(
                 throw new BadRequestException($"Unsupported file type: {file.ContentType}");
             }
         }
-
-        // TODO Add cloudinary - videos, gifs, sounds
-        // TODO Add azure blob - other file types
+        
+        // TODO: ADD Other file types STATIC FILE STORAGE
         string? uploadedPublicId = null;
         string? mimeType = null;
 

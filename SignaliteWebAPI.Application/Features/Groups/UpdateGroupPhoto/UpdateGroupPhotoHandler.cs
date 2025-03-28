@@ -35,7 +35,7 @@ public class UpdateGroupPhotoHandler(
         if (group.Photo != null)
         {
             var photoId = group.Photo.Id;
-            await mediaService.DeleteMediaAsync(group.Photo.PublicId, "image/jpeg");
+            await mediaService.DeleteMediaAsync(group.Photo.PublicId);
             await photoRepository.RemoveGroupPhotoAsync(group.Id);
             await photoRepository.RemovePhotoAsync(photoId);
         }

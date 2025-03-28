@@ -134,6 +134,7 @@ public class MediaService : IMediaService
         }
     }
 
+    // adds audio to the "Singalite/Audio" folder, uses the same pipeline as video upload
     public async Task<VideoUploadResult> AddAudioAsync(IFormFile file)
     {
         if (file == null || file.Length <= 0)
@@ -164,10 +165,7 @@ public class MediaService : IMediaService
         }
     }
 
-
-
-    // TODO: MIME TYPES FINISH FOR DIFFERENT TYPES OF FILES
-    public async Task<DeletionResult> DeleteMediaAsync(string publicId, string mimeType)
+    public async Task<DeletionResult> DeleteMediaAsync(string publicId, string mimeType = "image/jpeg") // default image format if no argument
     {
         if (string.IsNullOrEmpty(publicId))
         {
