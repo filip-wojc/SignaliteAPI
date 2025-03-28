@@ -31,6 +31,7 @@ builder.Services.AddOpenApi(options =>
 
 builder.Services.AddInfrastructureServices(builder.Configuration); // extension function
 builder.Services.AddApplicationServices(); // extension function
+builder.Services.AddValidatorExtensions();
 builder.Services.AddIdentityServices(builder.Configuration); // extension function (configures bearer)
 
 
