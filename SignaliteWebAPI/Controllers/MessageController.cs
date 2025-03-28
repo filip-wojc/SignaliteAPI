@@ -14,7 +14,7 @@ namespace SignaliteWebAPI.Controllers;
 [Authorize]
 [ApiController]
 [Route("api/[controller]")]
-public class MessageController(ISender mediator, IMediaService mediaService) : ControllerBase
+public class MessageController(ISender mediator) : ControllerBase
 {
     [HttpPost]
     public async Task<IActionResult> SendMessage([FromForm] SendMessageDTO messageDto)
