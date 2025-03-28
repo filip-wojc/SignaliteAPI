@@ -7,6 +7,7 @@ using SignaliteWebAPI.Application.Helpers;
 using SignaliteWebAPI.Domain.DTOs.Messages;
 using SignaliteWebAPI.Domain.Models;
 using SignaliteWebAPI.Infrastructure.Extensions;
+using SignaliteWebAPI.Infrastructure.Interfaces.Services;
 
 namespace SignaliteWebAPI.Controllers;
 

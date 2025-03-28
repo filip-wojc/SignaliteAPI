@@ -10,7 +10,7 @@ public class MessageRepository(SignaliteDbContext dbContext) : IMessageRepositor
     public async Task AddMessage(Message message)
     {
         await dbContext.Messages.AddAsync(message);
-        await dbContext.SaveChangesAsync();
+        //await dbContext.SaveChangesAsync(); // UnitOfWork handles saving now
     }
 
     public async Task<List<Message>> GetMessages(int groupId)

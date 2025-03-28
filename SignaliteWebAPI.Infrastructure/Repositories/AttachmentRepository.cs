@@ -9,6 +9,6 @@ public class AttachmentRepository(SignaliteDbContext dbContext) : IAttachmentRep
     public async Task AddAttachment(Attachment attachment)
     {
         await dbContext.Attachments.AddAsync(attachment);
-        await dbContext.SaveChangesAsync();
+        //await dbContext.SaveChangesAsync(); // UnitOfWork handles saving now
     }
 }

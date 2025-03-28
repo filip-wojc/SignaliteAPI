@@ -35,7 +35,7 @@ public class UpdateBackgroundPhotoHandler(
         if (user.BackgroundPhoto != null)
         {
             var photoId = user.BackgroundPhoto.Id;
-            await mediaService.DeletePhotoAsync(user.BackgroundPhoto.PublicId);
+            await mediaService.DeleteMediaAsync(user.BackgroundPhoto.PublicId);
             await photoRepository.RemoveUserBackgroundPhotoAsync(user.Id);
             await photoRepository.RemovePhotoAsync(photoId);
         }

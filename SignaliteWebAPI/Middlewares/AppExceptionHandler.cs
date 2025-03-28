@@ -28,6 +28,7 @@ public class AppExceptionHandler : IExceptionHandler
             message = exception.Message;
         }
         
+        // TODO: ADD MediaServiceException separate case ( don't send to client, log it )
         
         var errorResponse = new ErrorResponse
         {
