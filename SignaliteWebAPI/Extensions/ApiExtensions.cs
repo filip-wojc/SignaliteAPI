@@ -13,6 +13,7 @@ using SignaliteWebAPI.Application.Features.Users.UpdateProfilePhoto;
 using SignaliteWebAPI.Application.Features.Friends.GetUserFriends;
 using SignaliteWebAPI.Application.Features.Friends.SendFriendRequest;
 using SignaliteWebAPI.Application.Features.Messages.SendMessage;
+using SignaliteWebAPI.Application.Features.Users.ChangePassword;
 using SignaliteWebAPI.Application.Features.Users.ModifyUser;
 using SignaliteWebAPI.Middlewares;
 
@@ -33,6 +34,7 @@ public static class ApiExtensions
         services.AddScoped<IValidator<GetFriendRequestsQuery>, GetFriendRequestsValidator>(); 
         services.AddScoped<IValidator<GetUserFriendsQuery>, GetUserFriendsValidator>();
         services.AddScoped<IValidator<ModifyUserCommand>, ModifyUserValidator>();
+        services.AddScoped<IValidator<ChangePasswordCommand>, ChangePasswordValidator>();
         services.AddScoped<IValidator<CreateGroupCommand>, CreateGroupValidator>();
         services.AddScoped<IValidator<UpdateGroupPhotoCommand>, UpdateGroupPhotoValidator>();
         services.AddScoped<IValidator<UpdateProfilePhotoCommand>, UpdateProfilePhotoValidator>();

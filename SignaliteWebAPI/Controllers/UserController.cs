@@ -3,6 +3,7 @@ using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using SignaliteWebAPI.Application.Features.Users.AddProfilePhoto;
+using SignaliteWebAPI.Application.Features.Users.ChangePassword;
 using SignaliteWebAPI.Application.Features.Users.DeleteBackgroundPhoto;
 using SignaliteWebAPI.Application.Features.Users.DeleteProfilePhoto;
 using SignaliteWebAPI.Application.Features.Users.GetUserInfo;
@@ -20,7 +21,7 @@ namespace SignaliteWebAPI.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-public class UserController(ISender mediator, IMediaService mediaService) : ControllerBase
+public class UserController(ISender mediator) : ControllerBase
 {
     [Authorize]
     [HttpPut("modify-user")]
@@ -50,6 +51,22 @@ public class UserController(ISender mediator, IMediaService mediaService) : Cont
         };
         var content = await mediator.Send(command);
         return Ok(content);
+    }
+
+    [Authorize]
+    [HttpPut("change-password")]
+    public async Task<IActionResult> ChangePassword(string oldPassword, string newPassword, string confirmNewPassword)
+    {
+        var userId = User.GetUserId();
+        var command = new ChangePasswordCommand
+        {
+            UserId = userId,
+            OldPassword = oldPassword,
+            NewPassword = newPassword,
+            ConfirmNewPassword = confirmNewPassword
+        };
+        await mediator.Send(command);
+        return NoContent();
     }
     
     // Tested: works

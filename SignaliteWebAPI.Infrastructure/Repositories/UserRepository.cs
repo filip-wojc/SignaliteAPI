@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using SignaliteWebAPI.Domain.Models;
 using SignaliteWebAPI.Infrastructure.Database;
 using SignaliteWebAPI.Infrastructure.Exceptions;
@@ -11,6 +12,18 @@ public class UserRepository(SignaliteDbContext dbContext) : IUserRepository
     public async Task AddUser(User user)
     {
         await dbContext.Users.AddAsync(user);
+        await dbContext.SaveChangesAsync();
+    }
+
+    public async Task ChangePassword(int userId, string newPassword)
+    {
+        var user = await dbContext.Users.FindAsync(userId);
+        
+        if (user == null)
+            throw new NotFoundException("User not found");
+        
+        user.HashedPassword = newPassword;
+        
         await dbContext.SaveChangesAsync();
     }
 
