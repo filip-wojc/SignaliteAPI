@@ -13,6 +13,20 @@ public class UserRepository(SignaliteDbContext dbContext) : IUserRepository
         await dbContext.Users.AddAsync(user);
         await dbContext.SaveChangesAsync();
     }
+
+    public async Task ModifyUser(int userId, string username, string email,string  name, string surname)
+    {
+        var user = await dbContext.Users.FindAsync(userId);
+        if (user == null)
+            throw new NotFoundException("User not found");
+        
+        user.Username = username;
+        user.Email = email;
+        user.Name = name;
+        user.Surname = surname;
+        
+        await dbContext.SaveChangesAsync();
+    }
     
     public async Task<User?> GetUserByEmail(string email)
     {
