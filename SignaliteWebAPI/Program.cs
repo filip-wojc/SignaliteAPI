@@ -64,6 +64,7 @@ app.UseAuthorization();
 
 app.MapControllers();
 app.MapHub<PresenceHub>("hubs/presence");
+app.MapHub<NotificationsHub>("hubs/notifications");
 
 
 bool cleanupPerformed = false;
