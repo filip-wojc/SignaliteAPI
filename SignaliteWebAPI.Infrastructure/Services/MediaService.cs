@@ -5,10 +5,9 @@ using Microsoft.Extensions.Options;
 using SignaliteWebAPI.Domain.Enums;
 using SignaliteWebAPI.Infrastructure.Exceptions;
 using SignaliteWebAPI.Infrastructure.Helpers;
-using SignaliteWebAPI.Infrastructure.Interfaces;
 using SignaliteWebAPI.Infrastructure.Interfaces.Services;
 
-namespace SignaliteWebAPI.Infrastructure.Services.Media;
+namespace SignaliteWebAPI.Infrastructure.Services;
 
 public class MediaService : IMediaService
 {

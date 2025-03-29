@@ -24,7 +24,9 @@ public class FriendsController(ISender mediator) : ControllerBase
     {
         var command = new SendFriendRequestCommand
         {
-            RecipientId = recipientId, SenderId = User.GetUserId()
+            SenderId = User.GetUserId(),
+            SenderUsername = User.GetUsername(),
+            RecipientId = recipientId, 
         };
         await mediator.Send(command);
         return Created();

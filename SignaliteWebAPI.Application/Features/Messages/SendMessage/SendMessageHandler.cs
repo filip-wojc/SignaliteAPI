@@ -2,6 +2,7 @@
 using CloudinaryDotNet.Actions;
 using MediatR;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.SignalR;
 using Serilog.Core;
 using SignaliteWebAPI.Application.Exceptions;
 using SignaliteWebAPI.Domain.Enums;
@@ -9,6 +10,7 @@ using SignaliteWebAPI.Domain.Models;
 using SignaliteWebAPI.Infrastructure.Exceptions;
 using SignaliteWebAPI.Infrastructure.Interfaces.Repositories;
 using SignaliteWebAPI.Infrastructure.Interfaces.Services;
+using SignaliteWebAPI.Infrastructure.SignalR;
 using ILogger = Serilog.ILogger;
 
 namespace SignaliteWebAPI.Application.Features.Messages.SendMessage;
@@ -18,6 +20,7 @@ public class SendMessageHandler(
     IAttachmentRepository attachmentRepository,
     IMediaService mediaService,
     IUnitOfWork unitOfWork,
+    IHubContext<NotificationsHub> presenceHub,
     IMapper mapper,
     ILogger logger) : IRequestHandler<SendMessageCommand>
 {
@@ -117,9 +120,6 @@ public class SendMessageHandler(
                 // Log but continue - don't throw another exception during cleanup 
             }
         }
-
-
-        // TODO: Notification "MessageReceived"
     }
 
     // use the correct function based on the mime type
