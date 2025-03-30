@@ -2,10 +2,15 @@
 using SignaliteWebAPI.Domain.Models;
 using SignaliteWebAPI.Infrastructure.Exceptions;
 using SignaliteWebAPI.Infrastructure.Interfaces.Repositories;
+using SignaliteWebAPI.Infrastructure.Interfaces.Services;
 
 namespace SignaliteWebAPI.Application.Features.Friends.AcceptFriendRequest;
 
-public class AcceptFriendRequestHandler(IFriendsRepository friendsRepository, IGroupRepository groupRepository, IUserRepository userRepository) : IRequestHandler<AcceptFriendRequestCommand>
+public class AcceptFriendRequestHandler(
+    IFriendsRepository friendsRepository, 
+    IGroupRepository groupRepository, 
+    IUserRepository userRepository,
+    INotificationsService notificationsService) : IRequestHandler<AcceptFriendRequestCommand>
 {
     public async Task Handle(AcceptFriendRequestCommand request, CancellationToken cancellationToken)
     {
@@ -49,7 +54,7 @@ public class AcceptFriendRequestHandler(IFriendsRepository friendsRepository, IG
         };
         await groupRepository.AddUserToGroup(userGroup);
         await groupRepository.AddUserToGroup(userGroup2);
+        await notificationsService.SendFriendRequestAcceptedNotification(friend.Id, user.Id, user.Username);
         
-        // TODO: Notification "GroupCreated"
     }
 }

@@ -1,4 +1,5 @@
 
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -13,7 +14,6 @@ using SignaliteWebAPI.Infrastructure.Services;
 using SignaliteWebAPI.Infrastructure.SignalR;
 using StackExchange.Redis;
 using ILogger = Serilog.ILogger;
-using SignaliteWebAPI.Infrastructure.Services.Media;
 
 
 namespace SignaliteWebAPI.Infrastructure.Extensions;
@@ -44,6 +44,7 @@ public static class InfrastructureExtensions
 
         services.AddSingleton<PresenceTracker>();
         services.AddSignalR();
+        services.AddSingleton<IUserIdProvider, UsernameUserIdProvider>();
         services.AddSingleton<ConnectionCleanupService>(sp => 
         {
             var logger = sp.GetRequiredService<ILogger>();
@@ -59,5 +60,6 @@ public static class InfrastructureExtensions
 
         services.Configure<CloudinarySettings>(configuration.GetSection("CloudinarySettings")); // fill CloudinarySettings class with fields from appsettings
         services.AddScoped<IMediaService, MediaService>();
+        services.AddScoped<INotificationsService, NotificationsService>();
     }     
 }
