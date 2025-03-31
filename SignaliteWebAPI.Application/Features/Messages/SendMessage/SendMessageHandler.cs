@@ -5,6 +5,8 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.SignalR;
 using Serilog.Core;
 using SignaliteWebAPI.Application.Exceptions;
+using SignaliteWebAPI.Domain.DTOs.Messages;
+using SignaliteWebAPI.Domain.DTOs.Users;
 using SignaliteWebAPI.Domain.Enums;
 using SignaliteWebAPI.Domain.Models;
 using SignaliteWebAPI.Infrastructure.Exceptions;
@@ -17,8 +19,10 @@ namespace SignaliteWebAPI.Application.Features.Messages.SendMessage;
 
 public class SendMessageHandler(
     IMessageRepository messageRepository,
+    IGroupRepository groupRepository,
     IAttachmentRepository attachmentRepository,
     IMediaService mediaService,
+    INotificationsService notificationsService,
     IUnitOfWork unitOfWork,
     IHubContext<NotificationsHub> presenceHub,
     IMapper mapper,
@@ -97,7 +101,11 @@ public class SendMessageHandler(
             // if we got here, everything succeeded, so commit the transaction
             await unitOfWork.CommitTransactionAsync(cancellationToken);
 
-            // TODO: Notification "MessageReceived"
+            var usersToMap = await groupRepository.GetUsersInGroup(request.SendMessageDto.GroupId);
+            var usersInGroup = mapper.Map<List<UserBasicInfo>>(usersToMap);
+            var messageDto = mapper.Map<MessageDTO>(message);
+            await notificationsService.SendMessageReceivedNotification(usersInGroup, messageDto);
+            
         }
         catch (Exception)
         {
