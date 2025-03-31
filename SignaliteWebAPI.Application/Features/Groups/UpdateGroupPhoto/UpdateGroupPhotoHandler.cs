@@ -42,5 +42,7 @@ public class UpdateGroupPhotoHandler(
         
         await photoRepository.AddPhotoAsync(photo);
         await photoRepository.SetGroupPhotoAsync(group.Id, photo.Id);
+        
+        // TODO: GroupUpdated event
     }
 }

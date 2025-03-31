@@ -49,5 +49,6 @@ public class UpdateUserPhotoHandler(
         await photoRepository.AddPhotoAsync(photo);
         await photoRepository.SetUserProfilePhotoAsync(user.Id, photo.Id);
         
+        // TODO: UserUpdated event sent to friends
     }
 }

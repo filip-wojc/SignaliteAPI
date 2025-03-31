@@ -27,5 +27,7 @@ public class DeleteUserFromGroupHandler(IGroupRepository groupRepository) : IReq
         }
         
         await groupRepository.DeleteUserFromGroup(group, request.UserId);
+        
+        // TODO: GroupUpdated event
     }
 }
