@@ -14,6 +14,17 @@ public class GroupRepository(SignaliteDbContext dbContext) : IGroupRepository
         await dbContext.SaveChangesAsync();
     }
 
+    public async Task<Group> GetGroup(int groupId)
+    {
+        var group = await dbContext.Groups.FirstOrDefaultAsync(g => g.Id == groupId);
+        if (group == null)
+        {
+            throw new NotFoundException("Group not found");
+        }
+
+        return group;
+    }
+
     public async Task AddUserToGroup(UserGroup userGroup)
     {
         await dbContext.UserGroups.AddAsync(userGroup);
