@@ -12,4 +12,5 @@ public interface INotificationsService
     Task SendAddedToGroupNotification(int recipientUserId, int senderUserId, GroupBasicInfoDTO groupInfoDto);
     Task UserAddedToGroup(UserBasicInfo addedUserInfo, List<UserBasicInfo> usersInGroup);
     Task GroupUpdated(GroupBasicInfoDTO groupDto, List<UserBasicInfo> usersInGroup, int ownerId);
+    Task UserRemovedFromGroup(int userId, int groupId, List<UserBasicInfo> usersInGroup);
 }

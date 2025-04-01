@@ -1,8 +1,8 @@
 ﻿using MediatR;
 
-namespace SignaliteWebAPI.Application.Features.Groups.DeleteUserFromGroup;
+namespace SignaliteWebAPI.Application.Features.Groups.RemoveUserFromGroup;
 
-public class DeleteUserFromGroupCommand : IRequest
+public class RemoveUserFromGroupCommand : IRequest
 {
     public int OwnerId { get; set; }
     public int UserId { get; set; }
