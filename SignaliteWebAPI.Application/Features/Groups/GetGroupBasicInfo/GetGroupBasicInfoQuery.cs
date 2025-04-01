@@ -6,5 +6,4 @@ namespace SignaliteWebAPI.Application.Features.Groups.GetGroupBasicInfo;
 public class GetGroupBasicInfoQuery : IRequest<GroupBasicInfoDTO>
 {
     public int GroupId { get; set; }
-    public int UserId { get; set; }
 }
