@@ -115,7 +115,7 @@ public class NotificationsService(
         logger.Debug($"Message notification sent to {onlineGroupUsers.Count} online users in group for message ID: {messageDto.Id}");
     }
 
-    public async Task SendAddedToGroupNotification(int recipientUserId, int senderUserId, GroupBasicInfo groupInfo)
+    public async Task SendAddedToGroupNotification(int recipientUserId, int senderUserId, GroupBasicInfoDTO groupInfoDto)
     {
         var onlineUsers = await presenceTracker.GetOnlineUsersDetailed();
         
@@ -129,7 +129,7 @@ public class NotificationsService(
         
         await notificationsHub.Clients
             .User(recipientUser.Username)
-            .SendAsync("AddedToGroup", groupInfo);
+            .SendAsync("AddedToGroup", groupInfoDto);
         
         logger.Debug($"[NotificationsService] AddedToGroup notification sent to {recipientUser.Username} (ID: {recipientUser.Id}) from  (ID: {senderUserId})");
     }
