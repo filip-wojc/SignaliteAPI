@@ -39,42 +39,39 @@ public class UpdateGroupPhotoHandler(
             UserId = group.OwnerId
         };
         
-        if (group.Photo != null)
+        try
         {
-            var photoId = group.Photo.Id;
 
-            try
+            await unitOfWork.BeginTransactionAsync(cancellationToken);
+        
+            // delete old photo if exists
+            if (group.Photo != null)
             {
-                unitOfWork.BeginTransactionAsync();
+                var photoId = group.Photo.Id;
                 await mediaService.DeleteMediaAsync(group.Photo.PublicId);
                 await photoRepository.RemoveGroupPhotoAsync(group.Id);
                 await photoRepository.RemovePhotoAsync(photoId);
-                unitOfWork.CommitTransactionAsync();
             }
-            catch (Exception ex)
-            {
-                unitOfWork.RollbackTransactionAsync();
-                throw;
-            }
-        }
-
-        try
-        {
-            unitOfWork.BeginTransactionAsync();
+        
+            // add new photo
             await photoRepository.AddPhotoAsync(photo);
             await photoRepository.SetGroupPhotoAsync(group.Id, photo.Id);
-            unitOfWork.CommitTransactionAsync();
+        
+            // commit all changes
+            await unitOfWork.CommitTransactionAsync(cancellationToken);
+        
+            // only send notification if transaction succeeds
+            var updatedGroup = await groupRepository.GetGroupWithPhoto(request.GroupId);
+            var groupDto = mapper.Map<GroupBasicInfoDTO>(updatedGroup);
+            var membersToMap = await groupRepository.GetUsersInGroup(groupDto.Id);
+            var members = mapper.Map<List<UserBasicInfo>>(membersToMap);
+            await notificationsService.GroupUpdated(groupDto, members, request.OwnerId);
         }
-        catch (Exception ex)
+        catch (Exception)
         {
-            unitOfWork.RollbackTransactionAsync();
+            // rollback on any exception
+            await unitOfWork.RollbackTransactionAsync(cancellationToken);
             throw;
         }
-        
-        var updatedGroup = await groupRepository.GetGroupWithPhoto(request.GroupId);
-        var groupDto = mapper.Map<GroupBasicInfoDTO>(updatedGroup);
-        var membersToMap = await groupRepository.GetUsersInGroup(groupDto.Id);
-        var members = mapper.Map<List<UserBasicInfo>>(membersToMap);
-        await notificationsService.GroupUpdated(groupDto, members, request.OwnerId);
     }
 }

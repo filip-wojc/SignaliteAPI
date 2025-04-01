@@ -6,7 +6,12 @@ using SignaliteWebAPI.Infrastructure.Interfaces.Repositories;
 
 namespace SignaliteWebAPI.Application.Features.Groups.DeleteUserFromGroup;
 
-public class DeleteUserFromGroupHandler(IGroupRepository groupRepository, IFriendsRepository friendsRepository, IUnitOfWork unitOfWork, ILogger logger) : IRequestHandler<DeleteUserFromGroupCommand>
+public class DeleteUserFromGroupHandler(
+    IGroupRepository groupRepository,
+    IFriendsRepository friendsRepository, 
+    IUnitOfWork unitOfWork, 
+    ILogger logger
+    ) : IRequestHandler<DeleteUserFromGroupCommand>
 {
     public async Task Handle(DeleteUserFromGroupCommand request, CancellationToken cancellationToken)
     {

@@ -10,6 +10,6 @@ public interface INotificationsService
     Task SendMessageReceivedNotification(List<UserBasicInfo> usersInGroup, MessageDTO messageDto);
     Task SendFriendRequestAcceptedNotification(int recipientUserId, int senderUserId, string senderUsername);
     Task SendAddedToGroupNotification(int recipientUserId, int senderUserId, GroupBasicInfoDTO groupInfoDto);
-    Task SendUserAddedToGroupNotification(UserBasicInfo addedUserInfo, List<UserBasicInfo> usersInGroup);
+    Task UserAddedToGroup(UserBasicInfo addedUserInfo, List<UserBasicInfo> usersInGroup);
     Task GroupUpdated(GroupBasicInfoDTO groupDto, List<UserBasicInfo> usersInGroup, int ownerId);
 }

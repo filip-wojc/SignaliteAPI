@@ -11,7 +11,8 @@ public class AcceptFriendRequestHandler(
     IGroupRepository groupRepository,
     IUserRepository userRepository,
     IUnitOfWork unitOfWork,
-    INotificationsService notificationsService) : IRequestHandler<AcceptFriendRequestCommand>
+    INotificationsService notificationsService
+    ): IRequestHandler<AcceptFriendRequestCommand>
 {
     public async Task Handle(AcceptFriendRequestCommand request, CancellationToken cancellationToken)
     {
@@ -34,7 +35,7 @@ public class AcceptFriendRequestHandler(
 
         var group = new Group
         {
-            Name = $"{user!.Username}, {friend!.Username}",
+            Name = $"{user.Username}, {friend.Username}",
             OwnerId = user.Id,
             IsPrivate = true
         };

@@ -2,10 +2,10 @@
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using SignaliteWebAPI.Application.Features.Users.AddProfilePhoto;
 using SignaliteWebAPI.Application.Features.Users.DeleteBackgroundPhoto;
 using SignaliteWebAPI.Application.Features.Users.DeleteProfilePhoto;
 using SignaliteWebAPI.Application.Features.Users.UpdateBackgroundPhoto;
+using SignaliteWebAPI.Application.Features.Users.UpdateProfilePhoto;
 using SignaliteWebAPI.Extensions;
 using SignaliteWebAPI.Infrastructure.Extensions;
 using SignaliteWebAPI.Infrastructure.Interfaces;

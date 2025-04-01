@@ -134,7 +134,7 @@ public class NotificationsService(
         logger.Debug($"[NotificationsService] AddedToGroup notification sent to {recipientUser.Username} (ID: {recipientUser.Id}) from  (ID: {senderUserId})");
     }
 
-    public async Task SendUserAddedToGroupNotification(UserBasicInfo addedUserInfo,  List<UserBasicInfo> usersInGroup)
+    public async Task UserAddedToGroup(UserBasicInfo addedUserInfo,  List<UserBasicInfo> usersInGroup)
     {
         var onlineUsers = await presenceTracker.GetOnlineUserIds();
         

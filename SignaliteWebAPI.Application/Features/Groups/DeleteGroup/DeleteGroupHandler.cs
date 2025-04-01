@@ -5,7 +5,11 @@ using SignaliteWebAPI.Infrastructure.Interfaces.Repositories;
 
 namespace SignaliteWebAPI.Application.Features.Groups.DeleteGroup;
 
-public class DeleteGroupHandler(IGroupRepository groupRepository, IFriendsRepository friendsRepository, IUnitOfWork unitOfWork, ILogger logger) : IRequestHandler<DeleteGroupCommand>
+public class DeleteGroupHandler(
+    IGroupRepository groupRepository, 
+    IFriendsRepository friendsRepository, 
+    IUnitOfWork unitOfWork, 
+    ILogger logger) : IRequestHandler<DeleteGroupCommand>
 {
     public async Task Handle(DeleteGroupCommand request, CancellationToken cancellationToken)
     {

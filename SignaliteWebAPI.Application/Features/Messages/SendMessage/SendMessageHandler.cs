@@ -1,15 +1,12 @@
 ﻿using AutoMapper;
-using CloudinaryDotNet.Actions;
 using MediatR;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.SignalR;
-using Serilog.Core;
 using SignaliteWebAPI.Application.Exceptions;
 using SignaliteWebAPI.Domain.DTOs.Messages;
 using SignaliteWebAPI.Domain.DTOs.Users;
 using SignaliteWebAPI.Domain.Enums;
 using SignaliteWebAPI.Domain.Models;
-using SignaliteWebAPI.Infrastructure.Exceptions;
 using SignaliteWebAPI.Infrastructure.Interfaces.Repositories;
 using SignaliteWebAPI.Infrastructure.Interfaces.Services;
 using SignaliteWebAPI.Infrastructure.SignalR;
@@ -24,9 +21,8 @@ public class SendMessageHandler(
     IMediaService mediaService,
     INotificationsService notificationsService,
     IUnitOfWork unitOfWork,
-    IHubContext<NotificationsHub> presenceHub,
-    IMapper mapper,
-    ILogger logger) : IRequestHandler<SendMessageCommand>
+    IMapper mapper
+    ): IRequestHandler<SendMessageCommand>
 {
     public async Task Handle(SendMessageCommand request, CancellationToken cancellationToken)
     {

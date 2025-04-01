@@ -1,5 +1,4 @@
 ﻿using FluentValidation;
-using SignaliteWebAPI.Application.Features.Users.AddProfilePhoto;
 
 namespace SignaliteWebAPI.Application.Features.Users.UpdateProfilePhoto;
 

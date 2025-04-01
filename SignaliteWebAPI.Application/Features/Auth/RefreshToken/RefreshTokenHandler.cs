@@ -9,7 +9,8 @@ namespace SignaliteWebAPI.Application.Features.Auth.RefreshToken;
 
 public class RefreshTokenHandler(
     IUserRepository userRepository, 
-    ITokenService tokenService) : IRequestHandler<RefreshTokenCommand, TokenResponseDTO>
+    ITokenService tokenService
+    ): IRequestHandler<RefreshTokenCommand, TokenResponseDTO>
 {
     public async Task<TokenResponseDTO> Handle(RefreshTokenCommand request, CancellationToken cancellationToken)
     {

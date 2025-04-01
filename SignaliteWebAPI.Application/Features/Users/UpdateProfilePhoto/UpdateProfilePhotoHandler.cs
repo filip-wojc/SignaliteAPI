@@ -1,21 +1,17 @@
 // UploadUserPhotoHandler.cs
-
-using FluentValidation;
 using MediatR;
-using SignaliteWebAPI.Application.Features.Users.AddProfilePhoto;
 using SignaliteWebAPI.Domain.Models;
-using SignaliteWebAPI.Infrastructure.Database;
 using SignaliteWebAPI.Infrastructure.Exceptions;
-using SignaliteWebAPI.Infrastructure.Interfaces;
 using SignaliteWebAPI.Infrastructure.Interfaces.Repositories;
 using SignaliteWebAPI.Infrastructure.Interfaces.Services;
 
-namespace SignaliteWebAPI.Application.Features.Photos;
+namespace SignaliteWebAPI.Application.Features.Users.UpdateProfilePhoto;
 
 public class UpdateUserPhotoHandler(
     IUserRepository userRepository,
     IPhotoRepository photoRepository,
-    IMediaService mediaService) : IRequestHandler<UpdateProfilePhotoCommand>
+    IMediaService mediaService
+    ): IRequestHandler<UpdateProfilePhotoCommand>
 {
     public async Task Handle(UpdateProfilePhotoCommand request, CancellationToken cancellationToken)
     {

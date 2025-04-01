@@ -7,7 +7,11 @@ using SignaliteWebAPI.Infrastructure.Interfaces.Services;
 
 namespace SignaliteWebAPI.Application.Features.Friends.SendFriendRequest;
 
-public class SendFriendRequestHandler(IFriendsRepository repository, IMapper mapper, INotificationsService notificationsService) : IRequestHandler<SendFriendRequestCommand>
+public class SendFriendRequestHandler(
+    IFriendsRepository repository, 
+    IMapper mapper, 
+    INotificationsService notificationsService
+    ) : IRequestHandler<SendFriendRequestCommand>
 {
     public async Task Handle(SendFriendRequestCommand request, CancellationToken cancellationToken)
     {
