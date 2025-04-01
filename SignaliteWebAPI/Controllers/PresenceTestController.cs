@@ -1,11 +1,9 @@
-using System.Collections.Generic;
-using System.Threading.Tasks;
 using SignaliteWebAPI.Infrastructure.SignalR;
 using Microsoft.AspNetCore.Mvc;
 using SignaliteWebAPI.Infrastructure.Extensions;
-using SignaliteWebAPI.Infrastructure.SignalR;
 
-namespace API.Controllers
+
+namespace SignaliteWebAPI.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
@@ -25,12 +23,13 @@ namespace API.Controllers
             var userID = User.GetUserId();
             var connectionId = "test-connection-" + System.Guid.NewGuid().ToString();
             var isOnline = await _presenceTracker.UserConnected(username, connectionId, userID);
-            
-            return Ok(new { 
-                username, 
-                connectionId, 
-                isOnline, 
-                message = isOnline ? "User is now online" : "User was already online" 
+
+            return Ok(new
+            {
+                username,
+                connectionId,
+                isOnline,
+                message = isOnline ? "User is now online" : "User was already online"
             });
         }
 
@@ -38,11 +37,12 @@ namespace API.Controllers
         public async Task<IActionResult> TestDisconnect(string username, string connectionId)
         {
             var isOffline = await _presenceTracker.UserDisconnected(username, connectionId);
-            
-            return Ok(new { 
-                username, 
-                isOffline, 
-                message = isOffline ? "User is now offline" : "User still has other connections" 
+
+            return Ok(new
+            {
+                username,
+                isOffline,
+                message = isOffline ? "User is now offline" : "User still has other connections"
             });
         }
 
@@ -50,7 +50,7 @@ namespace API.Controllers
         public async Task<IActionResult> GetOnlineUsers()
         {
             var onlineUsers = await _presenceTracker.GetOnlineUserIds();
-            
+
             return Ok(new { users = onlineUsers, count = onlineUsers.Count() });
         }
 
@@ -58,7 +58,7 @@ namespace API.Controllers
         public async Task<IActionResult> GetUserConnections(string username)
         {
             var connections = await _presenceTracker.GetConnectionsForUser(username);
-            
+
             return Ok(new { username, connections, count = connections.Count });
         }
     }

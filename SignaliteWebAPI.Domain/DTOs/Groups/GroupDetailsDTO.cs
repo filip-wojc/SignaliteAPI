@@ -10,4 +10,5 @@ public class GroupDetailsDTO
     public UserDTO Owner { get; set; } 
     public List<UserDTO> Members { get; set; }
     public string? PhotoUrl { get; set; } // TODO: delete this later, use GroupBasicInfo when fetching a group list
+    public bool IsPrivate { get; set; }
 }
