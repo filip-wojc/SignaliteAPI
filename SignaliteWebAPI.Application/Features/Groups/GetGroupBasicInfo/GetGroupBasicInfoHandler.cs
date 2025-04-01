@@ -1,5 +1,7 @@
 ﻿using AutoMapper;
 using MediatR;
+using MediatR.Pipeline;
+using SignaliteWebAPI.Application.Exceptions;
 using SignaliteWebAPI.Domain.DTOs.Groups;
 using SignaliteWebAPI.Infrastructure.Interfaces.Repositories;
 
@@ -9,6 +11,13 @@ public class GetGroupBasicInfoHandler(IGroupRepository groupRepository, IMapper 
 {
     public async Task<GroupBasicInfoDTO> Handle(GetGroupBasicInfoQuery request, CancellationToken cancellationToken)
     {
+        var users = await groupRepository.GetUsersInGroup(request.GroupId);
+
+        if (users.All(u => u.Id != request.UserId))
+        {
+            throw new ForbidException("You are not in this group.");
+        }
+        
         var group = await groupRepository.GetGroupWithPhoto(request.GroupId);
         var groupDto = mapper.Map<GroupBasicInfoDTO>(group);
         return groupDto;

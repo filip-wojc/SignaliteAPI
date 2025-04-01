@@ -50,6 +50,7 @@ public class GroupsController(ISender mediator) : ControllerBase
     {
         var query = new GetGroupBasicInfoQuery()
         {
+            UserId = User.GetUserId(),
             GroupId = groupId
         };
         var group = await mediator.Send(query);
@@ -61,6 +62,7 @@ public class GroupsController(ISender mediator) : ControllerBase
     {
         var query = new GetGroupMembersQuery()
         {
+            UserId = User.GetUserId(),
             GroupId = groupId
         };
         var group = await mediator.Send(query);
