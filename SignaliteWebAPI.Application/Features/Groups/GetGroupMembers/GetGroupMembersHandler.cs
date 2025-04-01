@@ -10,13 +10,13 @@ public class GetGroupMembersHandler(IGroupRepository groupRepository, IMapper ma
 {
     public async Task<GroupMembersDTO> Handle(GetGroupMembersQuery request, CancellationToken cancellationToken)
     {
-        var users = await groupRepository.GetUsersInGroup(request.GroupId);
+        var groupWithMembers = await groupRepository.GetGroupMembers(request.GroupId);
 
-        if (users.All(u => u.Id != request.UserId))
+        if (groupWithMembers.Users.All(u => u.UserId != request.UserId))
         {
             throw new ForbidException("You are not in this group.");
         }
-        var groupWithMembers = await groupRepository.GetGroupMembers(request.GroupId);
+        
         return mapper.Map<GroupMembersDTO>(groupWithMembers);
     }
 }
