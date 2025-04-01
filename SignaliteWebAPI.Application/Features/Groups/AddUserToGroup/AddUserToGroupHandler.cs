@@ -1,11 +1,20 @@
-﻿using MediatR;
+using AutoMapper;
+using MediatR;
 using SignaliteWebAPI.Application.Exceptions;
+using SignaliteWebAPI.Domain.DTOs.Groups;
 using SignaliteWebAPI.Domain.Models;
 using SignaliteWebAPI.Infrastructure.Interfaces.Repositories;
+using SignaliteWebAPI.Infrastructure.Interfaces.Services;
 
 namespace SignaliteWebAPI.Application.Features.Groups.AddUserToGroup;
 
-public class AddUserToGroupHandler(IGroupRepository groupRepository, IUnitOfWork unitOfWork) : IRequestHandler<AddUserToGroupCommand>
+
+public class AddUserToGroupHandler(
+    IGroupRepository groupRepository,
+    INotificationsService notificationsService,
+    IUnitOfWork unitOfWork,
+    IMapper mapper
+    ) : IRequestHandler<AddUserToGroupCommand>
 {
     public async Task Handle(AddUserToGroupCommand request, CancellationToken cancellationToken)
     {
@@ -32,8 +41,13 @@ public class AddUserToGroupHandler(IGroupRepository groupRepository, IUnitOfWork
             GroupId = request.GroupId,
             UserId = request.UserId
         };
-
+        
         await groupRepository.AddUserToGroup(userGroup);
         await unitOfWork.SaveChangesAsync();
+
+        var groupInfo = mapper.Map<GroupBasicInfo>(group);
+        await notificationsService.SendAddedToGroupNotification(request.UserId, request.OwnerId, groupInfo); ;
+        
+        // TODO: UserAddedToGroup notification
     }
 }

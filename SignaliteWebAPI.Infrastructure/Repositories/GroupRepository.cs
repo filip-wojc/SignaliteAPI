@@ -14,6 +14,17 @@ public class GroupRepository(SignaliteDbContext dbContext) : IGroupRepository
         //await dbContext.SaveChangesAsync(); Unit of work 
     }
 
+    public async Task<Group> GetGroup(int groupId)
+    {
+        var group = await dbContext.Groups.FirstOrDefaultAsync(g => g.Id == groupId);
+        if (group == null)
+        {
+            throw new NotFoundException("Group not found");
+        }
+
+        return group;
+    }
+
     public async Task AddUserToGroup(UserGroup userGroup)
     {
         await dbContext.UserGroups.AddAsync(userGroup);
@@ -60,6 +71,16 @@ public class GroupRepository(SignaliteDbContext dbContext) : IGroupRepository
         }
 
         return group;
+    }
+
+    // get only users in group
+    public async Task<List<User>> GetUsersInGroup(int groupId)
+    {
+        var users =  await dbContext.Users
+            .Where(u => u.Groups.Any(ug => ug.GroupId == groupId))
+            .ToListAsync();
+        
+        return users;
     }
 
     public async Task<Group> GetGroupDetails(int groupId)

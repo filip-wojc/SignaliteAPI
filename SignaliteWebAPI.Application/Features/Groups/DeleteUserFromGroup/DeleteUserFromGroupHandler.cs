@@ -48,6 +48,8 @@ public class DeleteUserFromGroupHandler(IGroupRepository groupRepository, IFrien
         }
         
         await groupRepository.DeleteUserFromGroup(group, request.UserId);
+        
+        // TODO: GroupUpdated event
     }
     
 }

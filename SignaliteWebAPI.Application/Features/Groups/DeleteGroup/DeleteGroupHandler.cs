@@ -36,5 +36,8 @@ public class DeleteGroupHandler(IGroupRepository groupRepository, IFriendsReposi
         }
         groupRepository.DeleteGroup(group);
         await unitOfWork.SaveChangesAsync();
+        
+        // TODO: GroupDeleted event
+        
     }
 }
