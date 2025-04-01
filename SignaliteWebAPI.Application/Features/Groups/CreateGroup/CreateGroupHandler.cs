@@ -11,11 +11,14 @@ public class CreateGroupHandler(IGroupRepository groupRepository, IMapper mapper
     {
         var group = mapper.Map<CreateGroupCommand, Group>(request);
         group.IsPrivate = false;
-
+        
+        // create group before transactions scope to get groupId
+        await groupRepository.CreateGroup(group);
+        await unitOfWork.SaveChangesAsync();
+        
         try
         {
             await unitOfWork.BeginTransactionAsync();
-            await groupRepository.CreateGroup(group);
             var userGroup = new UserGroup
             {
                 GroupId = group.Id,
@@ -27,6 +30,10 @@ public class CreateGroupHandler(IGroupRepository groupRepository, IMapper mapper
         catch (Exception e)
         {
            await unitOfWork.RollbackTransactionAsync();
+
+           // delete group if transaction failed
+           groupRepository.DeleteGroup(group);
+           await unitOfWork.SaveChangesAsync();
         }
     }
 }
