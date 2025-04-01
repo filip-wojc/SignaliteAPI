@@ -15,6 +15,5 @@ public static class ApiExtensions
 
         services.AddExceptionHandler<AppExceptionHandler>();
         services.AddSingleton(Log.Logger);
-
     }
 }

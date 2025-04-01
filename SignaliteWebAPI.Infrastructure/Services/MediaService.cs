@@ -12,13 +12,17 @@ namespace SignaliteWebAPI.Infrastructure.Services;
 public class MediaService : IMediaService
 {
     private readonly Cloudinary _cloudinary;
+    private readonly AttachmentPath _staticFilesPath;
+    
     private const int CHUNK_SIZE = 6000000; // 6MB chunks
     private const int VIDEO_SIZE_THRESHOLD = 25000000;
-
-    public MediaService(IOptions<CloudinarySettings> config)
+    
+    
+    public MediaService(IOptions<CloudinarySettings> cloudinaryConfig, AttachmentPath staticFilesPath)
     {
-        var account = new Account(config.Value.CloudName, config.Value.ApiKey, config.Value.ApiSecret);
+        var account = new Account(cloudinaryConfig.Value.CloudName, cloudinaryConfig.Value.ApiKey, cloudinaryConfig.Value.ApiSecret);
         _cloudinary = new Cloudinary(account);
+        _staticFilesPath = staticFilesPath;
     }
 
     public async Task<ImageUploadResult> AddPhotoAsync(IFormFile file)
@@ -193,6 +197,48 @@ public class MediaService : IMediaService
             throw new MediaServiceException($"Failed to delete media: {ex.Message}");
         }
     }
-    
+
+    public async Task<StaticFileResult> AddStaticFile(IFormFile file)
+    {
+        if (file == null || file.Length <= 0)
+        {
+            throw new MediaServiceException("Empty file provided");
+        }
+
+        try
+        {
+            var fileName = $"{file.FileName.Replace(" ", "_")}";
+            int lastDotIndex = fileName.LastIndexOf('.');
+            fileName = fileName.Insert(lastDotIndex, $"_{Guid.NewGuid().ToString("N")}");
+            
+            var fullPath = Path.Combine(_staticFilesPath.AttachmentsDirectory, fileName);
+            await using (var stream = new FileStream(fullPath, FileMode.Create))
+            {
+                await file.CopyToAsync(stream);
+            }
+
+            var fileSize = (file.Length / (1024 * 1024)).ToString();
+            var publicUrl = $"{_staticFilesPath.RequestUrl.TrimEnd('/')}/{fileName}";
+
+            return new StaticFileResult
+            {
+                FileName = fileName,
+                FileSize = fileSize,
+                PublicId = Guid.NewGuid().ToString("N"),
+                Url = publicUrl,
+                Type = file.ContentType
+            };
+        }
+        catch (Exception ex)
+        {
+            throw new MediaServiceException($"Failed to add static file: {ex.Message}");
+        }
+    }
+
+    public void DeleteStaticFile(string url)
+    {
+        // Will be implemented after DeleteMessageFeature
+        throw new NotImplementedException();
+    }
 
 }

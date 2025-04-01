@@ -14,17 +14,6 @@ public class GroupRepository(SignaliteDbContext dbContext) : IGroupRepository
         //await dbContext.SaveChangesAsync(); Unit of work 
     }
 
-    public async Task<Group> GetGroup(int groupId)
-    {
-        var group = await dbContext.Groups.FirstOrDefaultAsync(g => g.Id == groupId);
-        if (group == null)
-        {
-            throw new NotFoundException("Group not found");
-        }
-
-        return group;
-    }
-
     public async Task AddUserToGroup(UserGroup userGroup)
     {
         await dbContext.UserGroups.AddAsync(userGroup);
@@ -38,6 +27,7 @@ public class GroupRepository(SignaliteDbContext dbContext) : IGroupRepository
         {
             throw new NotFoundException("User is not a member of this group");
         }
+
         dbContext.UserGroups.Remove(userToDelete);
         await dbContext.SaveChangesAsync();
     }
@@ -48,9 +38,16 @@ public class GroupRepository(SignaliteDbContext dbContext) : IGroupRepository
         {
             dbContext.UserGroups.Remove(user);
         }
+
         dbContext.Groups.Remove(group);
     }
-    
+
+    public async Task<List<Group>> GetUserGroupsWithPhoto(int userId)
+    {
+        return await dbContext.Groups.Include(g => g.Photo).Where(g => g.Users.Any(u => u.UserId == userId))
+            .ToListAsync();
+    }
+
     public async Task<Group> GetGroupWithPhoto(int groupId)
     {
         var group = await dbContext.Groups.Include(g => g.Photo).FirstOrDefaultAsync(g => g.Id == groupId);
@@ -76,16 +73,16 @@ public class GroupRepository(SignaliteDbContext dbContext) : IGroupRepository
     // get only users in group
     public async Task<List<User>> GetUsersInGroup(int groupId)
     {
-        var users =  await dbContext.Users
+        var users = await dbContext.Users
             .Where(u => u.Groups.Any(ug => ug.GroupId == groupId))
             .ToListAsync();
-        
+
         return users;
     }
 
-    public async Task<Group> GetGroupDetails(int groupId)
+    public async Task<Group> GetGroupMembers(int groupId)
     {
-        var group = await dbContext.Groups.Include(g => g.Photo).Include(g => g.Owner).ThenInclude(o => o.ProfilePhoto)
+        var group = await dbContext.Groups.Include(g => g.Owner).ThenInclude(o => o.ProfilePhoto)
             .Include(g => g.Users)
             .ThenInclude(u => u.User).ThenInclude(u => u.ProfilePhoto).FirstOrDefaultAsync(g => g.Id == groupId);
         if (group == null)
