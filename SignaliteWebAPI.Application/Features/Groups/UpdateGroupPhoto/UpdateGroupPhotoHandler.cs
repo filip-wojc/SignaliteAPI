@@ -14,7 +14,7 @@ public class UpdateGroupPhotoHandler(
 {
     public async Task Handle(UpdateGroupPhotoCommand request, CancellationToken cancellationToken)
     {
-        // TODO: CHECK IF PHOTO IS OF IMAGE TYPE XD
+        // TODO: Private conversation photo group return
         var group = await groupRepository.GetGroupWithPhoto(request.GroupId);
         if (group.OwnerId != request.OwnerId)
         {

@@ -51,8 +51,8 @@ public class GroupsController(ISender mediator) : ControllerBase
         {
             GroupId = groupId
         };
-        var groups = await mediator.Send(query);
-        return Ok(groups);
+        var group = await mediator.Send(query);
+        return Ok(group);
     }
 
     [HttpDelete("{groupId}")]
