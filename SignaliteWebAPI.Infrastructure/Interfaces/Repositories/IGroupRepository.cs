@@ -5,6 +5,7 @@ namespace SignaliteWebAPI.Infrastructure.Interfaces.Repositories;
 public interface IGroupRepository
 {
     Task CreateGroup(Group group);
+    Task<Group> GetGroup(int groupId);
     Task AddUserToGroup(UserGroup userGroup);
     Task DeleteUserFromGroup(Group group, int userId);
     Task DeleteGroup(Group group);

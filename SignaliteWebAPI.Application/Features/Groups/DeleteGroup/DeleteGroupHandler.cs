@@ -14,5 +14,7 @@ public class DeleteGroupHandler(IGroupRepository groupRepository) : IRequestHand
             throw new ForbidException("You can't delete group which you did not create");
         }
         await groupRepository.DeleteGroup(group);
+        
+        // TODO: GroupDeleted event
     }
 }

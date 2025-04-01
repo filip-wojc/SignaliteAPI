@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.SignalR;
+using SignaliteWebAPI.Domain.DTOs.Groups;
 using SignaliteWebAPI.Domain.DTOs.Messages;
 using SignaliteWebAPI.Domain.DTOs.Users;
 using SignaliteWebAPI.Domain.Models;
@@ -112,5 +113,24 @@ public class NotificationsService(
         }
         
         logger.Debug($"Message notification sent to {onlineGroupUsers.Count} online users in group for message ID: {messageDto.Id}");
+    }
+
+    public async Task SendAddedToGroupNotification(int recipientUserId, int senderUserId, GroupBasicInfo groupInfo)
+    {
+        var onlineUsers = await presenceTracker.GetOnlineUsersDetailed();
+        
+        // check if user is online
+        var recipientUser = onlineUsers.FirstOrDefault(u => u.Id == recipientUserId);
+        if (recipientUser == null)
+        {
+            logger.Debug($"Cannot send friend request accepted notification - recipient user (ID: {recipientUserId}) is not online");
+            return;
+        }
+        
+        await notificationsHub.Clients
+            .User(recipientUser.Username)
+            .SendAsync("AddedToGroup", groupInfo);
+        
+        logger.Debug($"[NotificationsService] AddedToGroup notification sent to {recipientUser.Username} (ID: {recipientUser.Id}) from  (ID: {senderUserId})");
     }
 }

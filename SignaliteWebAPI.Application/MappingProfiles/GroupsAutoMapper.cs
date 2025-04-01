@@ -15,5 +15,6 @@ public class GroupsAutoMapper : Profile
             .ForMember(g => g.Members,
                 o => o.MapFrom(g => g.Users.Where(u => g.OwnerId != u.UserId).Select(u => u.User)))
             .ForMember(g => g.PhotoUrl, o => o.MapFrom(g => g.Photo.Url));
+        CreateMap<Group, GroupBasicInfo>();
     }
 }
