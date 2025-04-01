@@ -62,7 +62,7 @@ public class AcceptFriendRequestHandler(
             };
             await groupRepository.AddUserToGroup(userGroup);
             await groupRepository.AddUserToGroup(userGroup2);
-            await notificationsService.SendFriendRequestAcceptedNotification(friend.Id, user.Id, user.Username);
+            await notificationsService.FriendRequestAccepted(friend.Id, user.Id, user.Username);
             await unitOfWork.CommitTransactionAsync();
         }
         catch (Exception ex)

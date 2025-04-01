@@ -54,7 +54,7 @@ public class AddUserToGroupHandler(
             var addedUser = await userRepository.GetUserById(request.UserId);
             var addedUserInfo = mapper.Map<UserBasicInfo>(addedUser);
             // wait with notifications until everything before finishes
-            await notificationsService.SendAddedToGroupNotification(request.UserId, request.OwnerId, groupInfo);
+            await notificationsService.AddedToGroup(request.UserId, request.OwnerId, groupInfo);
             await notificationsService.UserAddedToGroup(addedUserInfo, members);
             await unitOfWork.CommitTransactionAsync(); // wait with commiting until everything else finishes
 

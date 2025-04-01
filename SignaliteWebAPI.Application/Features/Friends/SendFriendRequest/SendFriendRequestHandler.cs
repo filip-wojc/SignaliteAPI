@@ -25,7 +25,7 @@ public class SendFriendRequestHandler(
             throw new BadRequestException("User already accepted friend request from sender");
         }
         await repository.SendFriendRequest(friendRequest);
-        await notificationsService.SendFriendRequestNotification(
+        await notificationsService.FriendRequest(
             request.RecipientId,
             request.SenderId,
             request.SenderUsername

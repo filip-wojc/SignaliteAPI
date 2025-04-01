@@ -14,7 +14,7 @@ public class NotificationsService(
     ILogger logger
     ):INotificationsService
 {
-    public async Task SendFriendRequestNotification(int recipientUserId, int senderUserId, string senderUsername) 
+    public async Task FriendRequest(int recipientUserId, int senderUserId, string senderUsername) 
     {
         try
         {
@@ -51,7 +51,7 @@ public class NotificationsService(
         }
     }
     
-    public async Task SendFriendRequestAcceptedNotification(int recipientUserId, int senderUserId, string senderUsername)
+    public async Task FriendRequestAccepted(int recipientUserId, int senderUserId, string senderUsername)
     {
         try
         {
@@ -86,7 +86,7 @@ public class NotificationsService(
         }
     }
 
-    public async Task SendMessageReceivedNotification(List<UserBasicInfo> usersInGroup, MessageDTO messageDto)
+    public async Task MessageReceived(List<UserBasicInfo> usersInGroup, MessageDTO messageDto)
     {
         var onlineUsers = await presenceTracker.GetOnlineUserIds(); // get online users from tracker
         
@@ -114,7 +114,7 @@ public class NotificationsService(
         logger.Debug($"[NotificationsService] MessageReceived notification sent to {onlineGroupUsers.Count} online users in group for message ID: {messageDto.Id}");
     }
 
-    public async Task SendAddedToGroupNotification(int recipientUserId, int senderUserId, GroupBasicInfoDTO groupInfoDto)
+    public async Task AddedToGroup(int recipientUserId, int senderUserId, GroupBasicInfoDTO groupInfoDto)
     {
         var onlineUsers = await presenceTracker.GetOnlineUsersDetailed();
         
