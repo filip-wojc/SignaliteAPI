@@ -5,12 +5,12 @@ using SignaliteWebAPI.Infrastructure.Interfaces.Repositories;
 
 namespace SignaliteWebAPI.Application.Features.Groups.GetGroupDetails;
 
-public class GetGroupDetailsHandler(IGroupRepository groupRepository, IMapper mapper) : IRequestHandler<GetGroupDetailsQuery, GroupDetailsDTO>
+public class GetGroupDetailsHandler(IGroupRepository groupRepository, IMapper mapper) : IRequestHandler<GetGroupDetailsQuery, GroupMembersDTO>
 {
-    public async Task<GroupDetailsDTO> Handle(GetGroupDetailsQuery request, CancellationToken cancellationToken)
+    public async Task<GroupMembersDTO> Handle(GetGroupDetailsQuery request, CancellationToken cancellationToken)
     {
         var group = await groupRepository.GetGroupDetails(request.GroupId);
-        var groupDto = mapper.Map<GroupDetailsDTO>(group);
+        var groupDto = mapper.Map<GroupMembersDTO>(group);
         return groupDto;
     }
 }

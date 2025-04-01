@@ -1,3 +1,6 @@
+using SignaliteWebAPI.Domain.DTOs.Users;
+using SignaliteWebAPI.Domain.Models;
+
 namespace SignaliteWebAPI.Domain.DTOs.Groups;
 
 // will be used to add group to the group list instantly without fetching members and owner info

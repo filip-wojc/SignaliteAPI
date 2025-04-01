@@ -70,31 +70,20 @@ public class SendMessageHandler(
             // try to create attachment
             if (file != null)
             {
-                // upload to Cloudinary
-                var uploadResult = await UploadFileBasedOnType(file);
+                var (url, publicId, type, fileName) = await UploadFileBasedOnType(file);
+                uploadedPublicId = publicId;
+                mimeType = type;
 
-                if (uploadResult == null || uploadResult.Error != null)
-                {
-                    // rollback message transaction if something went wrong with cloudinary upload
-                    await unitOfWork.RollbackTransactionAsync(cancellationToken);
-                    throw new CloudinaryException(uploadResult?.Error?.Message ??
-                                                  "Failed to upload file to Cloudinary");
-                }
-                
-                uploadedPublicId = uploadResult.PublicId;
-                mimeType = file.ContentType;
-                // Create attachment entity
                 var attachment = new Attachment
                 {
-                    Name = file.FileName,
-                    Type = file.ContentType,
+                    Name = fileName,
+                    Type = mimeType,
                     MessageId = message.Id,
-                    FileSize = file.Length / (1024.0 * 1024.0),
-                    Url = uploadResult.SecureUrl.AbsoluteUri,
-                    PublicId = uploadResult.PublicId
+                    FileSize = Math.Round(file.Length / (1024.0 * 1024.0), 2),
+                    Url = url,
+                    PublicId = publicId
                 };
 
-                // add attachment to db
                 await attachmentRepository.AddAttachment(attachment);
             }
 
@@ -131,17 +120,31 @@ public class SendMessageHandler(
     }
 
     // use the correct function based on the mime type
-    private async Task<UploadResult> UploadFileBasedOnType(IFormFile file)
+    private async Task<(string Url, string PublicId, string MimeType,string fileName)> UploadFileBasedOnType(IFormFile file)
     {
         var fileType = SupportedFileTypes.GetFileTypeFromMimeType(file.ContentType);
 
-        return fileType switch
+        switch (fileType)
         {
-            FileType.Image => await mediaService.AddPhotoAsync(file),
-            FileType.Video => await mediaService.AddVideoAsync(file),
-            FileType.Audio => await mediaService.AddAudioAsync(file),
-            // FileType.Other => await mediaService.AddOtherAsync(file), // use other service
-            _ => throw new BadRequestException($"Unsupported file type: {file.ContentType}")
-        };
+            case FileType.Image:
+                var imageResult = await mediaService.AddPhotoAsync(file);
+                return (imageResult.SecureUrl.AbsoluteUri, imageResult.PublicId, file.ContentType, file.FileName);
+
+            case FileType.Video:
+                var videoResult = await mediaService.AddVideoAsync(file);
+                return (videoResult.SecureUrl.AbsoluteUri, videoResult.PublicId, file.ContentType, file.FileName);
+
+            case FileType.Audio:
+                var audioResult = await mediaService.AddAudioAsync(file);
+                return (audioResult.SecureUrl.AbsoluteUri, audioResult.PublicId, file.ContentType, file.FileName);
+
+            case FileType.Other:
+                var staticResult = await mediaService.AddStaticFile(file);
+                return (staticResult.Url, staticResult.PublicId, staticResult.Type, staticResult.FileName);
+
+            default:
+                throw new BadRequestException($"Unsupported file type: {file.ContentType}");
+        }
     }
+
 }
