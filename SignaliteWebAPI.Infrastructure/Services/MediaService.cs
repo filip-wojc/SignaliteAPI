@@ -235,8 +235,10 @@ public class MediaService : IMediaService
         }
     }
 
-    public Task DeleteStaticFile(string url)
+    public void DeleteStaticFile(string url)
     {
+        // Will be implemented after DeleteMessageFeature
         throw new NotImplementedException();
     }
+
 }

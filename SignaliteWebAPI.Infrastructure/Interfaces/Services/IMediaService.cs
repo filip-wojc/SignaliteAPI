@@ -12,5 +12,5 @@ public interface IMediaService
     Task<VideoUploadResult> AddAudioAsync(IFormFile file);
     Task<DeletionResult> DeleteMediaAsync(string publicId, string mimeType = "image/jpeg");
     Task<StaticFileResult> AddStaticFile(IFormFile file);
-    Task DeleteStaticFile(string url);
+    void DeleteStaticFile(string url);
 }
