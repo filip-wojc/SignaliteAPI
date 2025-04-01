@@ -11,13 +11,13 @@ public class GroupRepository(SignaliteDbContext dbContext) : IGroupRepository
     public async Task CreateGroup(Group group)
     {
         await dbContext.Groups.AddAsync(group);
-        await dbContext.SaveChangesAsync();
+        //await dbContext.SaveChangesAsync(); Unit of work 
     }
 
     public async Task AddUserToGroup(UserGroup userGroup)
     {
         await dbContext.UserGroups.AddAsync(userGroup);
-        await dbContext.SaveChangesAsync();
+        //await dbContext.SaveChangesAsync(); Unit of work
     }
 
     public async Task DeleteUserFromGroup(Group group, int userId)
@@ -32,7 +32,7 @@ public class GroupRepository(SignaliteDbContext dbContext) : IGroupRepository
         await dbContext.SaveChangesAsync();
     }
 
-    public async Task DeleteGroup(Group group)
+    public void DeleteGroup(Group group)
     {
         foreach (var user in group.Users)
         {
@@ -40,7 +40,6 @@ public class GroupRepository(SignaliteDbContext dbContext) : IGroupRepository
         }
 
         dbContext.Groups.Remove(group);
-        await dbContext.SaveChangesAsync();
     }
 
     public async Task<List<Group>> GetUserGroupsWithPhoto(int userId)

@@ -1,4 +1,4 @@
-﻿using AutoMapper;
+using AutoMapper;
 using MediatR;
 using SignaliteWebAPI.Application.Exceptions;
 using SignaliteWebAPI.Domain.DTOs.Groups;
@@ -8,15 +8,22 @@ using SignaliteWebAPI.Infrastructure.Interfaces.Services;
 
 namespace SignaliteWebAPI.Application.Features.Groups.AddUserToGroup;
 
+
 public class AddUserToGroupHandler(
     IGroupRepository groupRepository,
     INotificationsService notificationsService,
+    IUnitOfWork unitOfWork,
     IMapper mapper
     ) : IRequestHandler<AddUserToGroupCommand>
 {
     public async Task Handle(AddUserToGroupCommand request, CancellationToken cancellationToken)
     {
         var group = await groupRepository.GetGroupWithUsers(request.GroupId);
+
+        if (group.IsPrivate)
+        {
+            throw new ForbidException("You can't add user to private group");
+        }
         
         if (group.OwnerId != request.OwnerId)
         {
@@ -36,6 +43,8 @@ public class AddUserToGroupHandler(
         };
         
         await groupRepository.AddUserToGroup(userGroup);
+        await unitOfWork.SaveChangesAsync();
+        
         var groupInfo = mapper.Map<GroupBasicInfoDTO>(group);
         await notificationsService.SendAddedToGroupNotification(request.UserId, request.OwnerId, groupInfo); ;
         
