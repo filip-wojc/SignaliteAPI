@@ -36,7 +36,7 @@ public class AddUserToGroupHandler(
         };
         
         await groupRepository.AddUserToGroup(userGroup);
-        var groupInfo = mapper.Map<GroupBasicInfo>(group);
+        var groupInfo = mapper.Map<GroupBasicInfoDTO>(group);
         await notificationsService.SendAddedToGroupNotification(request.UserId, request.OwnerId, groupInfo); ;
         
 
