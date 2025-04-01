@@ -63,6 +63,16 @@ public class GroupRepository(SignaliteDbContext dbContext) : IGroupRepository
         return group;
     }
 
+    // get only users in group
+    public async Task<List<User>> GetUsersInGroup(int groupId)
+    {
+        var users =  await dbContext.Users
+            .Where(u => u.Groups.Any(ug => ug.GroupId == groupId))
+            .ToListAsync();
+        
+        return users;
+    }
+
     public async Task<Group> GetGroupDetails(int groupId)
     {
         var group = await dbContext.Groups.Include(g => g.Photo).Include(g => g.Owner).ThenInclude(o => o.ProfilePhoto)

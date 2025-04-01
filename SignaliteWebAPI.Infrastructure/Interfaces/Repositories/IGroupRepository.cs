@@ -10,6 +10,7 @@ public interface IGroupRepository
     Task DeleteGroup(Group group);
     Task<Group> GetGroupWithPhoto(int groupId);
     Task<Group> GetGroupWithUsers(int groupId);
+    Task<List<User>> GetUsersInGroup(int groupId);
     Task<Group> GetGroupDetails(int groupId);
     Task<bool> GroupExists(int groupId);
 }
