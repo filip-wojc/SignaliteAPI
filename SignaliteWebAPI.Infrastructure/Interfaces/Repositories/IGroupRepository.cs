@@ -7,7 +7,7 @@ public interface IGroupRepository
     Task CreateGroup(Group group);
     Task AddUserToGroup(UserGroup userGroup);
     Task DeleteUserFromGroup(Group group, int userId);
-    Task DeleteGroup(Group group);
+    void DeleteGroup(Group group);
     Task<Group> GetGroupWithPhoto(int groupId);
     Task<Group> GetGroupWithUsers(int groupId);
     Task<Group> GetGroupDetails(int groupId);

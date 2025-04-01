@@ -9,4 +9,5 @@ public class GroupDetailsDTO
     public UserDTO Owner { get; set; }
     public List<UserDTO> Members { get; set; }
     public string? PhotoUrl { get; set; }
+    public bool IsPrivate { get; set; }
 }

@@ -5,13 +5,16 @@ using SignaliteWebAPI.Infrastructure.Interfaces.Repositories;
 
 namespace SignaliteWebAPI.Application.Features.Groups.AddUserToGroup;
 
-public class AddUserToGroupHandler(IGroupRepository groupRepository) : IRequestHandler<AddUserToGroupCommand>
+public class AddUserToGroupHandler(IGroupRepository groupRepository, IUnitOfWork unitOfWork) : IRequestHandler<AddUserToGroupCommand>
 {
     public async Task Handle(AddUserToGroupCommand request, CancellationToken cancellationToken)
     {
         var group = await groupRepository.GetGroupWithUsers(request.GroupId);
-        
-        
+
+        if (group.IsPrivate)
+        {
+            throw new ForbidException("You can't add user to private group");
+        }
         
         if (group.OwnerId != request.OwnerId)
         {
@@ -31,5 +34,6 @@ public class AddUserToGroupHandler(IGroupRepository groupRepository) : IRequestH
         };
 
         await groupRepository.AddUserToGroup(userGroup);
+        await unitOfWork.SaveChangesAsync();
     }
 }
