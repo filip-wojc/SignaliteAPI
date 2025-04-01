@@ -93,7 +93,7 @@ public class NotificationsService(
         
         // get the intersection of online/group users (without the sender)
         var onlineGroupUsers = usersInGroup
-            .Where(groupUser => onlineUsers.Contains(groupUser.Id) && groupUser.Id != messageDto.Sender.Id)
+            .Where(user => onlineUsers.Contains(user.Id) && user.Id != messageDto.Sender.Id)
             .ToList();
         
         // if no users online, dont send a notification
@@ -139,7 +139,7 @@ public class NotificationsService(
         var onlineUsers = await presenceTracker.GetOnlineUserIds();
         
         var onlineGroupUsers = usersInGroup
-            .Where(groupUser => onlineUsers.Contains(groupUser.Id) && groupUser.Id != addedUserInfo.Id)
+            .Where(user => onlineUsers.Contains(user.Id) && user.Id != addedUserInfo.Id)
             .ToList();
         
         if (onlineGroupUsers.Count == 0)
@@ -157,5 +157,34 @@ public class NotificationsService(
         }
         
         logger.Debug($"UserAddedToGroup notification sent to {onlineGroupUsers.Count} online users in group for user ID: {addedUserInfo.Id}");
+    }
+
+    public async Task GroupUpdated(GroupBasicInfoDTO groupDto, List<UserBasicInfo> usersInGroup, int ownerId)
+    {
+        var onlineUsers = await presenceTracker.GetOnlineUserIds();
+        
+        var onlineGroupUsers = usersInGroup
+                .Where(user => onlineUsers.Contains(user.Id) && user.Id != ownerId)
+                .ToList();
+        
+        if (onlineGroupUsers.Count == 0)
+        {
+            logger.Debug($"No online users in group to send GroupUpdated notification for group ID: {groupDto.Id}");
+            return;
+        }
+        
+        // need to create a dto because passing group will make JsonSerializer angry
+
+        
+        foreach (var user in onlineGroupUsers)
+        {
+            await notificationsHub.Clients
+                .User(user.Username)
+                .SendAsync("GroupUpdated", groupDto);
+            logger.Debug($"Message received from {user.Username} (ID: {user.Id})");
+        }
+        
+        logger.Debug($"GroupUpdated notification sent to {onlineGroupUsers.Count} online users in group for group ID: {groupDto.Id}");
+        
     }
 }

@@ -1,5 +1,8 @@
-﻿using MediatR;
+﻿using AutoMapper;
+using MediatR;
 using SignaliteWebAPI.Application.Exceptions;
+using SignaliteWebAPI.Domain.DTOs.Groups;
+using SignaliteWebAPI.Domain.DTOs.Users;
 using SignaliteWebAPI.Domain.Models;
 using SignaliteWebAPI.Infrastructure.Exceptions;
 using SignaliteWebAPI.Infrastructure.Interfaces.Repositories;
@@ -10,7 +13,11 @@ namespace SignaliteWebAPI.Application.Features.Groups.UpdateGroupPhoto;
 public class UpdateGroupPhotoHandler(
     IGroupRepository groupRepository,
     IPhotoRepository photoRepository,
-    IMediaService mediaService) : IRequestHandler<UpdateGroupPhotoCommand>
+    IMapper mapper,
+    IUnitOfWork unitOfWork,
+    IMediaService mediaService,
+    INotificationsService notificationsService
+    ) : IRequestHandler<UpdateGroupPhotoCommand>
 {
     public async Task Handle(UpdateGroupPhotoCommand request, CancellationToken cancellationToken)
     {
@@ -35,14 +42,39 @@ public class UpdateGroupPhotoHandler(
         if (group.Photo != null)
         {
             var photoId = group.Photo.Id;
-            await mediaService.DeleteMediaAsync(group.Photo.PublicId);
-            await photoRepository.RemoveGroupPhotoAsync(group.Id);
-            await photoRepository.RemovePhotoAsync(photoId);
+
+            try
+            {
+                unitOfWork.BeginTransactionAsync();
+                await mediaService.DeleteMediaAsync(group.Photo.PublicId);
+                await photoRepository.RemoveGroupPhotoAsync(group.Id);
+                await photoRepository.RemovePhotoAsync(photoId);
+                unitOfWork.CommitTransactionAsync();
+            }
+            catch (Exception ex)
+            {
+                unitOfWork.RollbackTransactionAsync();
+                throw;
+            }
+        }
+
+        try
+        {
+            unitOfWork.BeginTransactionAsync();
+            await photoRepository.AddPhotoAsync(photo);
+            await photoRepository.SetGroupPhotoAsync(group.Id, photo.Id);
+            unitOfWork.CommitTransactionAsync();
+        }
+        catch (Exception ex)
+        {
+            unitOfWork.RollbackTransactionAsync();
+            throw;
         }
         
-        await photoRepository.AddPhotoAsync(photo);
-        await photoRepository.SetGroupPhotoAsync(group.Id, photo.Id);
-        
-        // TODO: GroupUpdated event
+        var updatedGroup = await groupRepository.GetGroupWithPhoto(request.GroupId);
+        var groupDto = mapper.Map<GroupBasicInfoDTO>(updatedGroup);
+        var membersToMap = await groupRepository.GetUsersInGroup(groupDto.Id);
+        var members = mapper.Map<List<UserBasicInfo>>(membersToMap);
+        await notificationsService.GroupUpdated(groupDto, members, request.OwnerId);
     }
 }
