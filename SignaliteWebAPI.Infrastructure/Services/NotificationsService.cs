@@ -133,4 +133,29 @@ public class NotificationsService(
         
         logger.Debug($"[NotificationsService] AddedToGroup notification sent to {recipientUser.Username} (ID: {recipientUser.Id}) from  (ID: {senderUserId})");
     }
+
+    public async Task SendUserAddedToGroupNotification(UserBasicInfo addedUserInfo,  List<UserBasicInfo> usersInGroup)
+    {
+        var onlineUsers = await presenceTracker.GetOnlineUserIds();
+        
+        var onlineGroupUsers = usersInGroup
+            .Where(groupUser => onlineUsers.Contains(groupUser.Id) && groupUser.Id != addedUserInfo.Id)
+            .ToList();
+        
+        if (onlineGroupUsers.Count == 0)
+        {
+            logger.Debug($"No online users in group to send UserAddedToGroupNotification for user ID: {addedUserInfo.Id}");
+            return;
+        }
+        
+        foreach (var user in onlineGroupUsers)
+        {
+            await notificationsHub.Clients
+                .User(user.Username)
+                .SendAsync("UserAddedToGroup", addedUserInfo);
+            logger.Debug($"Message received from {user.Username} (ID: {user.Id})");
+        }
+        
+        logger.Debug($"UserAddedToGroup notification sent to {onlineGroupUsers.Count} online users in group for user ID: {addedUserInfo.Id}");
+    }
 }

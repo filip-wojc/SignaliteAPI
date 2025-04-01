@@ -2,6 +2,7 @@ using AutoMapper;
 using MediatR;
 using SignaliteWebAPI.Application.Exceptions;
 using SignaliteWebAPI.Domain.DTOs.Groups;
+using SignaliteWebAPI.Domain.DTOs.Users;
 using SignaliteWebAPI.Domain.Models;
 using SignaliteWebAPI.Infrastructure.Interfaces.Repositories;
 using SignaliteWebAPI.Infrastructure.Interfaces.Services;
@@ -11,6 +12,7 @@ namespace SignaliteWebAPI.Application.Features.Groups.AddUserToGroup;
 
 public class AddUserToGroupHandler(
     IGroupRepository groupRepository,
+    IUserRepository userRepository,
     INotificationsService notificationsService,
     IUnitOfWork unitOfWork,
     IMapper mapper
@@ -41,14 +43,28 @@ public class AddUserToGroupHandler(
             GroupId = request.GroupId,
             UserId = request.UserId
         };
-        
-        await groupRepository.AddUserToGroup(userGroup);
-        await unitOfWork.SaveChangesAsync();
-        
-        var groupInfo = mapper.Map<GroupBasicInfoDTO>(group);
-        await notificationsService.SendAddedToGroupNotification(request.UserId, request.OwnerId, groupInfo); ;
-        
 
-        // TODO: UserAddedToGroup notification
+        try
+        {
+            unitOfWork.BeginTransactionAsync();
+            await groupRepository.AddUserToGroup(userGroup);
+            var groupInfo = mapper.Map<GroupBasicInfoDTO>(group);
+            var membersToMap = await groupRepository.GetUsersInGroup(request.GroupId);
+            var members = mapper.Map<List<UserBasicInfo>>(membersToMap);
+            var addedUser = await userRepository.GetUserById(request.UserId);
+            var addedUserInfo = mapper.Map<UserBasicInfo>(addedUser);
+            // wait with notifications until everything before finishes
+            await notificationsService.SendAddedToGroupNotification(request.UserId, request.OwnerId, groupInfo);
+            await notificationsService.SendUserAddedToGroupNotification(addedUserInfo, members);
+            unitOfWork.CommitTransactionAsync(); // wait with commiting until everything else finishes
+
+        }
+        catch (Exception ex)
+        {
+            unitOfWork.RollbackTransactionAsync(); // rollback the insert 
+            throw; 
+        }
+        
+        
     }
 }

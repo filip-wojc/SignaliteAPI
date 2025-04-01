@@ -26,9 +26,9 @@ public class UserRepository(SignaliteDbContext dbContext) : IUserRepository
             .FirstOrDefaultAsync(u => u.Username == username);
     }
     
-    public async Task<User?> GetUserById(int userId)
+    public async Task<User> GetUserById(int userId)
     {
-        var user = await dbContext.Users.FirstOrDefaultAsync(u => u.Id == userId);
+        var user = await dbContext.Users.Include(u => u.ProfilePhoto).FirstOrDefaultAsync(u => u.Id == userId);
         if (user == null)
         {
             throw new NotFoundException("User not found");
