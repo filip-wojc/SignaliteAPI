@@ -1,8 +1,6 @@
-using System.Security.Claims;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using SignaliteWebAPI.Application.Features.Users.AddProfilePhoto;
 using SignaliteWebAPI.Application.Features.Users.ChangePassword;
 using SignaliteWebAPI.Application.Features.Users.DeleteBackgroundPhoto;
 using SignaliteWebAPI.Application.Features.Users.DeleteProfilePhoto;
@@ -11,12 +9,7 @@ using SignaliteWebAPI.Application.Features.Users.ModifyUser;
 using SignaliteWebAPI.Application.Features.Users.UpdateBackgroundPhoto;
 using SignaliteWebAPI.Domain.DTOs.Users;
 using SignaliteWebAPI.Application.Features.Users.UpdateProfilePhoto;
-using SignaliteWebAPI.Extensions;
-using SignaliteWebAPI.Infrastructure.Database.Migrations;
 using SignaliteWebAPI.Infrastructure.Extensions;
-using SignaliteWebAPI.Infrastructure.Interfaces;
-using SignaliteWebAPI.Infrastructure.Interfaces.Services;
-
 
 namespace SignaliteWebAPI.Controllers;
 
