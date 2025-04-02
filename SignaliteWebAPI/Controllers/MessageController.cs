@@ -1,8 +1,10 @@
 ﻿using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using SignaliteWebAPI.Application.Features.Messages.DeleteAttachment;
 using SignaliteWebAPI.Application.Features.Messages.DeleteMessage;
 using SignaliteWebAPI.Application.Features.Messages.GetMessageThread;
+using SignaliteWebAPI.Application.Features.Messages.ModifyMessage;
 using SignaliteWebAPI.Application.Features.Messages.SendMessage;
 using SignaliteWebAPI.Application.Helpers;
 using SignaliteWebAPI.Domain.DTOs.Messages;
@@ -51,5 +53,30 @@ public class MessageController(ISender mediator) : ControllerBase
         };
         await mediator.Send(command);
         return NoContent();
+    }
+    
+    [HttpDelete("{messageId}/attachment")]
+    public async Task<IActionResult> DeleteAttachment([FromRoute] int messageId)
+    {
+        var command = new DeleteAttachmentCommand
+        {
+            MessageId = messageId,
+            SenderId = User.GetUserId(),
+        };
+        await mediator.Send(command);
+        return NoContent();
+    }
+
+    [HttpPut("{messageId}")]
+    public async Task<IActionResult> ModifyMessage([FromRoute] int messageId, string messageContent)
+    {
+        var command = new ModifyMessageCommand
+        {
+            MessageId = messageId,
+            MessageContent = messageContent,
+            SenderId = User.GetUserId(),
+        };
+        await mediator.Send(command);
+        return Created();
     }
 }

@@ -31,9 +31,26 @@ public class MessageRepository(SignaliteDbContext dbContext) : IMessageRepositor
         return message;
     }
 
+    public async Task<Message> GetMessage(int messageId)
+    {
+        var message = await dbContext.Messages.FirstOrDefaultAsync(m => m.Id == messageId);
+        if (message == null)
+        {
+            throw new NotFoundException("Message not found");
+        }
+        return message;
+    }
+
     public async Task DeleteMessage(Message message)
     {
         dbContext.Messages.Remove(message);
+        await dbContext.SaveChangesAsync();
+    }
+
+    public async Task ModifyMessage(string messageContent, Message messageToModify)
+    {
+        messageToModify.Content = messageContent;
+        messageToModify.DateModified = DateTime.UtcNow;
         await dbContext.SaveChangesAsync();
     }
 }
