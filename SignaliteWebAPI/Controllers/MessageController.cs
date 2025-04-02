@@ -1,6 +1,7 @@
 ﻿using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using SignaliteWebAPI.Application.Features.Messages.DeleteMessage;
 using SignaliteWebAPI.Application.Features.Messages.GetMessageThread;
 using SignaliteWebAPI.Application.Features.Messages.SendMessage;
 using SignaliteWebAPI.Application.Helpers;
@@ -38,5 +39,17 @@ public class MessageController(ISender mediator) : ControllerBase
         };
         var messages = await mediator.Send(query);
         return Ok(messages);
+    }
+
+    [HttpDelete("{messageId}")]
+    public async Task<IActionResult> DeleteMessage([FromRoute] int messageId)
+    {
+        var command = new DeleteMessageCommand
+        {
+            MessageId = messageId,
+            SenderId = User.GetUserId(),
+        };
+        await mediator.Send(command);
+        return NoContent();
     }
 }

@@ -6,4 +6,6 @@ public interface IMessageRepository
 {
     Task AddMessage(Message message);
     Task<List<Message>> GetMessages(int groupId);
+    Task<Message> GetMessageWithAttachment(int messageId);
+    Task DeleteMessage(Message message);
 }
