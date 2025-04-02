@@ -40,12 +40,12 @@ public class UserController(ISender mediator) : ControllerBase
     }
     
     [HttpGet("get-user-info")]
-    public async Task<ActionResult> GetUserInfo()
+    public async Task<ActionResult> GetUserInfo(int? userId = null)
     {
-        var userId = User.GetUserId();
+        var resolvedUserId = userId ?? User.GetUserId();
         var command = new GetUserInfoCommand
         {
-            UserId = userId
+            UserId = resolvedUserId
         };
         var content = await mediator.Send(command);
         return Ok(content);
