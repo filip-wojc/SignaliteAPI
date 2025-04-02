@@ -4,7 +4,10 @@ using SignaliteWebAPI.Infrastructure.Interfaces.Repositories;
 
 namespace SignaliteWebAPI.Application.Features.Friends.DeclineFriendRequest;
 
-public class DeclineFriendRequestHandler(IFriendsRepository friendsRepository, IUnitOfWork unitOfWork) : IRequestHandler<DeclineFriendRequestCommand>
+public class DeclineFriendRequestHandler(
+    IFriendsRepository friendsRepository, 
+    IUnitOfWork unitOfWork
+): IRequestHandler<DeclineFriendRequestCommand>
 {
     public async Task Handle(DeclineFriendRequestCommand request, CancellationToken cancellationToken)
     {

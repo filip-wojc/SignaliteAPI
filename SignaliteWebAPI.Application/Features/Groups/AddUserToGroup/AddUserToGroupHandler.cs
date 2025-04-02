@@ -46,7 +46,7 @@ public class AddUserToGroupHandler(
 
         try
         {
-            unitOfWork.BeginTransactionAsync();
+            await unitOfWork.BeginTransactionAsync();
             await groupRepository.AddUserToGroup(userGroup);
             var groupInfo = mapper.Map<GroupBasicInfoDTO>(group);
             var membersToMap = await groupRepository.GetUsersInGroup(request.GroupId);
@@ -54,14 +54,14 @@ public class AddUserToGroupHandler(
             var addedUser = await userRepository.GetUserById(request.UserId);
             var addedUserInfo = mapper.Map<UserBasicInfo>(addedUser);
             // wait with notifications until everything before finishes
-            await notificationsService.SendAddedToGroupNotification(request.UserId, request.OwnerId, groupInfo);
-            await notificationsService.SendUserAddedToGroupNotification(addedUserInfo, members);
-            unitOfWork.CommitTransactionAsync(); // wait with commiting until everything else finishes
+            await notificationsService.AddedToGroup(request.UserId, request.OwnerId, groupInfo);
+            await notificationsService.UserAddedToGroup(addedUserInfo, members);
+            await unitOfWork.CommitTransactionAsync(); // wait with commiting until everything else finishes
 
         }
         catch (Exception ex)
         {
-            unitOfWork.RollbackTransactionAsync(); // rollback the insert 
+            await unitOfWork.RollbackTransactionAsync(); // rollback the insert 
             throw; 
         }
         

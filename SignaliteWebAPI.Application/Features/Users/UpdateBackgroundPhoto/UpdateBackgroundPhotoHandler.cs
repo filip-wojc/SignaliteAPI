@@ -1,4 +1,3 @@
-using System.ComponentModel.DataAnnotations;
 using MediatR;
 using SignaliteWebAPI.Domain.Models;
 using SignaliteWebAPI.Infrastructure.Exceptions;
@@ -10,7 +9,8 @@ namespace SignaliteWebAPI.Application.Features.Users.UpdateBackgroundPhoto;
 public class UpdateBackgroundPhotoHandler(
     IUserRepository userRepository,
     IPhotoRepository photoRepository,
-    IMediaService mediaService ) : IRequestHandler<UpdateBackgroundPhotoCommand>
+    IMediaService mediaService 
+    ): IRequestHandler<UpdateBackgroundPhotoCommand>
 {
     public async Task Handle(UpdateBackgroundPhotoCommand request, CancellationToken cancellationToken)
     {

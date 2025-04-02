@@ -1,13 +1,13 @@
-﻿using MediatR;
+using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using SignaliteWebAPI.Application.Features.Groups.AddUserToGroup;
 using SignaliteWebAPI.Application.Features.Groups.CreateGroup;
 using SignaliteWebAPI.Application.Features.Groups.DeleteGroup;
-using SignaliteWebAPI.Application.Features.Groups.DeleteUserFromGroup;
 using SignaliteWebAPI.Application.Features.Groups.GetGroupBasicInfo;
 using SignaliteWebAPI.Application.Features.Groups.GetGroupMembers;
 using SignaliteWebAPI.Application.Features.Groups.GetGroups;
+using SignaliteWebAPI.Application.Features.Groups.RemoveUserFromGroup;
 using SignaliteWebAPI.Application.Features.Groups.ModifyGroupName;
 using SignaliteWebAPI.Application.Features.Groups.UpdateGroupPhoto;
 using SignaliteWebAPI.Domain.DTOs.Groups;
@@ -109,7 +109,7 @@ public class GroupsController(ISender mediator) : ControllerBase
     [HttpDelete("{groupId}/users/{userId}")]
     public async Task<IActionResult> DeleteUserFromGroup([FromRoute] int groupId, [FromRoute] int userId)
     {
-        var command = new DeleteUserFromGroupCommand
+        var command = new RemoveUserFromGroupCommand
         {
             GroupId = groupId,
             UserId = userId,

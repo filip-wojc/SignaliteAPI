@@ -1,10 +1,7 @@
-using System.Security.Authentication;
 using MediatR;
 using Microsoft.AspNetCore.Identity;
-using SignaliteWebAPI.Application.Exceptions;
 using SignaliteWebAPI.Domain.DTOs.Auth;
 using SignaliteWebAPI.Infrastructure.Exceptions;
-using SignaliteWebAPI.Infrastructure.Interfaces;
 using SignaliteWebAPI.Infrastructure.Interfaces.Repositories;
 using SignaliteWebAPI.Infrastructure.Interfaces.Services;
 
@@ -13,7 +10,8 @@ namespace SignaliteWebAPI.Application.Features.Auth.Login;
 public class LoginUserHandler(
     IUserRepository userRepository,
     IPasswordHasher<Domain.Models.User> passwordHasher,
-    ITokenService tokenService) : IRequestHandler<LoginCommand, LoginResponseDTO>
+    ITokenService tokenService
+    ): IRequestHandler<LoginCommand, LoginResponseDTO>
 {
     public async Task<LoginResponseDTO> Handle(LoginCommand request, CancellationToken cancellationToken)
     {

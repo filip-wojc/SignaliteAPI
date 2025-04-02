@@ -10,7 +10,6 @@ using SignaliteWebAPI.Application.Features.Groups.UpdateGroupPhoto;
 using SignaliteWebAPI.Application.Features.Messages.GetMessageThread;
 using SignaliteWebAPI.Application.Features.Messages.ModifyMessage;
 using SignaliteWebAPI.Application.Features.Messages.SendMessage;
-using SignaliteWebAPI.Application.Features.Users.AddProfilePhoto;
 using SignaliteWebAPI.Application.Features.Users.UpdateBackgroundPhoto;
 using SignaliteWebAPI.Application.Features.Users.UpdateProfilePhoto;
 

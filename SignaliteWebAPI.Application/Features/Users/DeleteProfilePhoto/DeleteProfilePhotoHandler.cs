@@ -8,7 +8,8 @@ namespace SignaliteWebAPI.Application.Features.Users.DeleteProfilePhoto;
 public class DeleteProfilePhotoHandler(
     IUserRepository userRepository,
     IPhotoRepository photoRepository,
-    IMediaService mediaService) : IRequestHandler<DeleteProfilePhotoCommand>
+    IMediaService mediaService
+    ): IRequestHandler<DeleteProfilePhotoCommand>
 {
     public async Task Handle(DeleteProfilePhotoCommand request, CancellationToken cancellationToken)
     {

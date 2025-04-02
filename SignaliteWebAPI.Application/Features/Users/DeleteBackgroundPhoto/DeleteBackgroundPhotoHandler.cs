@@ -8,7 +8,8 @@ namespace SignaliteWebAPI.Application.Features.Users.DeleteBackgroundPhoto;
 public class DeleteBackgroundPhotoHandler(
     IUserRepository userRepository,
     IPhotoRepository photoRepository,
-    IMediaService mediaService) : IRequestHandler<DeleteBackgroundPhotoCommand>
+    IMediaService mediaService
+    ): IRequestHandler<DeleteBackgroundPhotoCommand>
 {
     public async Task Handle(DeleteBackgroundPhotoCommand request, CancellationToken cancellationToken)
     {

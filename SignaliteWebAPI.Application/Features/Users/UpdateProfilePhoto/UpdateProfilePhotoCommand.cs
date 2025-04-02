@@ -1,7 +1,7 @@
 using MediatR;
 using Microsoft.AspNetCore.Http;
 
-namespace SignaliteWebAPI.Application.Features.Users.AddProfilePhoto;
+namespace SignaliteWebAPI.Application.Features.Users.UpdateProfilePhoto;
 
 public class UpdateProfilePhotoCommand : IRequest
 {
