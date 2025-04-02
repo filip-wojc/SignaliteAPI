@@ -14,6 +14,12 @@ public class GroupRepository(SignaliteDbContext dbContext) : IGroupRepository
         //await dbContext.SaveChangesAsync(); Unit of work 
     }
 
+    public async Task ModifyGroupName(string groupName, Group group)
+    {
+        group.Name = groupName;
+        await dbContext.SaveChangesAsync();
+    }
+
     public async Task AddUserToGroup(UserGroup userGroup)
     {
         await dbContext.UserGroups.AddAsync(userGroup);
@@ -41,6 +47,18 @@ public class GroupRepository(SignaliteDbContext dbContext) : IGroupRepository
 
         dbContext.Groups.Remove(group);
     }
+
+    public async Task<Group> GetGroup(int groupId)
+    {
+        var group = await dbContext.Groups.FirstOrDefaultAsync(g => g.Id == groupId);
+        if (group == null)
+        {
+            throw new NotFoundException("Group not found");
+        }
+
+        return group; 
+    }
+
 
     public async Task<List<Group>> GetUserGroupsWithPhoto(int userId)
     {
