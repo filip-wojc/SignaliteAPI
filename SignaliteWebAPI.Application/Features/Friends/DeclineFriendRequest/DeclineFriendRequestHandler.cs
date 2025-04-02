@@ -4,7 +4,7 @@ using SignaliteWebAPI.Infrastructure.Interfaces.Repositories;
 
 namespace SignaliteWebAPI.Application.Features.Friends.DeclineFriendRequest;
 
-public class DeclineFriendRequestHandler(IFriendsRepository friendsRepository) : IRequestHandler<DeclineFriendRequestCommand>
+public class DeclineFriendRequestHandler(IFriendsRepository friendsRepository, IUnitOfWork unitOfWork) : IRequestHandler<DeclineFriendRequestCommand>
 {
     public async Task Handle(DeclineFriendRequestCommand request, CancellationToken cancellationToken)
     {
@@ -14,6 +14,7 @@ public class DeclineFriendRequestHandler(IFriendsRepository friendsRepository) :
         {
             throw new NotFoundException("User doesn't have a friend request with given id");
         }
-        await friendsRepository.DeleteFriendRequest(requestToDecline);
+        friendsRepository.DeleteFriendRequest(requestToDecline);
+        await unitOfWork.SaveChangesAsync();
     }
 }

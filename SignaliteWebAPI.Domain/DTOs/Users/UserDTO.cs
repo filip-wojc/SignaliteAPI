@@ -1,5 +1,6 @@
 ﻿namespace SignaliteWebAPI.Domain.DTOs.Users;
 
+// This will be used when fetching he full user, for example to see the profile or something
 public class UserDTO
 {
     public int Id { get; set; }
@@ -7,4 +8,5 @@ public class UserDTO
     public string Surname { get; set; }
     public string Username { get; set; }
     public string ProfilePhotoUrl { get; set; }
+    // TODO: ADD BackgroundPhoto
 }

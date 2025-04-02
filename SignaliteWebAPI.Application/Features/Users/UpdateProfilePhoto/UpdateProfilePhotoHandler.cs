@@ -40,7 +40,7 @@ public class UpdateUserPhotoHandler(
         if (user.ProfilePhoto != null)
         {
             var photoId = user.ProfilePhoto.Id;
-            await mediaService.DeletePhotoAsync(user.ProfilePhoto.PublicId);
+            await mediaService.DeleteMediaAsync(user.ProfilePhoto.PublicId);
             await photoRepository.RemoveUserProfilePhotoAsync(user.Id);
             await photoRepository.RemovePhotoAsync(photoId);
         }
@@ -49,5 +49,6 @@ public class UpdateUserPhotoHandler(
         await photoRepository.AddPhotoAsync(photo);
         await photoRepository.SetUserProfilePhotoAsync(user.Id, photo.Id);
         
+        // TODO: UserUpdated event sent to friends
     }
 }

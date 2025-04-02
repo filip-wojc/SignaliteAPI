@@ -11,6 +11,8 @@ using Scalar.AspNetCore;
 using Serilog;
 using Serilog.Events;
 using Microsoft.AspNetCore.HttpLogging;
+using Microsoft.Extensions.FileProviders;
+using SignaliteWebAPI.Infrastructure.Helpers;
 using SignaliteWebAPI.Infrastructure.SignalR;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -31,8 +33,23 @@ builder.Services.AddOpenApi(options =>
 
 builder.Services.AddInfrastructureServices(builder.Configuration); // extension function
 builder.Services.AddApplicationServices(); // extension function
+builder.Services.AddValidatorExtensions();
 builder.Services.AddIdentityServices(builder.Configuration); // extension function (configures bearer)
 
+string currDir = Directory.GetCurrentDirectory();
+string staticFilesDirectory = builder.Configuration.Get<StaticFilesConfig>()?.Directory ?? "wwwroot/Attachments";
+string attachmentsPath = Path.Combine(currDir, staticFilesDirectory);
+if (!Directory.Exists(attachmentsPath))
+{
+    Directory.CreateDirectory(attachmentsPath);
+}
+
+builder.Services.AddSingleton(new AttachmentPath
+{
+    BaseDirectory = currDir,
+    AttachmentsDirectory = attachmentsPath,
+    RequestUrl = builder.Configuration.Get<StaticFilesConfig>()?.RequestUrl ?? "http://localhost:5026/Attachments",
+});
 
 var app = builder.Build();
 
@@ -52,6 +69,12 @@ if (app.Environment.IsDevelopment())
     });
 }
 
+app.UseStaticFiles(new StaticFileOptions
+{
+    FileProvider = new PhysicalFileProvider(attachmentsPath),
+    RequestPath = "/Attachments"
+});
+
 app.ConfigureSerilogHttpLogging(); // extension
 app.UseHttpLogging(); // Logs request & response headers, body, etc.
 app.UseExceptionHandler(_ => { });
@@ -63,6 +86,7 @@ app.UseAuthorization();
 
 app.MapControllers();
 app.MapHub<PresenceHub>("hubs/presence");
+app.MapHub<NotificationsHub>("hubs/notifications");
 
 
 bool cleanupPerformed = false;

@@ -5,6 +5,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using SignaliteWebAPI.Domain.DTOs.Users;
 using SignaliteWebAPI.Infrastructure.Helpers;
 using ILogger = Serilog.ILogger;
 
@@ -284,11 +285,11 @@ namespace SignaliteWebAPI.Infrastructure.SignalR
         /// <summary>
         /// Gets detailed information about all currently online users
         /// </summary>
-        public async Task<List<OnlineUserInfo>> GetOnlineUsersDetailed()
+        public async Task<List<UserBasicInfo>> GetOnlineUsersDetailed()
         {
             try
             {
-                var result = new List<OnlineUserInfo>();
+                var result = new List<UserBasicInfo>();
                 var onlineUsers = await _db.SetMembersAsync(OnlineUsersKey);
         
                 foreach (var userEntry in onlineUsers)
@@ -298,9 +299,9 @@ namespace SignaliteWebAPI.Infrastructure.SignalR
             
                     if (parts.Length >= 2 && int.TryParse(parts[1], out int userId))
                     {
-                        result.Add(new OnlineUserInfo { 
+                        result.Add(new UserBasicInfo() { 
                             Username = parts[0], 
-                            UserId = userId 
+                            Id = userId 
                         });
                     }
                     else
@@ -314,7 +315,7 @@ namespace SignaliteWebAPI.Infrastructure.SignalR
             catch (Exception ex)
             {
                 _logger.Error(ex, "Error getting detailed online users");
-                return new List<OnlineUserInfo>();
+                return new List<UserBasicInfo>();
             }
         }
 
@@ -480,7 +481,7 @@ namespace SignaliteWebAPI.Infrastructure.SignalR
                             if (!isValid)
                             {
                                 _logger.Warning(
-                                    $"Connection {connectionId} for user {userInfo.Username} (ID: {userInfo.UserId}) did not respond to keep-alive within timeout");
+                                    $"Connection {connectionId} for user {userInfo.Username} (ID: {userInfo.Id}) did not respond to keep-alive within timeout");
 
                                 // Remove the connection
                                 await UserDisconnected(userInfo.Username, connectionId);

@@ -14,6 +14,7 @@ public class UpdateGroupPhotoHandler(
 {
     public async Task Handle(UpdateGroupPhotoCommand request, CancellationToken cancellationToken)
     {
+        // TODO: Private conversation photo group return
         var group = await groupRepository.GetGroupWithPhoto(request.GroupId);
         if (group.OwnerId != request.OwnerId)
         {
@@ -34,12 +35,14 @@ public class UpdateGroupPhotoHandler(
         if (group.Photo != null)
         {
             var photoId = group.Photo.Id;
-            await mediaService.DeletePhotoAsync(group.Photo.PublicId);
+            await mediaService.DeleteMediaAsync(group.Photo.PublicId);
             await photoRepository.RemoveGroupPhotoAsync(group.Id);
             await photoRepository.RemovePhotoAsync(photoId);
         }
         
         await photoRepository.AddPhotoAsync(photo);
         await photoRepository.SetGroupPhotoAsync(group.Id, photo.Id);
+        
+        // TODO: GroupUpdated event
     }
 }
