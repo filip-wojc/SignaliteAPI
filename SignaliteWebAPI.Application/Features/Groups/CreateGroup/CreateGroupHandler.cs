@@ -5,7 +5,11 @@ using SignaliteWebAPI.Infrastructure.Interfaces.Repositories;
 
 namespace SignaliteWebAPI.Application.Features.Groups.CreateGroup;
 
-public class CreateGroupHandler(IGroupRepository groupRepository, IMapper mapper, IUnitOfWork unitOfWork) : IRequestHandler<CreateGroupCommand>
+public class CreateGroupHandler(
+    IGroupRepository groupRepository, 
+    IMapper mapper, 
+    IUnitOfWork unitOfWork
+    ) : IRequestHandler<CreateGroupCommand>
 {
     public async Task Handle(CreateGroupCommand request, CancellationToken cancellationToken)
     {
@@ -27,7 +31,7 @@ public class CreateGroupHandler(IGroupRepository groupRepository, IMapper mapper
             await groupRepository.AddUserToGroup(userGroup);
             await unitOfWork.CommitTransactionAsync();
         }
-        catch (Exception e)
+        catch (Exception ex)
         {
            await unitOfWork.RollbackTransactionAsync();
 

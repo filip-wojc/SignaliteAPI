@@ -5,8 +5,10 @@ using SignaliteWebAPI.Infrastructure.Interfaces.Repositories;
 
 namespace SignaliteWebAPI.Application.Features.Friends.GetUserFriends;
 
-public class GetUserFriendsHandler(IFriendsRepository repository, IMapper mapper)
-    : IRequestHandler<GetUserFriendsQuery, List<UserDTO>>
+public class GetUserFriendsHandler(
+    IFriendsRepository repository, 
+    IMapper mapper
+    ): IRequestHandler<GetUserFriendsQuery, List<UserDTO>>
 {
     public async Task<List<UserDTO>> Handle(GetUserFriendsQuery request, CancellationToken cancellationToken)
     {

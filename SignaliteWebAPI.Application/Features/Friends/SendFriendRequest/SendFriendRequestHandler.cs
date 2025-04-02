@@ -7,7 +7,11 @@ using SignaliteWebAPI.Infrastructure.Interfaces.Services;
 
 namespace SignaliteWebAPI.Application.Features.Friends.SendFriendRequest;
 
-public class SendFriendRequestHandler(IFriendsRepository repository, IMapper mapper, INotificationsService notificationsService) : IRequestHandler<SendFriendRequestCommand>
+public class SendFriendRequestHandler(
+    IFriendsRepository repository, 
+    IMapper mapper, 
+    INotificationsService notificationsService
+    ) : IRequestHandler<SendFriendRequestCommand>
 {
     public async Task Handle(SendFriendRequestCommand request, CancellationToken cancellationToken)
     {
@@ -21,7 +25,7 @@ public class SendFriendRequestHandler(IFriendsRepository repository, IMapper map
             throw new BadRequestException("User already accepted friend request from sender");
         }
         await repository.SendFriendRequest(friendRequest);
-        await notificationsService.SendFriendRequestNotification(
+        await notificationsService.FriendRequest(
             request.RecipientId,
             request.SenderId,
             request.SenderUsername

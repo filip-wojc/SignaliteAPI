@@ -5,7 +5,10 @@ using SignaliteWebAPI.Infrastructure.Interfaces.Repositories;
 
 namespace SignaliteWebAPI.Application.Features.Groups.GetGroups;
 
-public class GetGroupsHandler(IGroupRepository groupRepository, IMapper mapper) : IRequestHandler<GetGroupsQuery, List<GroupBasicInfoDTO>>
+public class GetGroupsHandler(
+    IGroupRepository groupRepository, 
+    IMapper mapper
+    ) : IRequestHandler<GetGroupsQuery, List<GroupBasicInfoDTO>>
 {
     public async Task<List<GroupBasicInfoDTO>> Handle(GetGroupsQuery request, CancellationToken cancellationToken)
     {

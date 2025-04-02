@@ -10,5 +10,5 @@ public class Message
     public required int SenderId { get; set; }
     public Group Group { get; set; }
     public required int GroupId { get; set; }
-    public Attachment Attachment { get; set; }
+    public Attachment? Attachment { get; set; }
 }

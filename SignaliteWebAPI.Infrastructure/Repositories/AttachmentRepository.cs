@@ -11,4 +11,10 @@ public class AttachmentRepository(SignaliteDbContext dbContext) : IAttachmentRep
         await dbContext.Attachments.AddAsync(attachment);
         //await dbContext.SaveChangesAsync(); // UnitOfWork handles saving now
     }
+
+    public async Task DeleteAttachment(Attachment attachment)
+    {
+        dbContext.Attachments.Remove(attachment);
+        await dbContext.SaveChangesAsync();
+    }
 }

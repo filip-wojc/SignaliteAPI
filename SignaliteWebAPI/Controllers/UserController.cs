@@ -1,4 +1,4 @@
-﻿using System.Security.Claims;
+using System.Security.Claims;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -10,6 +10,7 @@ using SignaliteWebAPI.Application.Features.Users.GetUserInfo;
 using SignaliteWebAPI.Application.Features.Users.ModifyUser;
 using SignaliteWebAPI.Application.Features.Users.UpdateBackgroundPhoto;
 using SignaliteWebAPI.Domain.DTOs.Users;
+using SignaliteWebAPI.Application.Features.Users.UpdateProfilePhoto;
 using SignaliteWebAPI.Extensions;
 using SignaliteWebAPI.Infrastructure.Database.Migrations;
 using SignaliteWebAPI.Infrastructure.Extensions;

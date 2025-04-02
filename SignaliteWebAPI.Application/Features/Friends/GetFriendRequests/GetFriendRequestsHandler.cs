@@ -5,7 +5,10 @@ using SignaliteWebAPI.Infrastructure.Interfaces.Repositories;
 
 namespace SignaliteWebAPI.Application.Features.Friends.GetFriendRequests;
 
-public class GetFriendRequestsHandler(IFriendsRepository repository, IMapper mapper) : IRequestHandler<GetFriendRequestsQuery, List<FriendRequestDTO>>
+public class GetFriendRequestsHandler(
+    IFriendsRepository repository, 
+    IMapper mapper
+    ): IRequestHandler<GetFriendRequestsQuery, List<FriendRequestDTO>>
 {
     public async Task<List<FriendRequestDTO>> Handle(GetFriendRequestsQuery request, CancellationToken cancellationToken)
     {

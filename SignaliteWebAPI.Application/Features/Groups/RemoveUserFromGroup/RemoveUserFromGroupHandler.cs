@@ -1,14 +1,24 @@
-﻿using MediatR;
+﻿using AutoMapper;
+using MediatR;
 using Serilog;
 using SignaliteWebAPI.Application.Exceptions;
+using SignaliteWebAPI.Domain.DTOs.Users;
 using SignaliteWebAPI.Infrastructure.Exceptions;
 using SignaliteWebAPI.Infrastructure.Interfaces.Repositories;
+using SignaliteWebAPI.Infrastructure.Interfaces.Services;
 
-namespace SignaliteWebAPI.Application.Features.Groups.DeleteUserFromGroup;
+namespace SignaliteWebAPI.Application.Features.Groups.RemoveUserFromGroup;
 
-public class DeleteUserFromGroupHandler(IGroupRepository groupRepository, IFriendsRepository friendsRepository, IUnitOfWork unitOfWork, ILogger logger) : IRequestHandler<DeleteUserFromGroupCommand>
+public class RemoveUserFromGroupHandler(
+    IGroupRepository groupRepository,
+    IFriendsRepository friendsRepository, 
+    INotificationsService notificationsService,
+    IUnitOfWork unitOfWork, 
+    IMapper mapper,
+    ILogger logger
+    ) : IRequestHandler<RemoveUserFromGroupCommand>
 {
-    public async Task Handle(DeleteUserFromGroupCommand request, CancellationToken cancellationToken)
+    public async Task Handle(RemoveUserFromGroupCommand request, CancellationToken cancellationToken)
     {
         var group = await groupRepository.GetGroupWithUsers(request.GroupId);
 
@@ -48,8 +58,9 @@ public class DeleteUserFromGroupHandler(IGroupRepository groupRepository, IFrien
         }
         
         await groupRepository.DeleteUserFromGroup(group, request.UserId);
-        
-        // TODO: GroupUpdated event
+        var membersToMap = await groupRepository.GetUsersInGroup(request.GroupId);
+        var members = mapper.Map<List<UserBasicInfo>>(membersToMap);
+        await notificationsService.UserRemovedFromGroup(userToDelete.UserId, group.Id, members);
     }
     
 }

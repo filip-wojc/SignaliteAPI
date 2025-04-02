@@ -237,8 +237,28 @@ public class MediaService : IMediaService
 
     public void DeleteStaticFile(string url)
     {
-        // Will be implemented after DeleteMessageFeature
-        throw new NotImplementedException();
+        if (string.IsNullOrEmpty(url))
+        {
+            throw new MediaServiceException("URL cannot be null or empty");
+        }
+
+        try
+        {
+            string fileName = Path.GetFileName(url);
+            
+            string fullPath = Path.Combine(_staticFilesPath.AttachmentsDirectory, fileName);
+            
+            if (!File.Exists(fullPath))
+            {
+                throw new MediaServiceException($"File not found: {fileName}");
+            }
+            
+            File.Delete(fullPath);
+        }
+        catch (Exception ex) when (ex is not MediaServiceException)
+        {
+            throw new MediaServiceException($"Failed to delete static file: {ex.Message}");
+        }
     }
 
 }

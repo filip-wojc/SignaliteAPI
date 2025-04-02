@@ -6,9 +6,11 @@ namespace SignaliteWebAPI.Infrastructure.Interfaces.Services;
 
 public interface INotificationsService
 {
-    Task SendFriendRequestNotification(int recipientUserId, int senderUserId, string senderUsername);
-    Task SendMessageReceivedNotification(List<UserBasicInfo> usersInGroup, MessageDTO messageDto);
-    Task SendFriendRequestAcceptedNotification(int recipientUserId, int senderUserId, string senderUsername);
-    Task SendAddedToGroupNotification(int recipientUserId, int senderUserId, GroupBasicInfoDTO groupInfoDto);
-    Task SendUserAddedToGroupNotification(UserBasicInfo addedUserInfo, List<UserBasicInfo> usersInGroup);
+    Task FriendRequest(int recipientUserId, int senderUserId, string senderUsername);
+    Task MessageReceived(List<UserBasicInfo> usersInGroup, MessageDTO messageDto);
+    Task FriendRequestAccepted(int recipientUserId, int senderUserId, string senderUsername);
+    Task AddedToGroup(int recipientUserId, int senderUserId, GroupBasicInfoDTO groupInfoDto);
+    Task UserAddedToGroup(UserBasicInfo addedUserInfo, List<UserBasicInfo> usersInGroup);
+    Task GroupUpdated(GroupBasicInfoDTO groupDto, List<UserBasicInfo> usersInGroup, int ownerId);
+    Task UserRemovedFromGroup(int userId, int groupId, List<UserBasicInfo> usersInGroup);
 }
