@@ -1,12 +1,18 @@
-﻿using System.Security.Claims;
+using System.Security.Claims;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using SignaliteWebAPI.Application.Features.Users.AddProfilePhoto;
+using SignaliteWebAPI.Application.Features.Users.ChangePassword;
 using SignaliteWebAPI.Application.Features.Users.DeleteBackgroundPhoto;
 using SignaliteWebAPI.Application.Features.Users.DeleteProfilePhoto;
+using SignaliteWebAPI.Application.Features.Users.GetUserInfo;
+using SignaliteWebAPI.Application.Features.Users.ModifyUser;
 using SignaliteWebAPI.Application.Features.Users.UpdateBackgroundPhoto;
+using SignaliteWebAPI.Domain.DTOs.Users;
 using SignaliteWebAPI.Application.Features.Users.UpdateProfilePhoto;
 using SignaliteWebAPI.Extensions;
+using SignaliteWebAPI.Infrastructure.Database.Migrations;
 using SignaliteWebAPI.Infrastructure.Extensions;
 using SignaliteWebAPI.Infrastructure.Interfaces;
 using SignaliteWebAPI.Infrastructure.Interfaces.Services;
@@ -17,9 +23,49 @@ namespace SignaliteWebAPI.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-public class UserController(ISender mediator, IMediaService mediaService) : ControllerBase
+public class UserController(ISender mediator) : ControllerBase
 {
+    [Authorize]
+    [HttpPut("modify-user")]
+    public async Task<IActionResult> ModifyUser(ModifyUserDTO modifyUserDto)
+    {
+        var userId = User.GetUserId();
+        
+        var command = new ModifyUserCommand
+        {
+            UserId = userId,
+            ModifyUserDTO = modifyUserDto
+        };
+        await mediator.Send(command);
+        return NoContent();
+    }
+    
+    [HttpGet("get-user-info")]
+    public async Task<ActionResult> GetUserInfo(int? userId = null)
+    {
+        var resolvedUserId = userId ?? User.GetUserId();
+        var command = new GetUserInfoCommand
+        {
+            UserId = resolvedUserId
+        };
+        var content = await mediator.Send(command);
+        return Ok(content);
+    }
 
+    [Authorize]
+    [HttpPut("change-password")]
+    public async Task<IActionResult> ChangePassword(ChangePasswordDTO changePasswordDto)
+    {
+        var userId = User.GetUserId();
+        var command = new ChangePasswordCommand
+        {
+            UserId = userId,
+            ChangePasswordDto = changePasswordDto
+        };
+        await mediator.Send(command);
+        return NoContent();
+    }
+    
     // Tested: works
     [Authorize]
     [HttpPost("profile-photo")]

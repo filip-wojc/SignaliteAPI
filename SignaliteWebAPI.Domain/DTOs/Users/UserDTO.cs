@@ -8,5 +8,5 @@ public class UserDTO
     public string Surname { get; set; }
     public string Username { get; set; }
     public string ProfilePhotoUrl { get; set; }
-    // TODO: ADD BackgroundPhoto
+    public string BackroundPhotoUrl { get; set; }
 }
