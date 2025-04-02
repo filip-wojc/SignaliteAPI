@@ -5,6 +5,7 @@ using SignaliteWebAPI.Application.Features.Friends.GetUserFriends;
 using SignaliteWebAPI.Application.Features.Friends.SendFriendRequest;
 using SignaliteWebAPI.Application.Features.Groups.AddUserToGroup;
 using SignaliteWebAPI.Application.Features.Groups.CreateGroup;
+using SignaliteWebAPI.Application.Features.Groups.ModifyGroupName;
 using SignaliteWebAPI.Application.Features.Groups.UpdateGroupPhoto;
 using SignaliteWebAPI.Application.Features.Messages.GetMessageThread;
 using SignaliteWebAPI.Application.Features.Messages.ModifyMessage;
@@ -31,5 +32,6 @@ public static class ValidatorExtensions
         services.AddScoped<IValidator<SendMessageCommand>, SendMessageValidator>();
         services.AddScoped<IValidator<GetMessageThreadQuery>, GetMessageThreadValidator>();
         services.AddScoped<IValidator<ModifyMessageCommand>, ModifyMessageValidator>();
+        services.AddScoped<IValidator<ModifyGroupCommand>, ModifyGroupValidator>();
     }
 }

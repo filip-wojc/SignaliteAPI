@@ -35,5 +35,6 @@ public class DeleteAttachmentHandler(
         {
             await mediaService.DeleteMediaAsync(attachment.PublicId, attachment.Type);
         }
+        // TODO: Notification
     }
 }

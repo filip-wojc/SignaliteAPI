@@ -30,5 +30,7 @@ public class DeleteMessageHandler(IMessageRepository messageRepository, IMediaSe
                 await mediaService.DeleteMediaAsync(attachment.PublicId, attachment.Type);
             }
         }
+        
+        // TODO: Notification
     }
 }
