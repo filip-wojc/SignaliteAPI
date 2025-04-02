@@ -21,9 +21,8 @@ public class UpdateGroupPhotoHandler(
 {
     public async Task Handle(UpdateGroupPhotoCommand request, CancellationToken cancellationToken)
     {
-        // TODO: Private conversation photo group return
         var group = await groupRepository.GetGroupWithPhoto(request.GroupId);
-        if (group.OwnerId != request.OwnerId)
+        if (group.OwnerId != request.OwnerId || group.IsPrivate)
         {
             throw new ForbidException("You are not allowed to update the group photo");
         }
