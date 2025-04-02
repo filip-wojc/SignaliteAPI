@@ -13,17 +13,16 @@ public class ChangePasswordHandler(IUserRepository userRepository, IPasswordHash
     public async Task Handle(ChangePasswordCommand request, CancellationToken cancellationToken)
     {
         var user = await userRepository.GetUserById(request.UserId);
-        if (user == null)
-            throw new NotFoundException("User not found");
         
         var passwordVerificationResult = passwordHasher.VerifyHashedPassword(
-            user, user.HashedPassword, request.OldPassword);
+            user, user.HashedPassword, request.ChangePasswordDto.OldPassword);
             
         if (passwordVerificationResult == PasswordVerificationResult.Failed)
             throw new BadRequestException("Invalid old password");
         
-        var hashedPassword = passwordHasher.HashPassword(user, request.NewPassword);
+        var hashedPassword = passwordHasher.HashPassword(user, request.ChangePasswordDto.NewPassword);
+        user.HashedPassword = hashedPassword;
         
-        await userRepository.ChangePassword(request.UserId, hashedPassword);
+        await userRepository.ChangePassword(user);
     }
 }

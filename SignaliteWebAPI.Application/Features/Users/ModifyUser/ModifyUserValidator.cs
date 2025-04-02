@@ -13,21 +13,21 @@ public class ModifyUserValidator : AbstractValidator<ModifyUserCommand>
         const int minLengthUsername = 4;
         const int maxLengthUsername = 16;
         
-        RuleFor(u => u.Name)
+        RuleFor(u => u.ModifyUserDTO.Name)
             .NotNull().WithMessage("Name is required.")
             .NotEmpty().WithMessage("Name is empty.");
 
-        RuleFor(u => u.Surname)
+        RuleFor(u => u.ModifyUserDTO.Surname)
             .NotNull().WithMessage("Surname is required.")
             .NotEmpty().WithMessage("Surname is empty.");
         
-        RuleFor(u => u.Username)
+        RuleFor(u => u.ModifyUserDTO.Username)
             .NotNull().WithMessage("Username is required.")
             .NotEmpty().WithMessage("Username is empty.")
             .Length(minLengthUsername, maxLengthUsername).WithMessage($"Username must be between {minLengthUsername} and {maxLengthUsername} characters.")
             .MustAsync(IsUsernameUnique).WithMessage("Username is already taken");
         
-        RuleFor(u => u.Email)
+        RuleFor(u => u.ModifyUserDTO.Email)
             .NotNull().WithMessage("Email is required.")
             .NotEmpty().WithMessage("Email is empty.")
             .EmailAddress().WithMessage("Invalid email address.")

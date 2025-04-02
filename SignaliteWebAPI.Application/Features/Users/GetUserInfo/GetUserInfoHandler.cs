@@ -12,8 +12,6 @@ public class GetUserInfoHandler(IUserRepository userRepository, IMapper mapper) 
     public async Task<UserDTO> Handle(GetUserInfoCommand request, CancellationToken cancellationToken)
     {
         var user = await userRepository.GetUserById(request.UserId);
-        if (user == null)
-            throw new NotFoundException("User not found");
         var userDto = mapper.Map<UserDTO>(user);
         
         return userDto;

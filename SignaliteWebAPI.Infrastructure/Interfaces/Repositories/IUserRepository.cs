@@ -5,8 +5,8 @@ namespace SignaliteWebAPI.Infrastructure.Interfaces.Repositories;
 public interface IUserRepository
 {
     Task AddUser(User user);
-    Task ChangePassword(int userId, string newPassword);
-    Task ModifyUser(int userId, string username, string email, string name, string surname);
+    Task ChangePassword(User user);
+    Task ModifyUser(User user);
     Task<User?> GetUserByEmail(string email);
     Task<User?> GetUserByUsername(string username);
     Task<User> GetUserById(int userId);

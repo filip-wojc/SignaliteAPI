@@ -12,9 +12,13 @@ public class UserAutoMapper : Profile
         CreateMap<RegisterDTO, User>();
         CreateMap<User, UserDTO>()
             .ForMember(u => u.ProfilePhotoUrl, o 
-                => o.MapFrom(u => u.ProfilePhoto.Url));
+                => o.MapFrom(u => u.ProfilePhoto.Url))
+            .ForMember(u => u.BackroundPhotoUrl, o 
+                => o.MapFrom(u => u.BackgroundPhoto.Url));
         CreateMap<User, UserBasicInfo>()
             .ForMember(u => u.ProfilePhotoUrl, o 
                 => o.MapFrom(u => u.ProfilePhoto.Url));
+
+        CreateMap<ModifyUserDTO, User>();
     }
 }

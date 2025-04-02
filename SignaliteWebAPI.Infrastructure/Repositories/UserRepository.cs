@@ -15,28 +15,24 @@ public class UserRepository(SignaliteDbContext dbContext) : IUserRepository
         await dbContext.SaveChangesAsync();
     }
 
-    public async Task ChangePassword(int userId, string newPassword)
+    public async Task ChangePassword(User user)
     {
-        var user = await dbContext.Users.FindAsync(userId);
-        
-        if (user == null)
-            throw new NotFoundException("User not found");
-        
-        user.HashedPassword = newPassword;
+        var dbUser = await dbContext.Users.FindAsync(user.Id);
+        dbUser.HashedPassword = user.HashedPassword;
         
         await dbContext.SaveChangesAsync();
     }
 
-    public async Task ModifyUser(int userId, string username, string email,string  name, string surname)
+    public async Task ModifyUser(User user)
     {
-        var user = await dbContext.Users.FindAsync(userId);
+        var dbUser = await dbContext.Users.FindAsync(user.Id);
         if (user == null)
             throw new NotFoundException("User not found");
         
-        user.Username = username;
-        user.Email = email;
-        user.Name = name;
-        user.Surname = surname;
+        dbUser.Username = user.Username;
+        dbUser.Email = user.Email;
+        dbUser.Name = user.Name;
+        dbUser.Surname = user.Surname;
         
         await dbContext.SaveChangesAsync();
     }
