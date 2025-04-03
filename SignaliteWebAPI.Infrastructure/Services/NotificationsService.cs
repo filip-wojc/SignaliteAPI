@@ -114,6 +114,103 @@ public class NotificationsService(
         logger.Debug($"[NotificationsService] MessageReceived notification sent to {onlineGroupUsers.Count} online users in group for message ID: {messageDto.Id}");
     }
 
+    public async Task MessageModified(MessageDTO messageDto, int groupId, List<UserBasicInfo> usersInGroup)
+    {
+        var onlineUsers = await presenceTracker.GetOnlineUserIds();
+        
+        var onlineGroupUsers = usersInGroup.Where(user => onlineUsers.Contains(user.Id) && user.Id != messageDto.Sender.Id).ToList();
+        
+        // if no users online, don't send a notification
+        if (onlineGroupUsers.Count == 0)
+        {
+            logger.Debug($"[NotificationsService] No online users in group to send MessageModified notification for message ID: {messageDto.Id}");
+            return;
+        }
+        
+        var notification = new
+        {
+            GroupId = groupId,
+            Message = messageDto
+        };
+        
+        foreach (var user in onlineGroupUsers)
+        {
+            await notificationsHub.Clients
+                .User(user.Username)
+                .SendAsync("MessageModified", notification);
+            logger.Debug($"[NotificationsService] MessageModified received from {user.Username} (ID: {user.Id})");
+        }
+        
+        logger.Debug($"[NotificationsService] MessageModified notification sent to {onlineGroupUsers.Count} online users in group for message ID: {messageDto.Id}");
+    }
+    
+    public async Task MessageDeleted(int groupId, int messageId,int senderId, List<UserBasicInfo> usersInGroup)
+    {
+        var onlineUsers = await presenceTracker.GetOnlineUserIds();
+        
+        var onlineGroupUsers = usersInGroup
+            .Where(user => onlineUsers.Contains(user.Id) && user.Id != senderId)
+            .ToList();
+        
+        // if no users online, don't send a notification
+        if (onlineGroupUsers.Count == 0)
+        {
+            logger.Debug($"[NotificationsService] No online users in group to send MessageDeleted notification for message ID: {messageId}");
+            return;
+        }
+
+        var notification = new
+        {
+            GroupId = groupId,
+            MessageId = messageId
+        };
+        
+        // send notification with messageDto to online group users
+        foreach (var user in onlineGroupUsers)
+        {
+            await notificationsHub.Clients
+                .User(user.Username)
+                .SendAsync("MessageDeleted", notification);
+            logger.Debug($"[NotificationsService] MessageDeleted received from {user.Username} (ID: {user.Id})");
+        }
+        
+        logger.Debug($"[NotificationsService] MessageDeleted notification sent to {onlineGroupUsers.Count} online users in group for message ID: {messageId}");
+
+    }
+
+    public async Task AttachmentRemoved(int groupId, int messageId, int senderId, List<UserBasicInfo> usersInGroup)
+    {
+        var onlineUsers = await presenceTracker.GetOnlineUserIds();
+        
+        // get the intersection of online/group users (without the sender)
+        var onlineGroupUsers = usersInGroup
+            .Where(user => onlineUsers.Contains(user.Id) && user.Id != senderId)
+            .ToList();
+        
+        // if no users online, don't send a notification
+        if (onlineGroupUsers.Count == 0)
+        {
+            logger.Debug($"[NotificationsService] No online users in group to send AttachmentRemoved notification for message ID: {messageId}");
+            return;
+        }
+
+        var notification = new
+        {
+            GroupId = groupId,
+            MessageId = messageId
+        };
+        
+        // send notification with messageDto to online group users
+        foreach (var user in onlineGroupUsers)
+        {
+            await notificationsHub.Clients
+                .User(user.Username)
+                .SendAsync("AttachmentRemoved", notification);
+            logger.Debug($"[NotificationsService] AttachmentRemoved received from {user.Username} (ID: {user.Id})");
+        }
+        
+        logger.Debug($"[NotificationsService] AttachmentRemoved notification sent to {onlineGroupUsers.Count} online users in group for message ID: {messageId}");
+    }
     public async Task AddedToGroup(int recipientUserId, int senderUserId, GroupBasicInfoDTO groupInfoDto)
     {
         var onlineUsers = await presenceTracker.GetOnlineUsersDetailed();
@@ -217,4 +314,62 @@ public class NotificationsService(
         
         logger.Debug($"[NotificationsService] UserRemovedFromGroup notification sent to {onlineGroupUsers.Count} online users in group for group ID: {groupId}");
     }
+
+    public async Task GroupDeleted(int groupId,int ownerId, List<UserBasicInfo> usersInGroup)
+    {
+        var onlineUsers = await presenceTracker.GetOnlineUserIds();
+        
+        var onlineGroupUsers = usersInGroup.Where(user => onlineUsers.Contains(user.Id) && user.Id != ownerId).ToList();
+        
+        if (onlineGroupUsers.Count == 0)
+        {
+            logger.Debug($"[NotificationsService] No online users in group to send GroupDeleted notification for group ID: {groupId}");
+            return;
+        }
+        
+        var notification = new
+        {
+            GroupId = groupId,
+        };
+        
+        foreach (var user in onlineGroupUsers)
+        {
+            await notificationsHub.Clients
+                .User(user.Username)
+                .SendAsync("GroupDeleted", notification);
+            logger.Debug($"[NotificationsService] GroupDeleted received from {user.Username} (ID: {user.Id})");
+        }
+        
+        logger.Debug($"[NotificationsService] GroupDeleted notification sent to {onlineGroupUsers.Count} online users in group for group ID: {groupId}");
+    }
+
+    public async Task UserUpdated(int userId,List<UserBasicInfo> userFriends)
+    {
+        var onlineUsers = await presenceTracker.GetOnlineUserIds();
+        
+        var onlineUserFriends = userFriends.Where(user => onlineUsers.Contains(user.Id)).ToList();
+        
+        // if no users online, don't send a notification
+        if (onlineUserFriends.Count == 0)
+        {
+            logger.Debug($"[NotificationsService] No online users in group to send UserUpdated notification for user ID: {userId}");
+            return;
+        }
+        
+        var notification = new
+        {
+            UserId = userId,
+        };
+        
+        foreach (var user in onlineUserFriends)
+        {
+            await notificationsHub.Clients
+                .User(user.Username)
+                .SendAsync("UserUpdated", notification);
+            logger.Debug($"[NotificationsService] UserUpdated received from {user.Username} (ID: {user.Id})");
+        }
+        
+        logger.Debug($"[NotificationsService] UserUpdated notification sent to {onlineUserFriends.Count} online users in group for user ID: {userId}");
+    }
+    
 }

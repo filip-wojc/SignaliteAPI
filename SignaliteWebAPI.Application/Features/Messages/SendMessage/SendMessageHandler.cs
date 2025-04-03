@@ -50,7 +50,6 @@ public class SendMessageHandler(
             }
         }
         
-        // TODO: ADD Other file types STATIC FILE STORAGE
         string? uploadedPublicId = null;
         string? mimeType = null;
 

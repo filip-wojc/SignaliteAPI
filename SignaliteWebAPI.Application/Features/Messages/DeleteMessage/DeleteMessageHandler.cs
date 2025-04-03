@@ -31,6 +31,6 @@ public class DeleteMessageHandler(IMessageRepository messageRepository, IMediaSe
             }
         }
         
-        // TODO: Notification
+        // TODO: MessageDeleted notification
     }
 }

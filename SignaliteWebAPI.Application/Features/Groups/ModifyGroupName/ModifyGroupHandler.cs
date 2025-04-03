@@ -15,6 +15,6 @@ public class ModifyGroupHandler(IGroupRepository groupRepository) : IRequestHand
         }
         await groupRepository.ModifyGroupName(request.GroupName, groupToModify);
         
-        // TODO: Group Modified Notification
+        // TODO: GroupUpdated notification
     }
 }

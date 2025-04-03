@@ -41,7 +41,7 @@ public class DeleteGroupHandler(
         groupRepository.DeleteGroup(group);
         await unitOfWork.SaveChangesAsync();
         
-        // TODO: GroupDeleted event
+        // TODO: GroupDeleted notification
         
     }
 }

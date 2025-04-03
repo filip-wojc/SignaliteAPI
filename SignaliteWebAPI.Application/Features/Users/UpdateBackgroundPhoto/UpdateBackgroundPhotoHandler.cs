@@ -44,6 +44,6 @@ public class UpdateBackgroundPhotoHandler(
         await photoRepository.AddPhotoAsync(photo);
         await photoRepository.SetUserBackgroundPhotoAsync(user.Id, photo.Id);
         
-        // TODO: UserUpdated event sent to friends
+        // TODO: UserUpdated notification
     }
 }
