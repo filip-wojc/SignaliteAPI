@@ -32,12 +32,13 @@ public class MessageController(ISender mediator) : ControllerBase
     }
 
     [HttpGet("{groupId}")]
-    public async Task<ActionResult<List<MessageDTO>>> GetMessageThread([FromRoute] int groupId)
+    public async Task<ActionResult<List<MessageDTO>>> GetMessageThread([FromRoute] int groupId, [FromQuery] PaginationQuery paginationQuery)
     {
         var query = new GetMessageThreadQuery
         {
             GroupId = groupId,
-            UserId = User.GetUserId()
+            UserId = User.GetUserId(),
+            PaginationQuery = paginationQuery
         };
         var messages = await mediator.Send(query);
         return Ok(messages);

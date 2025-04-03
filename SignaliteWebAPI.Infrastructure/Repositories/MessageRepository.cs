@@ -2,6 +2,7 @@
 using SignaliteWebAPI.Domain.Models;
 using SignaliteWebAPI.Infrastructure.Database;
 using SignaliteWebAPI.Infrastructure.Exceptions;
+using SignaliteWebAPI.Infrastructure.Helpers;
 using SignaliteWebAPI.Infrastructure.Interfaces.Repositories;
 
 namespace SignaliteWebAPI.Infrastructure.Repositories;
@@ -14,13 +15,23 @@ public class MessageRepository(SignaliteDbContext dbContext) : IMessageRepositor
         //await dbContext.SaveChangesAsync(); // UnitOfWork handles saving now
     }
 
+    public IQueryable<Message> GetMessagesQueryable(int groupId)
+    {
+        // Sortuj wszystko od najnowszych aby kolejne strony w paginacji miały starsze wiadomości
+        var messagesQuery = dbContext.Messages.OrderByDescending(m => m.DateSent).Include(m => m.Sender)
+            .ThenInclude(u => u.ProfilePhoto)
+            .Include(m => m.Attachment).Where(m => m.GroupId == groupId).AsQueryable();
+
+        return messagesQuery;
+    }
+
     public async Task<List<Message>> GetMessages(int groupId)
     {
         var messages = await dbContext.Messages.Include(m => m.Sender).ThenInclude(u => u.ProfilePhoto)
             .Include(m => m.Attachment).Where(m => m.GroupId == groupId).ToListAsync();
         return messages;
     }
-    
+
     public async Task<Message> GetMessageWithAttachment(int messageId)
     {
         var message = await dbContext.Messages.Include(m => m.Attachment).FirstOrDefaultAsync(m => m.Id == messageId);
@@ -28,6 +39,7 @@ public class MessageRepository(SignaliteDbContext dbContext) : IMessageRepositor
         {
             throw new NotFoundException("Message not found");
         }
+
         return message;
     }
 
@@ -38,6 +50,7 @@ public class MessageRepository(SignaliteDbContext dbContext) : IMessageRepositor
         {
             throw new NotFoundException("Message not found");
         }
+
         return message;
     }
 
