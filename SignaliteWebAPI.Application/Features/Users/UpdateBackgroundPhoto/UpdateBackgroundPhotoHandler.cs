@@ -1,4 +1,6 @@
+using AutoMapper;
 using MediatR;
+using SignaliteWebAPI.Domain.DTOs.Users;
 using SignaliteWebAPI.Domain.Models;
 using SignaliteWebAPI.Infrastructure.Exceptions;
 using SignaliteWebAPI.Infrastructure.Interfaces.Repositories;
@@ -9,7 +11,10 @@ namespace SignaliteWebAPI.Application.Features.Users.UpdateBackgroundPhoto;
 public class UpdateBackgroundPhotoHandler(
     IUserRepository userRepository,
     IPhotoRepository photoRepository,
-    IMediaService mediaService 
+    IFriendsRepository friendsRepository,
+    IMediaService mediaService,
+    INotificationsService notificationsService,
+    IMapper mapper
     ): IRequestHandler<UpdateBackgroundPhotoCommand>
 {
     public async Task Handle(UpdateBackgroundPhotoCommand request, CancellationToken cancellationToken)
@@ -43,7 +48,9 @@ public class UpdateBackgroundPhotoHandler(
         // save new photo
         await photoRepository.AddPhotoAsync(photo);
         await photoRepository.SetUserBackgroundPhotoAsync(user.Id, photo.Id);
-        
-        // TODO: UserUpdated notification
+        var friendsToMap = await friendsRepository.GetUserFriends(user.Id);
+        var usersToNotify = mapper.Map<List<UserBasicInfo>>(friendsToMap);
+        await notificationsService.UserUpdated(user.Id, usersToNotify);
+        // TODO: test
     }
 }
