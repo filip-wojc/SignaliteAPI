@@ -28,7 +28,6 @@ public class ModifyMessageHandler(
         var members = mapper.Map<List<UserBasicInfo>>(usersToMap);
         var messageDto = mapper.Map<MessageDTO>(message);
         await notificationsService.MessageModified(messageDto, message.GroupId, members);
-        // TODO: TEST!
     }
     
     

@@ -41,6 +41,5 @@ public class DeleteMessageHandler(
         var usersToMap = await groupRepository.GetUsersInGroup(message.GroupId);
         var members = mapper.Map<List<UserBasicInfo>>(usersToMap);
         await notificationsService.MessageDeleted(message.GroupId, message.Id, message.SenderId,members);
-        // TODO: TEST
     }
 }

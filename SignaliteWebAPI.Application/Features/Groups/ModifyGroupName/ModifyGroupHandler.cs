@@ -16,7 +16,7 @@ public class ModifyGroupHandler(
 {
     public async Task Handle(ModifyGroupCommand request, CancellationToken cancellationToken)
     {
-        var groupToModify = await groupRepository.GetGroup(request.GroupId);
+        var groupToModify = await groupRepository.GetGroupWithPhoto(request.GroupId);
         if (groupToModify.OwnerId != request.UserId || groupToModify.IsPrivate)
         {
             throw new ForbidException("You are not allowed to modify this group.");
@@ -27,6 +27,5 @@ public class ModifyGroupHandler(
         var members = mapper.Map<List<UserBasicInfo>>(usersToMap);
         var groupDto = mapper.Map<GroupBasicInfoDTO>(groupToModify);
         await notificationsService.GroupUpdated(groupDto,members, groupToModify.OwnerId);
-        // TODO: TEST
     }
 }

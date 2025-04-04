@@ -43,13 +43,12 @@ public class DeleteGroupHandler(
         {
             throw new ForbidException("You can't delete group which you did not create");
         }
+        var usersToMap = await groupRepository.GetUsersInGroup(request.GroupId);
         groupRepository.DeleteGroup(group);
         await unitOfWork.SaveChangesAsync();
         
-        var usersToMap = await groupRepository.GetUsersInGroup(request.GroupId);
         var members = mapper.Map<List<UserBasicInfo>>(usersToMap);
         await notificationsService.GroupDeleted(request.GroupId, request.OwnerId, members);
-        // TODO: TEST
         
     }
 }

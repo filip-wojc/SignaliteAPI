@@ -33,6 +33,5 @@ public class DeleteBackgroundPhotoHandler(
         var friendsToMap = await friendsRepository.GetUserFriends(request.UserId);
         var usersToNotify = mapper.Map<List<UserBasicInfo>>(friendsToMap);
         await notificationsService.UserUpdated(user.Id, usersToNotify);
-        // TODO: test
     }
 }
