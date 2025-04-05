@@ -43,7 +43,7 @@ public class GroupsController(ISender mediator) : ControllerBase
             GroupName = groupName
         };
         await mediator.Send(command);
-        return Created();
+        return NoContent();
     }
 
     [HttpPost("photo/{groupId}")]

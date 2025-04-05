@@ -1,10 +1,19 @@
-﻿using MediatR;
+﻿using AutoMapper;
+using MediatR;
 using SignaliteWebAPI.Application.Exceptions;
+using SignaliteWebAPI.Domain.DTOs.Messages;
+using SignaliteWebAPI.Domain.DTOs.Users;
 using SignaliteWebAPI.Infrastructure.Interfaces.Repositories;
+using SignaliteWebAPI.Infrastructure.Interfaces.Services;
 
 namespace SignaliteWebAPI.Application.Features.Messages.ModifyMessage;
 
-public class ModifyMessageHandler(IMessageRepository messageRepository) : IRequestHandler<ModifyMessageCommand>
+public class ModifyMessageHandler(
+    IMessageRepository messageRepository,
+    IGroupRepository groupRepository,
+    INotificationsService notificationsService,
+    IMapper mapper
+    ) : IRequestHandler<ModifyMessageCommand>
 {
     public async Task Handle(ModifyMessageCommand request, CancellationToken cancellationToken)
     {
@@ -15,6 +24,11 @@ public class ModifyMessageHandler(IMessageRepository messageRepository) : IReque
         }
 
         await messageRepository.ModifyMessage(request.MessageContent, message);
+        var usersToMap = await groupRepository.GetUsersInGroup(message.GroupId);
+        var members = mapper.Map<List<UserBasicInfo>>(usersToMap);
+        var messageDto = mapper.Map<MessageDTO>(message);
+        await notificationsService.MessageModified(messageDto, message.GroupId, members);
     }
-    // TODO: Notification
+    
+    
 }

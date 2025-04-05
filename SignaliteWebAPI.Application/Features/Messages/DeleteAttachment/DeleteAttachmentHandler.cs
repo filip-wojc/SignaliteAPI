@@ -1,5 +1,7 @@
-﻿using MediatR;
+﻿using AutoMapper;
+using MediatR;
 using SignaliteWebAPI.Application.Exceptions;
+using SignaliteWebAPI.Domain.DTOs.Users;
 using SignaliteWebAPI.Domain.Enums;
 using SignaliteWebAPI.Infrastructure.Interfaces.Repositories;
 using SignaliteWebAPI.Infrastructure.Interfaces.Services;
@@ -9,7 +11,11 @@ namespace SignaliteWebAPI.Application.Features.Messages.DeleteAttachment;
 public class DeleteAttachmentHandler(
     IAttachmentRepository attachmentRepository,
     IMessageRepository messageRepository,
-    IMediaService mediaService) : IRequestHandler<DeleteAttachmentCommand>
+    IGroupRepository groupRepository,
+    IMediaService mediaService,
+    INotificationsService notificationsService,
+    IMapper mapper
+    ) : IRequestHandler<DeleteAttachmentCommand>
 {
     public async Task Handle(DeleteAttachmentCommand request, CancellationToken cancellationToken)
     {
@@ -35,6 +41,9 @@ public class DeleteAttachmentHandler(
         {
             await mediaService.DeleteMediaAsync(attachment.PublicId, attachment.Type);
         }
-        // TODO: Notification
+        
+        var usersToMap = await groupRepository.GetUsersInGroup(message.GroupId);
+        var members = mapper.Map<List<UserBasicInfo>>(usersToMap);
+        await notificationsService.AttachmentRemoved(message.GroupId, message.Id, message.SenderId,members);
     }
 }

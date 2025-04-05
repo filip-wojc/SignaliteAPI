@@ -1,5 +1,8 @@
 // UploadUserPhotoHandler.cs
+
+using AutoMapper;
 using MediatR;
+using SignaliteWebAPI.Domain.DTOs.Users;
 using SignaliteWebAPI.Domain.Models;
 using SignaliteWebAPI.Infrastructure.Exceptions;
 using SignaliteWebAPI.Infrastructure.Interfaces.Repositories;
@@ -10,7 +13,10 @@ namespace SignaliteWebAPI.Application.Features.Users.UpdateProfilePhoto;
 public class UpdateUserPhotoHandler(
     IUserRepository userRepository,
     IPhotoRepository photoRepository,
-    IMediaService mediaService
+    IFriendsRepository friendsRepository,
+    IMediaService mediaService,
+    INotificationsService notificationsService,
+    IMapper mapper
     ): IRequestHandler<UpdateProfilePhotoCommand>
 {
     public async Task Handle(UpdateProfilePhotoCommand request, CancellationToken cancellationToken)
@@ -44,7 +50,8 @@ public class UpdateUserPhotoHandler(
         // save new photo
         await photoRepository.AddPhotoAsync(photo);
         await photoRepository.SetUserProfilePhotoAsync(user.Id, photo.Id);
-        
-        // TODO: UserUpdated event sent to friends
+        var friendsToMap = await friendsRepository.GetUserFriends(user.Id);
+        var usersToNotify = mapper.Map<List<UserBasicInfo>>(friendsToMap);
+        await notificationsService.UserUpdated(user.Id, usersToNotify);
     }
 }
