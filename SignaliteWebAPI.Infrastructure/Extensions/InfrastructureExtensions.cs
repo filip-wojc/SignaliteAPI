@@ -45,6 +45,7 @@ public static class InfrastructureExtensions
         services.AddSingleton<PresenceTracker>();
         services.AddSignalR();
         services.AddSingleton<IUserIdProvider, UsernameUserIdProvider>();
+        services.AddSingleton<WebRtcConfigService>();
         services.AddSingleton<ConnectionCleanupService>(sp => 
         {
             var logger = sp.GetRequiredService<ILogger>();
