@@ -142,7 +142,6 @@ namespace SignaliteWebAPI.Infrastructure.SignalR
             var connectionsInfo = new
             {
                 ConnectionId = Context.ConnectionId,
-                OnlineUsers = await _presenceTracker.GetOnlineUsersDetailed() // TODO: REMOVE LATER
             };
 
             await Clients.Caller.SendAsync("SignalingRegistered", connectionsInfo);
