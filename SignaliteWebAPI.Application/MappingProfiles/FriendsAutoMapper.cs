@@ -14,6 +14,8 @@ public class FriendsAutoMapper : Profile
             .ForMember(f => f.RequestDate, o
                 => o.MapFrom(f => f.RequestDate.ToString("yyyy/MM/dd HH:mm:ss")))
             .ForMember(f => f.SenderUsername, o
-                => o.MapFrom(f => f.Sender.Username));
+                => o.MapFrom(f => f.Sender.Username))
+            .ForMember(f => f.ProfilePhotoUrl, o
+                => o.MapFrom(f => f.Sender.ProfilePhoto.Url));
     }
 }

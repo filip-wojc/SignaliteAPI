@@ -16,7 +16,8 @@ public class FriendsRepository(SignaliteDbContext dbContext) : IFriendsRepositor
 
     public async Task<List<FriendRequest>> GetFriendRequests(int userId)
     {
-        return await dbContext.FriendRequests.Include(fr => fr.Sender).Where(fr => fr.RecipientId == userId)
+        return await dbContext.FriendRequests.Include(fr => fr.Sender).ThenInclude(s => s.ProfilePhoto)
+            .Where(fr => fr.RecipientId == userId)
             .ToListAsync();
     }
 
@@ -48,6 +49,7 @@ public class FriendsRepository(SignaliteDbContext dbContext) : IFriendsRepositor
         {
             throw new NotFoundException("UserFriend not found");
         }
+
         return userFriend;
     }
 
