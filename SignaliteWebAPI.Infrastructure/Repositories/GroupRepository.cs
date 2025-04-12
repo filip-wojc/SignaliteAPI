@@ -56,19 +56,20 @@ public class GroupRepository(SignaliteDbContext dbContext) : IGroupRepository
             throw new NotFoundException("Group not found");
         }
 
-        return group; 
+        return group;
     }
 
 
     public async Task<List<Group>> GetUserGroupsWithPhoto(int userId)
     {
-        return await dbContext.Groups.Include(g => g.Photo).Where(g => g.Users.Any(u => u.UserId == userId))
+        return await dbContext.Groups.Include(g => g.Photo).Include(g => g.Messages).Where(g => g.Users.Any(u => u.UserId == userId))
             .ToListAsync();
     }
 
     public async Task<Group> GetGroupWithPhoto(int groupId)
     {
-        var group = await dbContext.Groups.Include(g => g.Photo).FirstOrDefaultAsync(g => g.Id == groupId);
+        var group = await dbContext.Groups.Include(g => g.Photo).Include(g => g.Messages)
+            .FirstOrDefaultAsync(g => g.Id == groupId);
         if (group == null)
         {
             throw new NotFoundException("Group not found");

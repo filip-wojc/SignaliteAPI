@@ -12,5 +12,5 @@ public class GroupBasicInfoDTO
     public string Name { get; set; }
     public string PhotoUrl { get; set; }
     public bool IsPrivate { get; set; }
-    // TODO: last message from group
+    public string? LastMessage { get; set; }
 }

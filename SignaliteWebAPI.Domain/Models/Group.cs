@@ -10,4 +10,5 @@ public class Group
     public User Owner { get; set; }
     public required int OwnerId { get; set; }
     public List<UserGroup> Users { get; set; } = [];
+    public List<Message> Messages { get; set; } = [];
 }
