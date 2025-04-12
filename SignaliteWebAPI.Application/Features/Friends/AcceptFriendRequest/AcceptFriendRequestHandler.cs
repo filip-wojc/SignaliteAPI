@@ -1,4 +1,6 @@
-﻿using MediatR;
+﻿using AutoMapper;
+using MediatR;
+using SignaliteWebAPI.Domain.DTOs.Users;
 using SignaliteWebAPI.Domain.Models;
 using SignaliteWebAPI.Infrastructure.Exceptions;
 using SignaliteWebAPI.Infrastructure.Interfaces.Repositories;
@@ -11,6 +13,7 @@ public class AcceptFriendRequestHandler(
     IGroupRepository groupRepository,
     IUserRepository userRepository,
     IUnitOfWork unitOfWork,
+    IMapper mapper,
     INotificationsService notificationsService
     ): IRequestHandler<AcceptFriendRequestCommand>
 {
@@ -62,7 +65,10 @@ public class AcceptFriendRequestHandler(
             };
             await groupRepository.AddUserToGroup(userGroup);
             await groupRepository.AddUserToGroup(userGroup2);
-            await notificationsService.FriendRequestAccepted(friend.Id, user.Id, user.Username);
+            
+            var userDto = mapper.Map<UserDTO>(user);
+            
+            await notificationsService.FriendRequestAccepted(userDto, requestToAccept.SenderId);
             await unitOfWork.CommitTransactionAsync();
         }
         catch (Exception ex)

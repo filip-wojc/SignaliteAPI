@@ -1,7 +1,9 @@
 using Microsoft.AspNetCore.SignalR;
+using SignaliteWebAPI.Domain.DTOs.FriendRequests;
 using SignaliteWebAPI.Domain.DTOs.Groups;
 using SignaliteWebAPI.Domain.DTOs.Messages;
 using SignaliteWebAPI.Domain.DTOs.Users;
+using SignaliteWebAPI.Domain.Models;
 using SignaliteWebAPI.Infrastructure.Interfaces.Services;
 using SignaliteWebAPI.Infrastructure.SignalR;
 using ILogger = Serilog.ILogger;
@@ -14,7 +16,7 @@ public class NotificationsService(
     ILogger logger
     ):INotificationsService
 {
-    public async Task FriendRequest(int recipientUserId, int senderUserId, string senderUsername) 
+    public async Task FriendRequest(FriendRequestDTO friendRequest, int recipientId) 
     {
         try
         {
@@ -22,20 +24,15 @@ public class NotificationsService(
             var onlineUsers = await presenceTracker.GetOnlineUsersDetailed();
             
             // Find the recipient user
-            var recipientUser = onlineUsers.FirstOrDefault(u => u.Id == recipientUserId);
+            var recipientUser = onlineUsers.FirstOrDefault(u => u.Id == recipientId);
             if (recipientUser == null)
             {
-                logger.Debug($"[NotificationsService] Cannot send FriendRequest notification - recipient user (ID: {recipientUserId}) is not online");
+                logger.Debug($"[NotificationsService] Cannot send FriendRequest notification - recipient user (ID: {recipientId}) is not online");
                 return;
             }
             
             // Create notification object
-            var notification = new
-            {
-                SenderId = senderUserId,
-                SenderUsername = senderUsername,
-                Timestamp = DateTime.UtcNow
-            };
+            var notification = friendRequest;
             
             // Send notification to the user using their username as the identifier
             // This sends to ALL connections this user has to the NotificationsHub
@@ -43,46 +40,41 @@ public class NotificationsService(
                 .User(recipientUser.Username)
                 .SendAsync("FriendRequest", notification);
             
-            logger.Debug($"[NotificationsService] FriendRequest notification sent from {senderUsername} (ID: {senderUserId}) to {recipientUser.Username} (ID: {recipientUserId})");
+            logger.Debug($"[NotificationsService] FriendRequest notification sent from {friendRequest.SenderId} (ID: {friendRequest.SenderId}) to {recipientUser.Username} (ID: {recipientId})");
         }
         catch (Exception ex)
         {
-            logger.Error(ex, $"[NotificationsService] Error sending FriendRequest notification from user ID {senderUserId} to user ID {recipientUserId}");
+            logger.Error(ex, $"[NotificationsService] Error sending FriendRequest notification from user ID {friendRequest.SenderId} to user ID {recipientId}");
         }
     }
     
-    public async Task FriendRequestAccepted(int recipientUserId, int senderUserId, string senderUsername)
+    public async Task FriendRequestAccepted(UserDTO userWhoAccepted, int senderId)
     {
         try
         {
             // Get all online users detailed info (id + username)
             var onlineUsers = await presenceTracker.GetOnlineUsersDetailed();
             
-            var recipientUser = onlineUsers.FirstOrDefault(u => u.Id == recipientUserId);
-            if (recipientUser == null)
+            var sender = onlineUsers.FirstOrDefault(u => u.Id == senderId);
+            if (sender == null)
             {
-                logger.Debug($"[NotificationsService] Cannot send FriendRequestAccepted notification - recipient user (ID: {recipientUserId}) is not online");
+                logger.Debug($"[NotificationsService] Cannot send FriendRequestAccepted notification - recipient user (ID: {senderId}) is not online");
                 return;
             }
             
             // Create notification object
-            var notification = new
-            {
-                SenderId = senderUserId,
-                SenderUsername = senderUsername,
-                Timestamp = DateTime.UtcNow
-            };
+            var notification = userWhoAccepted;
             
             // Send notification to the user using their username as the identifier
             await notificationsHub.Clients
-                .User(recipientUser.Username)
+                .User(sender.Username)
                 .SendAsync("FriendRequestAccepted", notification);
             
-            logger.Debug($"F[NotificationsService] FriendRequestAccepted notification sent from {senderUsername} (ID: {senderUserId}) to {recipientUser.Username} (ID: {recipientUserId})");
+            logger.Debug($"F[NotificationsService] FriendRequestAccepted notification sent from {userWhoAccepted.Username} (ID: {userWhoAccepted.Id}) to {sender.Username} (ID: {senderId})");
         }
         catch (Exception ex)
         {
-            logger.Error(ex, $"[NotificationsService] Error sending FriendRequestAccepted notification from user ID {senderUserId} to user ID {recipientUserId}");
+            logger.Error(ex, $"[NotificationsService] Error sending FriendRequestAccepted notification from user ID {userWhoAccepted.Id} to user ID {senderId}");
         }
     }
 

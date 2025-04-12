@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using MediatR;
 using SignaliteWebAPI.Application.Exceptions;
+using SignaliteWebAPI.Domain.DTOs.FriendRequests;
 using SignaliteWebAPI.Domain.Models;
 using SignaliteWebAPI.Infrastructure.Interfaces.Repositories;
 using SignaliteWebAPI.Infrastructure.Interfaces.Services;
@@ -25,10 +26,8 @@ public class SendFriendRequestHandler(
             throw new BadRequestException("User already accepted friend request from sender");
         }
         await repository.SendFriendRequest(friendRequest);
-        await notificationsService.FriendRequest(
-            request.RecipientId,
-            request.SenderId,
-            request.SenderUsername
-        );
+        
+        var friendRequestDto = mapper.Map<FriendRequestDTO>(friendRequest);
+        await notificationsService.FriendRequest(friendRequestDto, request.RecipientId);
     }
 }
