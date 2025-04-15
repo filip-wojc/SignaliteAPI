@@ -8,13 +8,13 @@ namespace SignaliteWebAPI.Application.Features.Friends.GetUserFriends;
 public class GetUserFriendsHandler(
     IFriendsRepository repository, 
     IMapper mapper
-    ): IRequestHandler<GetUserFriendsQuery, List<UserDTO>>
+    ): IRequestHandler<GetUserFriendsQuery, List<UserBasicInfo>>
 {
-    public async Task<List<UserDTO>> Handle(GetUserFriendsQuery request, CancellationToken cancellationToken)
+    public async Task<List<UserBasicInfo>> Handle(GetUserFriendsQuery request, CancellationToken cancellationToken)
     {
         
         var friends = await repository.GetUserFriends(request.UserId);
-        var friendsDto = mapper.Map<List<UserDTO>>(friends);
+        var friendsDto = mapper.Map<List<UserBasicInfo>>(friends);
         return friendsDto;
     }
 }

@@ -48,7 +48,7 @@ public class NotificationsService(
         }
     }
     
-    public async Task FriendRequestAccepted(UserDTO userWhoAccepted, int senderId)
+    public async Task FriendRequestAccepted(UserBasicInfo userWhoAccepted, int senderId)
     {
         try
         {

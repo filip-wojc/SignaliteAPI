@@ -9,5 +9,5 @@ public class MessageDTO
     public string? Content { get; set; }
     public DateTime LastModification { get; set; }
     public AttachmentDTO? Attachment { get; set; }
-    public UserDTO Sender { get; set; }
+    public UserBasicInfo Sender { get; set; }
 }

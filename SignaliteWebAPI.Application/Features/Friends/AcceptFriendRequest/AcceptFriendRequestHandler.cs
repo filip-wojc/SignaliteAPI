@@ -66,9 +66,9 @@ public class AcceptFriendRequestHandler(
             await groupRepository.AddUserToGroup(userGroup);
             await groupRepository.AddUserToGroup(userGroup2);
             
-            var userDto = mapper.Map<UserDTO>(user);
+            var userBasicInfo = mapper.Map<UserBasicInfo>(user);
             
-            await notificationsService.FriendRequestAccepted(userDto, requestToAccept.SenderId);
+            await notificationsService.FriendRequestAccepted(userBasicInfo, requestToAccept.SenderId);
             await unitOfWork.CommitTransactionAsync();
         }
         catch (Exception ex)
