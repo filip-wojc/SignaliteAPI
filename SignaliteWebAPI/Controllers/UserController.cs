@@ -4,6 +4,8 @@ using Microsoft.AspNetCore.Mvc;
 using SignaliteWebAPI.Application.Features.Users.ChangePassword;
 using SignaliteWebAPI.Application.Features.Users.DeleteBackgroundPhoto;
 using SignaliteWebAPI.Application.Features.Users.DeleteProfilePhoto;
+using SignaliteWebAPI.Application.Features.Users.ExistsByEmail;
+using SignaliteWebAPI.Application.Features.Users.ExistsByUsername;
 using SignaliteWebAPI.Application.Features.Users.GetUserInfo;
 using SignaliteWebAPI.Application.Features.Users.ModifyUser;
 using SignaliteWebAPI.Application.Features.Users.UpdateBackgroundPhoto;
@@ -31,6 +33,28 @@ public class UserController(ISender mediator) : ControllerBase
         };
         await mediator.Send(command);
         return NoContent();
+    }
+    
+    [HttpGet("exists-by-username")]
+    public async Task<ActionResult> ExistsUserByUsername(string username)
+    {
+        var command = new ExistsUserByUsernameCommand
+        {
+            Username = username
+        };
+        var content = await mediator.Send(command);
+        return Ok(content);
+    }
+    
+    [HttpGet("exists-by-email")]
+    public async Task<ActionResult> ExistsUserByEmail(string email)
+    {
+        var command = new ExistsUserByEmailCommand
+        {
+            Email = email
+        };
+        var content = await mediator.Send(command);
+        return Ok(content);
     }
     
     [HttpGet("get-user-info")]
