@@ -1,6 +1,6 @@
 using MediatR;
 
-namespace SignaliteWebAPI.Application.Features.Users.ExistsByEmail;
+namespace SignaliteWebAPI.Application.Features.Auth.ExistsUserByEmail;
 
 public class ExistsUserByEmailCommand : IRequest<bool>
 {

@@ -1,7 +1,7 @@
 using MediatR;
 using SignaliteWebAPI.Infrastructure.Interfaces.Repositories;
 
-namespace SignaliteWebAPI.Application.Features.Users.ExistsByEmail;
+namespace SignaliteWebAPI.Application.Features.Auth.ExistsUserByEmail;
 
 public class ExistsUserByEmailHandler(IUserRepository userRepository) : IRequestHandler<ExistsUserByEmailCommand, bool>
 {

@@ -1,6 +1,6 @@
 using MediatR;
 
-namespace SignaliteWebAPI.Application.Features.Users.ExistsByUsername;
+namespace SignaliteWebAPI.Application.Features.Auth.ExistsUserByUsername;
 
 public class ExistsUserByUsernameCommand : IRequest<bool>
 {
