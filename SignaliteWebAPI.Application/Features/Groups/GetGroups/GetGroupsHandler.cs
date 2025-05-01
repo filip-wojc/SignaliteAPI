@@ -13,6 +13,8 @@ public class GetGroupsHandler(
     public async Task<List<GroupBasicInfoDTO>> Handle(GetGroupsQuery request, CancellationToken cancellationToken)
     {
         var groups = await groupRepository.GetUserGroupsWithPhoto(request.UserId);
-        return mapper.Map<List<GroupBasicInfoDTO>>(groups);
+        return mapper.Map<List<GroupBasicInfoDTO>>(groups, opt => 
+            opt.Items["UserId"] = request.UserId
+        );
     }
 }

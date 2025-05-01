@@ -62,7 +62,21 @@ public class GroupRepository(SignaliteDbContext dbContext) : IGroupRepository
 
     public async Task<List<Group>> GetUserGroupsWithPhoto(int userId)
     {
-        return await dbContext.Groups.Include(g => g.Photo).Include(g => g.Messages).Where(g => g.Users.Any(u => u.UserId == userId))
+        return await dbContext.Groups
+            // include group photo if present for mapper
+            .Include(g => g.Photo)
+            // 
+            .Include(g => g.Users)
+            .ThenInclude(ug => ug.User)
+            .ThenInclude(u => u.ProfilePhoto)
+            // include messages with sender so mapper can set sender and message to LastMessage in form "Username: message"
+            .Include(g => g.Messages)
+            .ThenInclude(m => m.Sender)
+            // include attachment for mapper to check if attachment present and modify message accordingly in form "Username: sent an attachemtn" instead
+            .Include(g => g.Messages)
+            .ThenInclude(m => m.Attachment)
+            
+            .Where(g => g.Users.Any(u => u.UserId == userId))
             .ToListAsync();
     }
 
