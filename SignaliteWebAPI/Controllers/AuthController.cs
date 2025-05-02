@@ -1,5 +1,7 @@
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
+using SignaliteWebAPI.Application.Features.Auth.ExistsUserByEmail;
+using SignaliteWebAPI.Application.Features.Auth.ExistsUserByUsername;
 using SignaliteWebAPI.Application.Features.Auth.Login;
 using SignaliteWebAPI.Application.Features.Auth.RefreshToken;
 using SignaliteWebAPI.Application.Features.Auth.Register;
@@ -30,5 +32,27 @@ public class AuthController(ISender mediator) : ControllerBase
     {
         var tokenResponse = await mediator.Send(refreshCommand);
         return Ok(tokenResponse);
+    }
+    
+    [HttpGet("user-exists-by-username")]
+    public async Task<ActionResult> ExistsUserByUsername(string username)
+    {
+        var command = new ExistsUserByUsernameCommand
+        {
+            Username = username
+        };
+        var content = await mediator.Send(command);
+        return Ok(content);
+    }
+    
+    [HttpGet("user-exists-by-email")]
+    public async Task<ActionResult> ExistsUserByEmail(string email)
+    {
+        var command = new ExistsUserByEmailCommand
+        {
+            Email = email
+        };
+        var content = await mediator.Send(command);
+        return Ok(content);
     }
 }

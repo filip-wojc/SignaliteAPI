@@ -1,6 +1,8 @@
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using SignaliteWebAPI.Application.Features.Auth.ExistsUserByEmail;
+using SignaliteWebAPI.Application.Features.Auth.ExistsUserByUsername;
 using SignaliteWebAPI.Application.Features.Users.ChangePassword;
 using SignaliteWebAPI.Application.Features.Users.DeleteBackgroundPhoto;
 using SignaliteWebAPI.Application.Features.Users.DeleteProfilePhoto;
