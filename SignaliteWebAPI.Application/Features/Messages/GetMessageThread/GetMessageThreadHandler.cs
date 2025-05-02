@@ -19,9 +19,9 @@ public class GetMessageThreadHandler(
         int totalItems = messagesQueryable.Count();
         int pageNumber = request.PaginationQuery.PageNumber ?? 1;
         int pageSize = request.PaginationQuery.PageSize ?? 10;
-        
+
         messagesQueryable = messagesQueryable.Skip((pageNumber - 1) * pageSize)
-            .Take(pageSize).OrderBy(m => m.DateSent);
+            .Take(pageSize);
         
         var messageDtos = mapper.Map<List<MessageDTO>>(await messagesQueryable.ToListAsync());
         return new PageResult<MessageDTO>(messageDtos, totalItems, pageSize, pageNumber);

@@ -17,7 +17,6 @@ public class MessageRepository(SignaliteDbContext dbContext) : IMessageRepositor
 
     public IQueryable<Message> GetMessagesQueryable(int groupId)
     {
-        // Sortuj wszystko od najnowszych aby kolejne strony w paginacji miały starsze wiadomości
         var messagesQuery = dbContext.Messages.OrderByDescending(m => m.DateSent).Include(m => m.Sender)
             .ThenInclude(u => u.ProfilePhoto)
             .Include(m => m.Attachment).Where(m => m.GroupId == groupId).AsQueryable();
