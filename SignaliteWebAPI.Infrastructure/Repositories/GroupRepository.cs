@@ -82,7 +82,15 @@ public class GroupRepository(SignaliteDbContext dbContext) : IGroupRepository
 
     public async Task<Group> GetGroupWithPhoto(int groupId)
     {
-        var group = await dbContext.Groups.Include(g => g.Photo).Include(g => g.Messages)
+        var group = await dbContext.Groups
+            .Include(g => g.Photo)
+            .Include(g => g.Users)
+                .ThenInclude(ug => ug.User)
+                    .ThenInclude(u => u.ProfilePhoto)
+            .Include(g => g.Messages)
+                .ThenInclude(m => m.Sender)
+            .Include(g => g.Messages)
+                .ThenInclude(m => m.Attachment)
             .FirstOrDefaultAsync(g => g.Id == groupId);
         if (group == null)
         {

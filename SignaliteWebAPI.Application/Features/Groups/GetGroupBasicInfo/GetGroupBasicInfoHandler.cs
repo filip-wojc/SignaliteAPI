@@ -21,7 +21,8 @@ public class GetGroupBasicInfoHandler(
         }
         
         var group = await groupRepository.GetGroupWithPhoto(request.GroupId);
-        var groupDto = mapper.Map<GroupBasicInfoDTO>(group);
+        var groupDto = mapper.Map<GroupBasicInfoDTO>(group, opt => 
+            opt.Items["UserId"] = request.UserId);
         return groupDto;
     }
 }
