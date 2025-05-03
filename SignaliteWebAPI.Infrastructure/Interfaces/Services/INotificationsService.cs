@@ -10,7 +10,7 @@ public interface INotificationsService
 {
     Task FriendRequest(FriendRequestDTO friendRequest, int recipientId);
     Task FriendRequestAccepted(UserBasicInfo userWhoAccepted, int senderId);
-    Task MessageReceived(List<UserBasicInfo> usersInGroup, MessageDTO messageDto);
+    Task MessageReceived(List<UserBasicInfo> usersInGroup,int groupId ,MessageDTO messageDto);
     Task MessageModified(MessageDTO messageDto, int groupId, List<UserBasicInfo> usersInGroup);
     Task MessageDeleted(int groupId, int messageId,int senderId ,List<UserBasicInfo> usersInGroup);
     Task AttachmentRemoved(int groupId, int messageId, int senderId, List<UserBasicInfo> usersInGroup);

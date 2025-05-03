@@ -78,7 +78,7 @@ public class NotificationsService(
         }
     }
 
-    public async Task MessageReceived(List<UserBasicInfo> usersInGroup, MessageDTO messageDto)
+    public async Task MessageReceived(List<UserBasicInfo> usersInGroup, int groupId, MessageDTO messageDto)
     {
         var onlineUsers = await presenceTracker.GetOnlineUserIds(); // get online users from tracker
         
@@ -94,12 +94,18 @@ public class NotificationsService(
             return;
         }
         
+        var notification = new
+        {
+            GroupId = groupId,
+            Message = messageDto
+        };
+        
         // send notification with messageDto to online group users
         foreach (var user in onlineGroupUsers)
         {
             await notificationsHub.Clients
                 .User(user.Username)
-                .SendAsync("MessageReceived", messageDto);
+                .SendAsync("MessageReceived", notification);
             logger.Debug($"[NotificationsService] MessageReceived received from {user.Username} (ID: {user.Id})");
         }
         

@@ -88,7 +88,7 @@ public class SendMessageHandler(
             var usersToMap = await groupRepository.GetUsersInGroup(request.SendMessageDto.GroupId);
             var usersInGroup = mapper.Map<List<UserBasicInfo>>(usersToMap);
             var messageDto = mapper.Map<MessageDTO>(message);
-            await notificationsService.MessageReceived(usersInGroup, messageDto);
+            await notificationsService.MessageReceived(usersInGroup, request.SendMessageDto.GroupId, messageDto);
             
         }
         catch (Exception)
