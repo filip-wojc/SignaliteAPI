@@ -22,9 +22,9 @@ public class SendMessageHandler(
     INotificationsService notificationsService,
     IUnitOfWork unitOfWork,
     IMapper mapper
-    ): IRequestHandler<SendMessageCommand>
+    ): IRequestHandler<SendMessageCommand,int>
 {
-    public async Task Handle(SendMessageCommand request, CancellationToken cancellationToken)
+    public async Task<int> Handle(SendMessageCommand request, CancellationToken cancellationToken)
     {
         var file = request.SendMessageDto.File;
 
@@ -32,7 +32,6 @@ public class SendMessageHandler(
         {
             throw new BadRequestException("Can't send empty message");
         }
-
         var message = mapper.Map<Message>(request.SendMessageDto);
         message.SenderId = request.SenderId;
 
@@ -89,7 +88,7 @@ public class SendMessageHandler(
             var usersInGroup = mapper.Map<List<UserBasicInfo>>(usersToMap);
             var messageDto = mapper.Map<MessageDTO>(message);
             await notificationsService.MessageReceived(usersInGroup, request.SendMessageDto.GroupId, messageDto);
-            
+            return messageDto.Id;
         }
         catch (Exception)
         {
@@ -102,7 +101,7 @@ public class SendMessageHandler(
                 // Transaction already rolled back or disposed, ignore
             }
             // Clean up Cloudinary resource if it was uploaded
-            if (string.IsNullOrEmpty(uploadedPublicId)) throw; // throw to exception handler
+            if (!string.IsNullOrEmpty(uploadedPublicId)) throw; // throw to exception handler
             try
             {
                 await mediaService.DeleteMediaAsync(uploadedPublicId, mimeType ?? "image/jpeg");
@@ -111,7 +110,10 @@ public class SendMessageHandler(
             {
                 // Log but continue - don't throw another exception during cleanup 
             }
+
+            throw;
         }
+        
     }
 
     // use the correct function based on the mime type
