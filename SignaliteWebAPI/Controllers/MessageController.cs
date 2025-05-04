@@ -20,15 +20,15 @@ namespace SignaliteWebAPI.Controllers;
 public class MessageController(ISender mediator) : ControllerBase
 {
     [HttpPost]
-    public async Task<ActionResult<int>> SendMessage([FromForm] SendMessageDTO messageDto)
+    public async Task<ActionResult<SendMessageResult>> SendMessage([FromForm] SendMessageDTO messageDto)
     {
         var command = new SendMessageCommand
         {
             SendMessageDto = messageDto,
             SenderId = User.GetUserId(),
         };
-        var messageId = await mediator.Send(command);
-        return Ok(new {messageId});
+        var sendMessageResult = await mediator.Send(command);
+        return Ok(sendMessageResult);
     }
 
     [HttpGet("{groupId}")]

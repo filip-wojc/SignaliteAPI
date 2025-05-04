@@ -3,6 +3,7 @@ using MediatR;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.SignalR;
 using SignaliteWebAPI.Application.Exceptions;
+using SignaliteWebAPI.Application.Helpers;
 using SignaliteWebAPI.Domain.DTOs.Messages;
 using SignaliteWebAPI.Domain.DTOs.Users;
 using SignaliteWebAPI.Domain.Enums;
@@ -22,9 +23,9 @@ public class SendMessageHandler(
     INotificationsService notificationsService,
     IUnitOfWork unitOfWork,
     IMapper mapper
-    ): IRequestHandler<SendMessageCommand,int>
+    ): IRequestHandler<SendMessageCommand, SendMessageResult>
 {
-    public async Task<int> Handle(SendMessageCommand request, CancellationToken cancellationToken)
+    public async Task<SendMessageResult> Handle(SendMessageCommand request, CancellationToken cancellationToken)
     {
         var file = request.SendMessageDto.File;
 
@@ -60,6 +61,8 @@ public class SendMessageHandler(
             // add the message to get an ID
             await messageRepository.AddMessage(message);
             await unitOfWork.SaveChangesAsync(cancellationToken); // IMPORTANT: needed to get id for message
+            
+            string? attachmentUrl = null;
 
             // try to create attachment
             if (file != null)
@@ -67,7 +70,9 @@ public class SendMessageHandler(
                 var (url, publicId, type, fileName) = await UploadFileBasedOnType(file);
                 uploadedPublicId = publicId;
                 mimeType = type;
-
+                
+                attachmentUrl = url;
+                
                 var attachment = new Attachment
                 {
                     Name = fileName,
@@ -88,7 +93,11 @@ public class SendMessageHandler(
             var usersInGroup = mapper.Map<List<UserBasicInfo>>(usersToMap);
             var messageDto = mapper.Map<MessageDTO>(message);
             await notificationsService.MessageReceived(usersInGroup, request.SendMessageDto.GroupId, messageDto);
-            return messageDto.Id;
+            return new SendMessageResult
+            {
+                MessageId = message.Id,
+                AttachmentUrl = attachmentUrl,
+            };
         }
         catch (Exception)
         {
