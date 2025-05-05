@@ -8,7 +8,7 @@ public interface IUserRepository
     Task ChangePassword(User user);
     Task ModifyUser(User user);
     Task<User?> GetUserByEmail(string email);
-    Task<User?> GetUserByUsername(string username);
+    Task<User> GetUserByUsername(string username);
     Task<User> GetUserById(int userId);
     Task UpdateRefreshToken(int userId, string refreshToken, DateTime expiry);
     Task<User?> GetUserByRefreshToken(string refreshToken);

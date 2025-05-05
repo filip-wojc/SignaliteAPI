@@ -6,6 +6,7 @@ using SignaliteWebAPI.Application.Features.Auth.ExistsUserByUsername;
 using SignaliteWebAPI.Application.Features.Users.ChangePassword;
 using SignaliteWebAPI.Application.Features.Users.DeleteBackgroundPhoto;
 using SignaliteWebAPI.Application.Features.Users.DeleteProfilePhoto;
+using SignaliteWebAPI.Application.Features.Users.GetUserByUsername;
 using SignaliteWebAPI.Application.Features.Users.GetUserInfo;
 using SignaliteWebAPI.Application.Features.Users.ModifyUser;
 using SignaliteWebAPI.Application.Features.Users.UpdateBackgroundPhoto;
@@ -45,6 +46,18 @@ public class UserController(ISender mediator) : ControllerBase
         };
         var content = await mediator.Send(command);
         return Ok(content);
+    }
+
+    [Authorize]
+    [HttpGet("{username}")]
+    public async Task<ActionResult<UserDTO>> GetUserByUsername(string username)
+    {
+        var query = new GetUserByUsernameQuery
+        {
+            Username = username
+        };
+        var user = await mediator.Send(query);
+        return Ok(user);
     }
 
     [Authorize]
