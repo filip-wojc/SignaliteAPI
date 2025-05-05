@@ -9,7 +9,7 @@ public class GetUserByUsernameHandler(IUserRepository userRepository, IMapper ma
 {
     public async Task<UserDTO> Handle(GetUserByUsernameQuery request, CancellationToken cancellationToken)
     {
-        var user = await userRepository.GetUserByUsername(request.Username);
+        var user = await userRepository.GetUserByUsernameNullable(request.Username);
         var userDto = mapper.Map<UserDTO>(user);
         
         return userDto;

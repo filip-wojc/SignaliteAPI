@@ -7,7 +7,7 @@ public class ExistsUserByUsernameHandler(IUserRepository userRepository) : IRequ
 {
     public async Task<bool> Handle(ExistsUserByUsernameCommand request, CancellationToken cancellationToken)
     {
-        var user = await userRepository.GetUserByUsername(request.Username);
+        var user = await userRepository.GetUserByUsernameNullable(request.Username);
         if (user == null)
             return false;
         

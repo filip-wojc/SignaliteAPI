@@ -52,7 +52,12 @@ public class UserRepository(SignaliteDbContext dbContext) : IUserRepository
         }
         return user;
     }
-    
+
+    public async Task<User?> GetUserByUsernameNullable(string username)
+    {
+        return await dbContext.Users.FirstOrDefaultAsync(u => u.Username == username);
+    }
+
     public async Task<User> GetUserById(int userId)
     {
         var user = await dbContext.Users.Include(u => u.ProfilePhoto).FirstOrDefaultAsync(u => u.Id == userId);
