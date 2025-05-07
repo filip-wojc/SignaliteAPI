@@ -14,6 +14,7 @@ using SignaliteWebAPI.Application.Features.Users.ChangePassword;
 using SignaliteWebAPI.Application.Features.Users.ModifyUser;
 using SignaliteWebAPI.Application.Features.Users.UpdateBackgroundPhoto;
 using SignaliteWebAPI.Application.Features.Users.UpdateProfilePhoto;
+using SignaliteWebAPI.Application.Features.Users.UserExistsByUsername;
 
 namespace SignaliteWebAPI.Extensions;
 
@@ -36,5 +37,6 @@ public static class ValidatorExtensions
         services.AddScoped<IValidator<GetMessageThreadQuery>, GetMessageThreadValidator>();
         services.AddScoped<IValidator<ModifyMessageCommand>, ModifyMessageValidator>();
         services.AddScoped<IValidator<ModifyGroupCommand>, ModifyGroupValidator>();
+        services.AddScoped<IValidator<UserExistsByUsernameCommand>, UserExistsByUsernameValidator>();
     }
 }

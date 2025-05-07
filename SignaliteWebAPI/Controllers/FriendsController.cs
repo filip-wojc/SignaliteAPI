@@ -19,14 +19,14 @@ namespace SignaliteWebAPI.Controllers;
 [Authorize]
 public class FriendsController(ISender mediator) : ControllerBase
 {
-    [HttpPost("friend-request/{recipientId}")]
-    public async Task<IActionResult> SendFriendRequest([FromRoute] int recipientId)
+    [HttpPost("friend-request/{username}")]
+    public async Task<IActionResult> SendFriendRequest([FromRoute]string username)
     {
         var command = new SendFriendRequestCommand
         {
             SenderId = User.GetUserId(),
             SenderUsername = User.GetUsername(),
-            RecipientId = recipientId, 
+            RecipientUsername = username
         };
         await mediator.Send(command);
         return Created();
@@ -70,4 +70,6 @@ public class FriendsController(ISender mediator) : ControllerBase
         var friends = await mediator.Send(query);
         return Ok(friends);
     }
+    
+    
 }

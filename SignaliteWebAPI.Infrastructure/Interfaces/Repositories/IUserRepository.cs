@@ -11,6 +11,7 @@ public interface IUserRepository
     Task<User> GetUserByUsername(string username);
     Task<User?> GetUserByUsernameNullable(string username);
     Task<User> GetUserById(int userId);
+    Task<User?> GetUserByIdNullable(int userId);
     Task UpdateRefreshToken(int userId, string refreshToken, DateTime expiry);
     Task<User?> GetUserByRefreshToken(string refreshToken);
     Task<User?> GetUserWithProfilePhotoAsync(int userId);

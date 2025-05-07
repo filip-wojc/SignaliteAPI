@@ -12,6 +12,7 @@ using SignaliteWebAPI.Application.Features.Users.ModifyUser;
 using SignaliteWebAPI.Application.Features.Users.UpdateBackgroundPhoto;
 using SignaliteWebAPI.Domain.DTOs.Users;
 using SignaliteWebAPI.Application.Features.Users.UpdateProfilePhoto;
+using SignaliteWebAPI.Application.Features.Users.UserExistsByUsername;
 using SignaliteWebAPI.Infrastructure.Extensions;
 
 namespace SignaliteWebAPI.Controllers;
@@ -134,6 +135,20 @@ public class UserController(ISender mediator) : ControllerBase
         await mediator.Send(command); 
         
         return NoContent();
+    }
+
+    [Authorize]
+    [HttpGet("user-exists/{username}")]
+    public async Task<ActionResult<bool>> UserExists([FromRoute] string username)
+    {
+        var command = new UserExistsByUsernameCommand
+        {
+            Username = username
+        };
+        
+        var userExists = await mediator.Send(command); 
+        
+        return Ok(userExists);
     }
     
 }

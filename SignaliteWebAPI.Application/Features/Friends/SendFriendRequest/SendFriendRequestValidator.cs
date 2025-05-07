@@ -12,14 +12,14 @@ public class SendFriendRequestValidator : AbstractValidator<SendFriendRequestCom
         _friendsRepository = friendsRepositoryrepository;
         _userRepository = userRepository;
         
-        RuleFor(c => c.RecipientId)
+        RuleFor(c => c.RecipientUsername)
             .NotEmpty()
             .NotNull()
-            .MustAsync(UserExists).WithMessage("Recipient with given id does not exist");
+            .MustAsync(UserExistsByUsername).WithMessage("Recipient with given id does not exist");
         RuleFor(c => c.SenderId)
             .NotEmpty()
             .NotNull()
-            .MustAsync(UserExists).WithMessage("Sender with given id does not exist");
+            .MustAsync(UserExistsById).WithMessage("Sender with given id does not exist");
 
         RuleFor(c => c).MustAsync(FriendRequestNotExist)
             .WithMessage("Friend request between these users already exist");
@@ -27,17 +27,24 @@ public class SendFriendRequestValidator : AbstractValidator<SendFriendRequestCom
             .WithMessage("Sender and recipient cant be same");
     }
 
-    private async Task<bool> UserExists(int userId, CancellationToken cancellationToken)
+    private async Task<bool> UserExistsByUsername(string username, CancellationToken cancellationToken)
     {
-        var user = await _userRepository.GetUserById(userId);
+        var user = await _userRepository.GetUserByUsernameNullable(username);
+        return user != null;
+    }
+    
+    private async Task<bool> UserExistsById(int userId, CancellationToken cancellationToken)
+    {
+        var user = await _userRepository.GetUserByIdNullable(userId);
         return user != null;
     }
     
     private async Task<bool> FriendRequestNotExist(SendFriendRequestCommand command, CancellationToken cancellationToken)
     {
+        var recipientUser = await _userRepository.GetUserByUsername(command.RecipientUsername);
         bool exists = await _friendsRepository.FriendRequestExists(
             command.SenderId, 
-            command.RecipientId
+            recipientUser.Id
         );
         
         return !exists;
@@ -45,6 +52,6 @@ public class SendFriendRequestValidator : AbstractValidator<SendFriendRequestCom
 
     private bool IsSenderAndRecipientNotSame(SendFriendRequestCommand command)
     {
-        return command.SenderId != command.RecipientId;
+        return command.SenderUsername != command.RecipientUsername;
     }
 }

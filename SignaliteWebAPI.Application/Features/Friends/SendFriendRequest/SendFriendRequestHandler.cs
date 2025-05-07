@@ -10,6 +10,7 @@ namespace SignaliteWebAPI.Application.Features.Friends.SendFriendRequest;
 
 public class SendFriendRequestHandler(
     IFriendsRepository repository, 
+    IUserRepository userRepository,
     IMapper mapper, 
     INotificationsService notificationsService
     ) : IRequestHandler<SendFriendRequestCommand>
@@ -18,8 +19,10 @@ public class SendFriendRequestHandler(
     {
         var friendRequest = mapper.Map<FriendRequest>(request);
         var userFriends = await repository.GetAllUserFriends();
-        var isFriendAdded = userFriends.Any(uf => (uf.UserId == request.RecipientId && uf.FriendId == request.SenderId) ||
-                                                  (uf.UserId == request.SenderId && uf.FriendId == request.RecipientId));
+        var recipientUser = await userRepository.GetUserByUsername(request.RecipientUsername);
+        friendRequest.RecipientId = recipientUser.Id;
+        var isFriendAdded = userFriends.Any(uf => (uf.UserId == recipientUser.Id && uf.FriendId == request.SenderId) ||
+                                                  (uf.UserId == request.SenderId && uf.FriendId == recipientUser.Id));
 
         if (isFriendAdded)
         {
@@ -28,6 +31,6 @@ public class SendFriendRequestHandler(
         await repository.SendFriendRequest(friendRequest);
         
         var friendRequestDto = mapper.Map<FriendRequestDTO>(friendRequest);
-        await notificationsService.FriendRequest(friendRequestDto, request.RecipientId);
+        await notificationsService.FriendRequest(friendRequestDto, recipientUser.Id);
     }
 }

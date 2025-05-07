@@ -68,6 +68,13 @@ public class UserRepository(SignaliteDbContext dbContext) : IUserRepository
         return user;
     }
     
+    public async Task<User?> GetUserByIdNullable(int userId)
+    {
+        var user = await dbContext.Users.Include(u => u.ProfilePhoto).FirstOrDefaultAsync(u => u.Id == userId);
+        
+        return user;
+    }
+    
     public async Task UpdateRefreshToken(int userId, string refreshToken, DateTime expiry)
     {
         var user = await dbContext.Users.FindAsync(userId);
