@@ -27,4 +27,8 @@
       <ProjectReference Include="..\SignaliteWebAPI.Infrastructure\SignaliteWebAPI.Infrastructure.csproj" />
     </ItemGroup>
 
+    <ItemGroup>
+      <Folder Include="wwwroot\Attachments\" />
+    </ItemGroup>
+
 </Project>
