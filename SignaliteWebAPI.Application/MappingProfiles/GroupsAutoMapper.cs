@@ -43,7 +43,7 @@ public class GroupsAutoMapper : Profile
                         if (group.IsPrivate && context.Items.TryGetValue("UserId", out var id))
                         {
                             var userId = (int)id;
-                            var otherUser = group.Users.FirstOrDefault(u => u.Id == userId)?.User;
+                            var otherUser = group.Users.FirstOrDefault(u => u.User.Id != userId)?.User;
 
                             if (otherUser?.ProfilePhoto != null)
                                 return otherUser.ProfilePhoto.Url;

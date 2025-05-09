@@ -24,6 +24,8 @@ public class DeleteGroupHandler(
     {
         var group = await groupRepository.GetGroupWithUsers(request.GroupId);
         var messages = await messageRepository.GetMessages(request.GroupId);
+        var usersToMap = await groupRepository.GetUsersInGroup(request.GroupId);
+        var members = mapper.Map<List<UserBasicInfo>>(usersToMap);
 
         if (group.IsPrivate)
         {
@@ -35,6 +37,7 @@ public class DeleteGroupHandler(
                 groupRepository.DeleteGroup(group);
                 await unitOfWork.CommitTransactionAsync();
                 await DeleteAttachmentFiles(messages);
+                await notificationsService.GroupDeleted(request.GroupId, request.OwnerId, members);
                 return;
             }
             catch (Exception ex)
@@ -49,12 +52,9 @@ public class DeleteGroupHandler(
         {
             throw new ForbidException("You can't delete group which you did not create");
         }
-        var usersToMap = await groupRepository.GetUsersInGroup(request.GroupId);
         groupRepository.DeleteGroup(group);
         await unitOfWork.SaveChangesAsync();
         await DeleteAttachmentFiles(messages);
-        
-        var members = mapper.Map<List<UserBasicInfo>>(usersToMap);
         await notificationsService.GroupDeleted(request.GroupId, request.OwnerId, members);
         
     }
