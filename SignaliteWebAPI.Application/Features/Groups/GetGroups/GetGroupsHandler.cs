@@ -13,8 +13,9 @@ public class GetGroupsHandler(
     public async Task<List<GroupBasicInfoDTO>> Handle(GetGroupsQuery request, CancellationToken cancellationToken)
     {
         var groups = await groupRepository.GetUserGroupsWithPhoto(request.UserId);
-        return mapper.Map<List<GroupBasicInfoDTO>>(groups, opt => 
+        var groupDtos = mapper.Map<List<GroupBasicInfoDTO>>(groups, opt => 
             opt.Items["UserId"] = request.UserId
         );
+        return groupDtos.OrderByDescending(g => g.LastMessageDate).ToList();
     }
 }

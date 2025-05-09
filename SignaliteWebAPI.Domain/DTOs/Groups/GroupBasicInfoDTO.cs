@@ -13,4 +13,5 @@ public class GroupBasicInfoDTO
     public string? PhotoUrl { get; set; }
     public bool IsPrivate { get; set; }
     public string? LastMessage { get; set; }
+    public DateTime LastMessageDate { get; set; }
 }

@@ -18,35 +18,41 @@ public class GroupsAutoMapper : Profile
                 o => o.MapFrom(g => g.Users.Where(u => g.OwnerId != u.UserId).Select(u => u.User)));
         CreateMap<Group, GroupBasicInfoDTO>()
             // map the name (other user username if private group, otherwise the group name)
-            .ForMember(g => g.Name, o => o.MapFrom((group, groupDto, destMember, context) => // <- nie ruszac nieużywanych parametrów bo nie działa inaczej 💀
-            {
-                if (group.IsPrivate && context.Items.TryGetValue("UserId", out var id))
-                {
-                    var userId = (int)id;
-                    var otherUser = group.Users.FirstOrDefault(u => u.UserId != userId)?.User;
+            .ForMember(g => g.Name, o =>
+                o.MapFrom(
+                    (group, groupDto, destMember,
+                        context) => // <- nie ruszac nieużywanych parametrów bo nie działa inaczej 💀
+                    {
+                        if (group.IsPrivate && context.Items.TryGetValue("UserId", out var id))
+                        {
+                            var userId = (int)id;
+                            var otherUser = group.Users.FirstOrDefault(u => u.UserId != userId)?.User;
 
-                    if (otherUser != null)
-                        return $"{otherUser.Username}";
-                }
-                
-                return group.Name;
-            }))
+                            if (otherUser != null)
+                                return $"{otherUser.Username}";
+                        }
+
+                        return group.Name;
+                    }))
             // map the photo (if private group set the photo as the other user profile photo, if not use the group photo)
-            .ForMember(g => g.PhotoUrl, o => o.MapFrom((group, groupDto, destMember, context) => // <- nie ruszac nieużywanych parametrów bo nie działa inaczej 💀
-            {
-                if (group.IsPrivate && context.Items.TryGetValue("UserId", out var id))
-                {
-                    var userId = (int)id;
-                    var otherUser = group.Users.FirstOrDefault(u => u.Id == userId)?.User;
+            .ForMember(g => g.PhotoUrl, o =>
+                o.MapFrom(
+                    (group, groupDto, destMember,
+                        context) => // <- nie ruszac nieużywanych parametrów bo nie działa inaczej 💀
+                    {
+                        if (group.IsPrivate && context.Items.TryGetValue("UserId", out var id))
+                        {
+                            var userId = (int)id;
+                            var otherUser = group.Users.FirstOrDefault(u => u.Id == userId)?.User;
 
-                    if (otherUser?.ProfilePhoto != null)
-                        return otherUser.ProfilePhoto.Url;
-                }
+                            if (otherUser?.ProfilePhoto != null)
+                                return otherUser.ProfilePhoto.Url;
+                        }
 
-                return group.Photo?.Url;
-            }))
+                        return group.Photo?.Url;
+                    }))
             // format the last message with username and depending on attachment present
-            .ForMember(g => g.LastMessage, o => o.MapFrom((group, context) => 
+            .ForMember(g => g.LastMessage, o => o.MapFrom((group, context) =>
             {
                 var lastMessage = group.Messages.OrderByDescending(m => m.DateSent).FirstOrDefault();
 
@@ -59,6 +65,10 @@ public class GroupsAutoMapper : Profile
                     return $"{senderUsername}: sent an attachment";
 
                 return $"{senderUsername}: {lastMessage.Content}";
-            }));
+            }))
+            .ForMember(g => g.LastMessageDate, o => o.MapFrom(g => 
+                g.Messages.Any() 
+                    ? g.Messages.OrderByDescending(m => m.DateSent).First().DateSent 
+                    : DateTime.MinValue));
     }
 }
