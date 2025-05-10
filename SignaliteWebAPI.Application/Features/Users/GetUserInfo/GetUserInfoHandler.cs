@@ -7,13 +7,17 @@ using SignaliteWebAPI.Infrastructure.Interfaces.Repositories;
 
 namespace SignaliteWebAPI.Application.Features.Users.GetUserInfo;
 
-public class GetUserInfoHandler(IUserRepository userRepository, IMapper mapper) : IRequestHandler<GetUserInfoCommand, UserDTO>
+public class GetUserInfoHandler(IUserRepository userRepository, IMapper mapper) : IRequestHandler<GetUserInfoCommand, IUserDTO>
 {
-    public async Task<UserDTO> Handle(GetUserInfoCommand request, CancellationToken cancellationToken)
+    public async Task<IUserDTO> Handle(GetUserInfoCommand request, CancellationToken cancellationToken)
     {
         var user = await userRepository.GetUserById(request.UserId);
-        var userDto = mapper.Map<UserDTO>(user);
-        
-        return userDto;
+        if (!request.IsOwner)
+        {
+            var userDto = mapper.Map<UserDTO>(user);
+            return userDto;
+        }
+        var ownUserDto = mapper.Map<OwnUserDTO>(user);
+        return ownUserDto;
     }
 }
