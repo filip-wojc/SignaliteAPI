@@ -26,6 +26,6 @@ public class UserAutoMapper : Profile
             .ForMember(u => u.ProfilePhotoUrl, o 
                 => o.MapFrom(u => u.ProfilePhoto.Url));
 
-        
+        CreateMap<ModifyUserDTO, User>();
     }
 }
