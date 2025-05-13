@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using MediatR;
+using SignaliteWebAPI.Domain.DTOs.Groups;
 using SignaliteWebAPI.Domain.DTOs.Users;
 using SignaliteWebAPI.Domain.Models;
 using SignaliteWebAPI.Infrastructure.Exceptions;
@@ -65,10 +66,10 @@ public class AcceptFriendRequestHandler(
             };
             await groupRepository.AddUserToGroup(userGroup);
             await groupRepository.AddUserToGroup(userGroup2);
-            
-            var userBasicInfo = mapper.Map<UserBasicInfo>(user);
-            
-            await notificationsService.FriendRequestAccepted(userBasicInfo, requestToAccept.SenderId);
+            var createdGroup = await groupRepository.GetGroupWithPhoto(group.Id);
+            var groupDto = mapper.Map<GroupBasicInfoDTO>(createdGroup, opt => 
+                opt.Items["UserId"] = request.UserId);
+            await notificationsService.FriendRequestAccepted(groupDto, requestToAccept.SenderId);
             await unitOfWork.CommitTransactionAsync();
         }
         catch (Exception ex)

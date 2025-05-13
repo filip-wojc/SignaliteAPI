@@ -48,7 +48,7 @@ public class NotificationsService(
         }
     }
     
-    public async Task FriendRequestAccepted(UserBasicInfo userWhoAccepted, int senderId)
+    public async Task FriendRequestAccepted(GroupBasicInfoDTO newGroupDto, int senderId)
     {
         try
         {
@@ -63,18 +63,18 @@ public class NotificationsService(
             }
             
             // Create notification object
-            var notification = userWhoAccepted;
+            var notification = newGroupDto;
             
             // Send notification to the user using their username as the identifier
             await notificationsHub.Clients
                 .User(sender.Username)
                 .SendAsync("FriendRequestAccepted", notification);
             
-            logger.Debug($"F[NotificationsService] FriendRequestAccepted notification sent from {userWhoAccepted.Username} (ID: {userWhoAccepted.Id}) to {sender.Username} (ID: {senderId})");
+            logger.Debug($"F[NotificationsService] FriendRequestAccepted notification sent from {newGroupDto.Name} (ID: {newGroupDto.Id}) to {sender.Username} (ID: {senderId})");
         }
         catch (Exception ex)
         {
-            logger.Error(ex, $"[NotificationsService] Error sending FriendRequestAccepted notification from user ID {userWhoAccepted.Id} to user ID {senderId}");
+            logger.Error(ex, $"[NotificationsService] Error sending FriendRequestAccepted notification from group ID {newGroupDto.Id} to user ID {senderId}");
         }
     }
 
