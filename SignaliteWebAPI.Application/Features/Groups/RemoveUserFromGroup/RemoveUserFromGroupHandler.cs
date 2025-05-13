@@ -21,7 +21,9 @@ public class RemoveUserFromGroupHandler(
     public async Task Handle(RemoveUserFromGroupCommand request, CancellationToken cancellationToken)
     {
         var group = await groupRepository.GetGroupWithUsers(request.GroupId);
-
+        var membersToMap = await groupRepository.GetUsersInGroup(request.GroupId);
+        var members = mapper.Map<List<UserBasicInfo>>(membersToMap);
+        var userToDelete= group.Users.FirstOrDefault(u => u.UserId == request.UserId);
         if (group.IsPrivate)
         {
             var userFriend = await friendsRepository.GetUserFriend(group.Users[0].UserId, group.Users[1].UserId);
@@ -31,6 +33,7 @@ public class RemoveUserFromGroupHandler(
                 friendsRepository.DeleteFriend(userFriend);
                 groupRepository.DeleteGroup(group);
                 await unitOfWork.CommitTransactionAsync();
+                await notificationsService.UserRemovedFromGroup(userToDelete.UserId, group.Id, members);
                 return;
             }
             catch (Exception ex)
@@ -46,7 +49,7 @@ public class RemoveUserFromGroupHandler(
             throw new ForbidException("You can't delete members from group unless you are the owner");
         }
         
-        var userToDelete= group.Users.FirstOrDefault(u => u.UserId == request.UserId);
+        
         if (userToDelete == null)
         {
             throw new NotFoundException("User not found in this group");
@@ -58,8 +61,6 @@ public class RemoveUserFromGroupHandler(
         }
         
         await groupRepository.DeleteUserFromGroup(group, request.UserId);
-        var membersToMap = await groupRepository.GetUsersInGroup(request.GroupId);
-        var members = mapper.Map<List<UserBasicInfo>>(membersToMap);
         await notificationsService.UserRemovedFromGroup(userToDelete.UserId, group.Id, members);
     }
     
