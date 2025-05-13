@@ -68,7 +68,7 @@ public class AcceptFriendRequestHandler(
             await groupRepository.AddUserToGroup(userGroup2);
             var createdGroup = await groupRepository.GetGroupWithPhoto(group.Id);
             var groupDto = mapper.Map<GroupBasicInfoDTO>(createdGroup, opt => 
-                opt.Items["UserId"] = request.UserId);
+                opt.Items["UserId"] = requestToAccept.SenderId);
             await notificationsService.FriendRequestAccepted(groupDto, requestToAccept.SenderId);
             await unitOfWork.CommitTransactionAsync();
         }
