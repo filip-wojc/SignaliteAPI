@@ -36,15 +36,12 @@ public class ModifyUserValidator : AbstractValidator<ModifyUserCommand>
     
     private async Task<bool> IsUsernameUnique(int userId, string username, CancellationToken cancellationToken)
     {
-        var user = await _userRepository.GetUserByUsername(username);
+        var user = await _userRepository.GetUserByUsernameNullable(username);
         
         if (user == null)
             return true;
         
-        if (user.Id == userId)
-            return true;
-        
-        return false;
+        return user.Id == userId;
     }
     private async Task<bool> IsEmailUnique(int userId, string email, CancellationToken cancellationToken)
     { 
@@ -53,9 +50,6 @@ public class ModifyUserValidator : AbstractValidator<ModifyUserCommand>
         if (user == null)
             return true;
         
-        if (user.Id == userId)
-            return true;
-        
-        return false;
+        return user.Id == userId;
     }
 }
