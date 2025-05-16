@@ -34,22 +34,28 @@ namespace SignaliteWebAPI.Infrastructure.SignalR
                 }
 
                 // Get the user ID from the claims
-                var id = Context.User?.GetUserId() ?? -1; // default case for protection
-                if (id <= 0)
+                var userId = Context.User?.GetUserId() ?? -1; // default case for protection
+                if (userId <= 0)
                 {
                     _logger.Warning($"User {username} attempted to connect without a valid ID claim");
                     throw new HubException("Cannot get user - no valid user ID claim found");
                 }
 
-                _logger.Debug($"User {username} (ID: {id}) connected with connection {Context.ConnectionId}");
+                _logger.Debug($"User {username} (ID: {userId}) connected with connection {Context.ConnectionId}");
         
-                var isOnline = await _presenceTracker.UserConnected(username, Context.ConnectionId, id);
+                var isOnline = await _presenceTracker.UserConnected(username, Context.ConnectionId, userId);
 
+                var notification = new
+                {
+                    id = userId,
+                    username = username,
+                };
+                
                 if (isOnline)
                 {
                     // Broadcast the online status only if this is the first connection for this user
                     // Include both username and userId in the notification
-                    await Clients.Others.SendAsync("UserIsOnline", new { username, id });
+                    await Clients.Others.SendAsync("UserIsOnline", notification);
                 }
 
                 // Send the simple list of user IDs to the client
@@ -80,17 +86,23 @@ namespace SignaliteWebAPI.Infrastructure.SignalR
                     throw new HubException("Cannot get current user claims - no valid username found");
                 }
 
-                var id = Context.User?.GetUserId();
+                var userId = Context.User?.GetUserId();
                 
-                _logger.Debug($"User {username} (ID: {id}) disconnected with connection {Context.ConnectionId}. Reason: {exception?.Message ?? "Normal disconnect"}");
+                _logger.Debug($"User {username} (ID: {userId}) disconnected with connection {Context.ConnectionId}. Reason: {exception?.Message ?? "Normal disconnect"}");
                 
                 var isOffline = await _presenceTracker.UserDisconnected(username, Context.ConnectionId);
 
+                var notification = new
+                {
+                    id = userId,
+                    username = username,
+                };
+                
                 if (isOffline)
                 {
                     // Broadcast the offline status only if this was the last connection for this user
                     // Include both username and userId in the notification
-                    await Clients.Others.SendAsync("UserIsOffline", new { username, id });
+                    await Clients.Others.SendAsync("UserIsOffline", notification);
                 }
             }
             catch (Exception ex)
