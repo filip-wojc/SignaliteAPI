@@ -60,7 +60,7 @@ public class UserRepository(SignaliteDbContext dbContext) : IUserRepository
 
     public async Task<User> GetUserById(int userId)
     {
-        var user = await dbContext.Users.Include(u => u.ProfilePhoto).FirstOrDefaultAsync(u => u.Id == userId);
+        var user = await dbContext.Users.Include(u => u.ProfilePhoto).Include(u => u.BackgroundPhoto).FirstOrDefaultAsync(u => u.Id == userId);
         if (user == null)
         {
             throw new NotFoundException("User not found");
@@ -70,7 +70,7 @@ public class UserRepository(SignaliteDbContext dbContext) : IUserRepository
     
     public async Task<User?> GetUserByIdNullable(int userId)
     {
-        var user = await dbContext.Users.Include(u => u.ProfilePhoto).FirstOrDefaultAsync(u => u.Id == userId);
+        var user = await dbContext.Users.Include(u => u.ProfilePhoto).Include(u => u.BackgroundPhoto).FirstOrDefaultAsync(u => u.Id == userId);
         
         return user;
     }
