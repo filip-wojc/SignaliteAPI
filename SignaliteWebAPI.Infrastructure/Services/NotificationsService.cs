@@ -142,7 +142,7 @@ public class NotificationsService(
         logger.Debug($"[NotificationsService] MessageModified notification sent to {onlineGroupUsers.Count} online users in group for message ID: {messageDto.Id}");
     }
     
-    public async Task MessageDeleted(int groupId, int messageId,int senderId, List<UserBasicInfo> usersInGroup)
+    public async Task MessageDeleted(int groupId, int messageId,int senderId, MessageDTO? lastMessage, List<UserBasicInfo> usersInGroup)
     {
         var onlineUsers = await presenceTracker.GetOnlineUserIds();
         
@@ -160,7 +160,8 @@ public class NotificationsService(
         var notification = new
         {
             GroupId = groupId,
-            MessageId = messageId
+            MessageId = messageId,
+            LastMessage = lastMessage
         };
         
         // send notification with messageDto to online group users

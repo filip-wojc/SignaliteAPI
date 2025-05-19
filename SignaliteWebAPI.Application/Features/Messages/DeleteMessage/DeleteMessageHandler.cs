@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using MediatR;
 using SignaliteWebAPI.Application.Exceptions;
+using SignaliteWebAPI.Domain.DTOs.Messages;
 using SignaliteWebAPI.Domain.DTOs.Users;
 using SignaliteWebAPI.Domain.Enums;
 using SignaliteWebAPI.Infrastructure.Interfaces.Repositories;
@@ -18,6 +19,7 @@ public class DeleteMessageHandler(
     public async Task Handle(DeleteMessageCommand request, CancellationToken cancellationToken)
     {
         var message = await messageRepository.GetMessageWithAttachment(request.MessageId);
+        
         if (message.SenderId != request.SenderId)
         {
             throw new ForbidException("You can't delete message that u didn't send");
@@ -38,8 +40,10 @@ public class DeleteMessageHandler(
             }
         }
         
+        var lastMessage = await messageRepository.GetLastMessage(message.GroupId);
+        var lastMessageDto = mapper.Map<MessageDTO>(lastMessage);
         var usersToMap = await groupRepository.GetUsersInGroup(message.GroupId);
         var members = mapper.Map<List<UserBasicInfo>>(usersToMap);
-        await notificationsService.MessageDeleted(message.GroupId, message.Id, message.SenderId,members);
+        await notificationsService.MessageDeleted(message.GroupId, message.Id, message.SenderId, lastMessageDto, members);
     }
 }

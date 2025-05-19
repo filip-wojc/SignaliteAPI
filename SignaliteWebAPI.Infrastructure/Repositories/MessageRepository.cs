@@ -59,6 +59,11 @@ public class MessageRepository(SignaliteDbContext dbContext) : IMessageRepositor
         await dbContext.SaveChangesAsync();
     }
 
+    public Task<Message?> GetLastMessage(int groupId)
+    {
+        return dbContext.Messages.Include(m => m.Sender).OrderBy(m => m.DateSent).LastOrDefaultAsync(m => m.GroupId == groupId);
+    }
+
     public async Task ModifyMessage(string messageContent, Message messageToModify)
     {
         messageToModify.Content = messageContent;

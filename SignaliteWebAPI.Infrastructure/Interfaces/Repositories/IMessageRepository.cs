@@ -11,5 +11,6 @@ public interface IMessageRepository
     Task<Message> GetMessageWithAttachment(int messageId);
     Task<Message> GetMessage(int messageId);
     Task DeleteMessage(Message message);
+    Task<Message?> GetLastMessage(int groupId);
     Task ModifyMessage(string messageContent, Message messageToModify);
 }
