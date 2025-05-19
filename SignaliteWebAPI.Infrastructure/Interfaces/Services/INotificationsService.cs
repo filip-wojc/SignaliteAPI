@@ -19,5 +19,5 @@ public interface INotificationsService
     Task GroupUpdated(GroupBasicInfoDTO groupDto, List<UserBasicInfo> usersInGroup, int ownerId);
     Task UserRemovedFromGroup(int userId, int groupId, List<UserBasicInfo> usersInGroup);
     Task GroupDeleted(int groupId, int ownerId,List<UserBasicInfo> usersInGroup);
-    Task UserUpdated(int userId, List<UserBasicInfo> userFriends);
+    Task UserUpdated(UserDTO userDto, List<UserBasicInfo> userFriends);
 }

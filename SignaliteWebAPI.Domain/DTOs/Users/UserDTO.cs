@@ -8,5 +8,5 @@ public class UserDTO: IUserDTO
     public string Surname { get; set; }
     public string Username { get; set; }
     public string ProfilePhotoUrl { get; set; }
-    public string BackroundPhotoUrl { get; set; }
+    public string BackgroundPhotoUrl { get; set; }
 }

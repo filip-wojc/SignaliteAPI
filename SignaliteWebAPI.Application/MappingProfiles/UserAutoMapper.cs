@@ -13,13 +13,13 @@ public class UserAutoMapper : Profile
         CreateMap<User, UserDTO>()
             .ForMember(u => u.ProfilePhotoUrl, o 
                 => o.MapFrom(u => u.ProfilePhoto.Url))
-            .ForMember(u => u.BackroundPhotoUrl, o 
+            .ForMember(u => u.BackgroundPhotoUrl, o 
                 => o.MapFrom(u => u.BackgroundPhoto.Url));
         
         CreateMap<User, OwnUserDTO>()
             .ForMember(u => u.ProfilePhotoUrl, o 
                 => o.MapFrom(u => u.ProfilePhoto.Url))
-            .ForMember(u => u.BackroundPhotoUrl, o 
+            .ForMember(u => u.BackgroundPhotoUrl, o 
                 => o.MapFrom(u => u.BackgroundPhoto.Url));
         
         CreateMap<User, UserBasicInfo>()

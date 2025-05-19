@@ -50,6 +50,8 @@ public class UpdateBackgroundPhotoHandler(
         await photoRepository.SetUserBackgroundPhotoAsync(user.Id, photo.Id);
         var friendsToMap = await friendsRepository.GetUserFriends(user.Id);
         var usersToNotify = mapper.Map<List<UserBasicInfo>>(friendsToMap);
-        await notificationsService.UserUpdated(user.Id, usersToNotify);
+        
+        var userDto = mapper.Map<UserDTO>(user);
+        await notificationsService.UserUpdated(userDto, usersToNotify);
     }
 }

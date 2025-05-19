@@ -342,7 +342,7 @@ public class NotificationsService(
         logger.Debug($"[NotificationsService] GroupDeleted notification sent to {onlineGroupUsers.Count} online users in group for group ID: {groupId}");
     }
 
-    public async Task UserUpdated(int userId,List<UserBasicInfo> userFriends)
+    public async Task UserUpdated(UserDTO userDto,List<UserBasicInfo> userFriends)
     {
         var onlineUsers = await presenceTracker.GetOnlineUserIds();
         
@@ -351,24 +351,20 @@ public class NotificationsService(
         // if no users online, don't send a notification
         if (onlineUserFriends.Count == 0)
         {
-            logger.Debug($"[NotificationsService] No online users in group to send UserUpdated notification for user ID: {userId}");
+            logger.Debug($"[NotificationsService] No online users in group to send UserUpdated notification for user ID: {userDto.Id}");
             return;
         }
         
-        var notification = new
-        {
-            UserId = userId,
-        };
         
         foreach (var user in onlineUserFriends)
         {
             await notificationsHub.Clients
                 .User(user.Username)
-                .SendAsync("UserUpdated", notification);
+                .SendAsync("UserUpdated", userDto);
             logger.Debug($"[NotificationsService] UserUpdated received from {user.Username} (ID: {user.Id})");
         }
         
-        logger.Debug($"[NotificationsService] UserUpdated notification sent to {onlineUserFriends.Count} online users in group for user ID: {userId}");
+        logger.Debug($"[NotificationsService] UserUpdated notification sent to {onlineUserFriends.Count} online users in group for user ID: {userDto.Id}");
     }
     
 }
