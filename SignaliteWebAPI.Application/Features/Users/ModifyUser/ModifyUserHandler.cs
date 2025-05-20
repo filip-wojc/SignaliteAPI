@@ -17,6 +17,8 @@ public class ModifyUserHandler(
     public async Task Handle(ModifyUserCommand request, CancellationToken cancellationToken)
     {
         var user = await userRepository.GetUserById(request.UserId);
+        var oldUsername = user.Username;
+        
         mapper.Map(request.ModifyUserDTO, user);
         await userRepository.ModifyUser(user);
         
@@ -24,6 +26,6 @@ public class ModifyUserHandler(
         var usersToNotify = mapper.Map<List<UserBasicInfo>>(friendsToMap);
         
         var userDto = mapper.Map<UserDTO>(user);
-        await notificationsService.UserUpdated(userDto, usersToNotify);
+        await notificationsService.UserUpdated(userDto, oldUsername, usersToNotify);
     }
 }

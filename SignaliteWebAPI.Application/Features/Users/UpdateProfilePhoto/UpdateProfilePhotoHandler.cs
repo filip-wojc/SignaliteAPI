@@ -54,6 +54,6 @@ public class UpdateUserPhotoHandler(
         var usersToNotify = mapper.Map<List<UserBasicInfo>>(friendsToMap);
         
         var userDto = mapper.Map<UserDTO>(user);
-        await notificationsService.UserUpdated(userDto, usersToNotify);
+        await notificationsService.UserUpdated(userDto, userDto.Username, usersToNotify);
     }
 }
