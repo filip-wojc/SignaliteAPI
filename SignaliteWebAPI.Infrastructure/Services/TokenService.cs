@@ -41,7 +41,7 @@ public class TokenService(IConfiguration config) : ITokenService
         var tokenDescriptor = new SecurityTokenDescriptor
         {
             Subject = new ClaimsIdentity(claims),
-            Expires = DateTime.UtcNow.AddMinutes(30),
+            Expires = DateTime.UtcNow.AddDays(1),
             SigningCredentials = credentials
         };
 
@@ -82,8 +82,7 @@ public class TokenService(IConfiguration config) : ITokenService
 
         return principal;
     }
-
-    // Add this method to match your existing GenerateAccessToken(User user) method signature with the ITokenService interface
+    
     public string GenerateAccessToken(IEnumerable<Claim> claims)
     {
         var tokenKey = config["TokenKey"] ?? throw new ConfigException("Cannot access token key from appsettings.json");
@@ -97,7 +96,7 @@ public class TokenService(IConfiguration config) : ITokenService
         var tokenDescriptor = new SecurityTokenDescriptor
         {
             Subject = new ClaimsIdentity(claims),
-            Expires = DateTime.UtcNow.AddMinutes(15), // Shorter lifetime for access tokens
+            Expires = DateTime.UtcNow.AddDays(1), // Shorter lifetime for access tokens
             SigningCredentials = credentials
         };
 
