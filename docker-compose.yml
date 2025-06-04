@@ -1,0 +1,71 @@
+version: '3.8'
+
+services:
+  api:
+    image: darknessopirate/signalite-api:latest
+    container_name: signalite-api
+    ports:
+      - "5000:8080"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+      - ConnectionStrings__PostgreSQL=Host=postgres;Port=5432;Database=SignaliteDb;Username=postgres;Password=your_strong_password
+      - ConnectionStrings__Redis=redis:6379
+      - TokenKey=OurSuperSecureRandomlyGeneratedKeyThatIsAtLeast64CharactersLong123
+      - CloudinarySettings__CloudName=dar0jtt0y
+      - CloudinarySettings__ApiKey=212944389551861
+      - CloudinarySettings__ApiSecret=x4W8BYaOvfhdzQHUPmnDDhRgHRI
+      # WebRTC settings are typically read from appsettings.json, but you can override if needed
+      # - WebRTC__IceServers__0__urls=stun:stun.l.google.com:19302
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - app-network
+    restart: unless-stopped
+
+  postgres:
+    image: postgres:15-alpine
+    container_name: postgres-db
+    environment:
+      POSTGRES_DB: SignaliteDb
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: your_strong_password
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - app-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    container_name: redis-cache
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - app-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    command: redis-server --appendonly yes
+
+volumes:
+  postgres_data:
+  redis_data:
+
+networks:
+  app-network:
+    driver: bridge

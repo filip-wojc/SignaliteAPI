@@ -11,7 +11,9 @@ using Scalar.AspNetCore;
 using Serilog;
 using Serilog.Events;
 using Microsoft.AspNetCore.HttpLogging;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.FileProviders;
+using SignaliteWebAPI.Infrastructure.Database;
 using SignaliteWebAPI.Infrastructure.Helpers;
 using SignaliteWebAPI.Infrastructure.SignalR;
 
@@ -39,6 +41,10 @@ builder.Services.AddIdentityServices(builder.Configuration); // extension functi
 string currDir = Directory.GetCurrentDirectory();
 string staticFilesDirectory = builder.Configuration.Get<StaticFilesConfig>()?.Directory ?? "wwwroot/Attachments";
 string attachmentsPath = Path.Combine(currDir, staticFilesDirectory);
+
+builder.Configuration.AddEnvironmentVariables();
+
+
 if (!Directory.Exists(attachmentsPath))
 {
     Directory.CreateDirectory(attachmentsPath);
@@ -68,6 +74,22 @@ if (app.Environment.IsDevelopment())
            
     });
 }
+using var scope = app.Services.CreateScope();
+var logger = scope.ServiceProvider.GetRequiredService<ILogger<Program>>();
+
+
+    try
+    {
+        logger.LogInformation("Applying database migrations...");
+        var context = scope.ServiceProvider.GetRequiredService<SignaliteDbContext>();
+        context.Database.Migrate();
+        logger.LogInformation("Database migrations applied successfully.");
+    }
+    catch (Exception ex)
+    {
+        logger.LogError(ex, "An error occurred while applying database migrations.");
+    }
+
 
 app.UseStaticFiles(new StaticFileOptions
 {
@@ -94,8 +116,7 @@ bool cleanupPerformed = false;
 
 if (cleanupPerformed) return;
     
-using var scope = app.Services.CreateScope();
-var logger = scope.ServiceProvider.GetRequiredService<ILogger<Program>>();
+
 var presenceTracker = scope.ServiceProvider.GetRequiredService<PresenceTracker>();
     
 try
