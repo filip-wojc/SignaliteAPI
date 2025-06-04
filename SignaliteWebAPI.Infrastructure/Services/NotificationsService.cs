@@ -112,7 +112,7 @@ public class NotificationsService(
         logger.Debug($"[NotificationsService] MessageReceived notification sent to {onlineGroupUsers.Count} online users in group for message ID: {messageDto.Id}");
     }
 
-    public async Task MessageModified(MessageDTO messageDto, int groupId, List<UserBasicInfo> usersInGroup)
+    public async Task MessageModified(MessageDTO messageDto, int groupId, List<UserBasicInfo> usersInGroup, bool isLast)
     {
         var onlineUsers = await presenceTracker.GetOnlineUserIds();
         
@@ -128,7 +128,8 @@ public class NotificationsService(
         var notification = new
         {
             GroupId = groupId,
-            Message = messageDto
+            Message = messageDto,
+            IsLast = isLast
         };
         
         foreach (var user in onlineGroupUsers)

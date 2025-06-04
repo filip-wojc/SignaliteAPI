@@ -11,7 +11,7 @@ public interface INotificationsService
     Task FriendRequest(FriendRequestDTO friendRequest, int recipientId);
     Task FriendRequestAccepted(GroupBasicInfoDTO groupDto, int senderId);
     Task MessageReceived(List<UserBasicInfo> usersInGroup,int groupId ,MessageDTO messageDto);
-    Task MessageModified(MessageDTO messageDto, int groupId, List<UserBasicInfo> usersInGroup);
+    Task MessageModified(MessageDTO messageDto, int groupId, List<UserBasicInfo> usersInGroup, bool isLast);
     Task MessageDeleted(int groupId, int messageId,int senderId, MessageDTO? lastMessage, List<UserBasicInfo> usersInGroup);
     Task AttachmentRemoved(int groupId, int messageId, int senderId, List<UserBasicInfo> usersInGroup);
     Task AddedToGroup(int recipientUserId, int senderUserId, GroupBasicInfoDTO groupInfoDto);

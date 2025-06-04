@@ -27,7 +27,18 @@ public class ModifyMessageHandler(
         var usersToMap = await groupRepository.GetUsersInGroup(message.GroupId);
         var members = mapper.Map<List<UserBasicInfo>>(usersToMap);
         var messageDto = mapper.Map<MessageDTO>(message);
-        await notificationsService.MessageModified(messageDto, message.GroupId, members);
+        var lastMessageInGroup = await messageRepository.GetLastMessage(message.GroupId);
+
+        if (lastMessageInGroup?.Id == messageDto.Id)
+        {
+            await notificationsService.MessageModified(messageDto, message.GroupId, members, true);
+        }
+        else
+        {
+            await notificationsService.MessageModified(messageDto, message.GroupId, members, false);
+        }
+            
+        
     }
     
     
