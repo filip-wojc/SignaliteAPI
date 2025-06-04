@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
+using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using SignaliteWebAPI.Infrastructure.Database;
 
 #nullable disable
@@ -11,35 +12,48 @@ using SignaliteWebAPI.Infrastructure.Database;
 namespace SignaliteWebAPI.Infrastructure.Database.Migrations
 {
     [DbContext(typeof(SignaliteDbContext))]
-    [Migration("20250308185835_Message_Attachment_Relation")]
-    partial class Message_Attachment_Relation
+    [Migration("20250604092948_Initial")]
+    partial class Initial
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
-            modelBuilder.HasAnnotation("ProductVersion", "9.0.2");
+            modelBuilder
+                .HasAnnotation("ProductVersion", "9.0.2")
+                .HasAnnotation("Relational:MaxIdentifierLength", 63);
+
+            NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
             modelBuilder.Entity("SignaliteWebAPI.Domain.Models.Attachment", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("INTEGER");
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<double>("FileSize")
+                        .HasColumnType("double precision");
 
                     b.Property<int>("MessageId")
-                        .HasColumnType("INTEGER");
+                        .HasColumnType("integer");
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasColumnType("TEXT");
+                        .HasColumnType("text");
+
+                    b.Property<string>("PublicId")
+                        .IsRequired()
+                        .HasColumnType("text");
 
                     b.Property<string>("Type")
                         .IsRequired()
-                        .HasColumnType("TEXT");
+                        .HasColumnType("text");
 
                     b.Property<string>("Url")
                         .IsRequired()
-                        .HasColumnType("TEXT");
+                        .HasColumnType("text");
 
                     b.HasKey("Id");
 
@@ -53,16 +67,18 @@ namespace SignaliteWebAPI.Infrastructure.Database.Migrations
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("INTEGER");
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<int>("RecipientId")
-                        .HasColumnType("INTEGER");
+                        .HasColumnType("integer");
 
                     b.Property<DateTime>("RequestDate")
-                        .HasColumnType("TEXT");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<int>("SenderId")
-                        .HasColumnType("INTEGER");
+                        .HasColumnType("integer");
 
                     b.HasKey("Id");
 
@@ -77,21 +93,28 @@ namespace SignaliteWebAPI.Infrastructure.Database.Migrations
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("INTEGER");
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<bool>("IsPrivate")
+                        .HasColumnType("boolean");
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasColumnType("TEXT");
+                        .HasColumnType("text");
 
                     b.Property<int>("OwnerId")
-                        .HasColumnType("INTEGER");
+                        .HasColumnType("integer");
 
-                    b.Property<string>("PhotoUrl")
-                        .HasColumnType("TEXT");
+                    b.Property<int?>("PhotoId")
+                        .HasColumnType("integer");
 
                     b.HasKey("Id");
 
                     b.HasIndex("OwnerId");
+
+                    b.HasIndex("PhotoId");
 
                     b.ToTable("Groups");
                 });
@@ -100,22 +123,24 @@ namespace SignaliteWebAPI.Infrastructure.Database.Migrations
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("INTEGER");
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<string>("Content")
-                        .HasColumnType("TEXT");
+                        .HasColumnType("text");
 
                     b.Property<DateTime?>("DateModified")
-                        .HasColumnType("TEXT");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<DateTime>("DateSent")
-                        .HasColumnType("TEXT");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<int>("GroupId")
-                        .HasColumnType("INTEGER");
+                        .HasColumnType("integer");
 
                     b.Property<int>("SenderId")
-                        .HasColumnType("INTEGER");
+                        .HasColumnType("integer");
 
                     b.HasKey("Id");
 
@@ -130,13 +155,15 @@ namespace SignaliteWebAPI.Infrastructure.Database.Migrations
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("INTEGER");
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<int>("MessageId")
-                        .HasColumnType("INTEGER");
+                        .HasColumnType("integer");
 
                     b.Property<int>("ReadById")
-                        .HasColumnType("INTEGER");
+                        .HasColumnType("integer");
 
                     b.HasKey("Id");
 
@@ -147,43 +174,79 @@ namespace SignaliteWebAPI.Infrastructure.Database.Migrations
                     b.ToTable("ReadBy");
                 });
 
+            modelBuilder.Entity("SignaliteWebAPI.Domain.Models.Photo", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("PublicId")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("Url")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("Photos");
+                });
+
             modelBuilder.Entity("SignaliteWebAPI.Domain.Models.User", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("INTEGER");
+                        .HasColumnType("integer");
 
-                    b.Property<string>("BackgroundUrl")
-                        .HasColumnType("TEXT");
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<int?>("BackgroundPhotoId")
+                        .HasColumnType("integer");
 
                     b.Property<string>("Email")
                         .IsRequired()
-                        .HasColumnType("TEXT");
+                        .HasColumnType("text");
 
                     b.Property<string>("HashedPassword")
                         .IsRequired()
-                        .HasColumnType("TEXT");
+                        .HasColumnType("text");
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasColumnType("TEXT");
+                        .HasColumnType("text");
 
-                    b.Property<string>("PasswordSalt")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
+                    b.Property<int?>("ProfilePhotoId")
+                        .HasColumnType("integer");
 
-                    b.Property<string>("PhotoUrl")
-                        .HasColumnType("TEXT");
+                    b.Property<string>("RefreshToken")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("RefreshTokenExpiryDate")
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("Surname")
                         .IsRequired()
-                        .HasColumnType("TEXT");
+                        .HasColumnType("text");
 
                     b.Property<string>("Username")
                         .IsRequired()
-                        .HasColumnType("TEXT");
+                        .HasColumnType("text");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("BackgroundPhotoId")
+                        .IsUnique();
+
+                    b.HasIndex("ProfilePhotoId")
+                        .IsUnique();
 
                     b.ToTable("Users");
                 });
@@ -192,16 +255,18 @@ namespace SignaliteWebAPI.Infrastructure.Database.Migrations
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("INTEGER");
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<DateTime>("FriendDate")
-                        .HasColumnType("TEXT");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<int>("FriendId")
-                        .HasColumnType("INTEGER");
+                        .HasColumnType("integer");
 
                     b.Property<int>("UserId")
-                        .HasColumnType("INTEGER");
+                        .HasColumnType("integer");
 
                     b.HasKey("Id");
 
@@ -216,13 +281,15 @@ namespace SignaliteWebAPI.Infrastructure.Database.Migrations
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("INTEGER");
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<int>("GroupId")
-                        .HasColumnType("INTEGER");
+                        .HasColumnType("integer");
 
                     b.Property<int>("UserId")
-                        .HasColumnType("INTEGER");
+                        .HasColumnType("integer");
 
                     b.HasKey("Id");
 
@@ -271,13 +338,19 @@ namespace SignaliteWebAPI.Infrastructure.Database.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("SignaliteWebAPI.Domain.Models.Photo", "Photo")
+                        .WithMany()
+                        .HasForeignKey("PhotoId");
+
                     b.Navigation("Owner");
+
+                    b.Navigation("Photo");
                 });
 
             modelBuilder.Entity("SignaliteWebAPI.Domain.Models.Message", b =>
                 {
                     b.HasOne("SignaliteWebAPI.Domain.Models.Group", "Group")
-                        .WithMany()
+                        .WithMany("Messages")
                         .HasForeignKey("GroupId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -310,6 +383,34 @@ namespace SignaliteWebAPI.Infrastructure.Database.Migrations
                     b.Navigation("Message");
 
                     b.Navigation("ReadBy");
+                });
+
+            modelBuilder.Entity("SignaliteWebAPI.Domain.Models.Photo", b =>
+                {
+                    b.HasOne("SignaliteWebAPI.Domain.Models.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("SignaliteWebAPI.Domain.Models.User", b =>
+                {
+                    b.HasOne("SignaliteWebAPI.Domain.Models.Photo", "BackgroundPhoto")
+                        .WithOne()
+                        .HasForeignKey("SignaliteWebAPI.Domain.Models.User", "BackgroundPhotoId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.HasOne("SignaliteWebAPI.Domain.Models.Photo", "ProfilePhoto")
+                        .WithOne()
+                        .HasForeignKey("SignaliteWebAPI.Domain.Models.User", "ProfilePhotoId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.Navigation("BackgroundPhoto");
+
+                    b.Navigation("ProfilePhoto");
                 });
 
             modelBuilder.Entity("SignaliteWebAPI.Domain.Models.UserFriend", b =>
@@ -352,13 +453,14 @@ namespace SignaliteWebAPI.Infrastructure.Database.Migrations
 
             modelBuilder.Entity("SignaliteWebAPI.Domain.Models.Group", b =>
                 {
+                    b.Navigation("Messages");
+
                     b.Navigation("Users");
                 });
 
             modelBuilder.Entity("SignaliteWebAPI.Domain.Models.Message", b =>
                 {
-                    b.Navigation("Attachment")
-                        .IsRequired();
+                    b.Navigation("Attachment");
                 });
 
             modelBuilder.Entity("SignaliteWebAPI.Domain.Models.User", b =>

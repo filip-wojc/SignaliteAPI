@@ -1,4 +1,5 @@
-﻿namespace SignaliteWebAPI.Domain.Models;
+﻿
+namespace SignaliteWebAPI.Domain.Models;
 
 public class User
 {

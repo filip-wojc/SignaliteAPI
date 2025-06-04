@@ -42,12 +42,22 @@ public class SignaliteDbContext : DbContext
             .HasOne(a => a.Message)
             .WithOne(m => m.Attachment)
             .HasForeignKey<Attachment>(a => a.MessageId);
-        
+
         modelBuilder.Entity<User>()
             .HasOne(u => u.ProfilePhoto)
             .WithOne()
             .HasForeignKey<User>(u => u.ProfilePhotoId)
             .OnDelete(DeleteBehavior.SetNull);
+
+        modelBuilder.Entity<User>(entity =>
+        {
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.Id)
+                .ValueGeneratedOnAdd();
+            
+            entity.Property(e => e.RefreshTokenExpiryDate)
+                .HasColumnType("timestamp with time zone");
+        });
         
         modelBuilder.Entity<User>()
             .HasOne(u => u.BackgroundPhoto)
