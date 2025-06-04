@@ -24,7 +24,7 @@ public static class InfrastructureExtensions
     {
         services.AddDbContext<SignaliteDbContext>(options =>
         {
-            options.UseSqlite(configuration.GetConnectionString("DefaultConnection")
+            options.UseNpgsql(configuration.GetConnectionString("PostgreSQL")
                 ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found."));
         });
         
