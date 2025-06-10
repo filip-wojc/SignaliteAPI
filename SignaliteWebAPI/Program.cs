@@ -54,7 +54,7 @@ builder.Services.AddSingleton(new AttachmentPath
 {
     BaseDirectory = currDir,
     AttachmentsDirectory = attachmentsPath,
-    RequestUrl = builder.Configuration.Get<StaticFilesConfig>()?.RequestUrl ?? "http://localhost:5026/Attachments",
+    RequestUrl = builder.Configuration.Get<StaticFilesConfig>()?.RequestUrl ?? "http://localhost:5000/Attachments",
 });
 
 var app = builder.Build();
