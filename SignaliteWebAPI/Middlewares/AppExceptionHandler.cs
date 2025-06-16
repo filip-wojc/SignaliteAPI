@@ -2,6 +2,7 @@
 using System.Text.Json;
 using Microsoft.AspNetCore.Diagnostics;
 using SignaliteWebAPI.Application.Exceptions;
+using SignaliteWebAPI.Domain.Exceptions;
 using SignaliteWebAPI.Exceptions;
 using SignaliteWebAPI.Infrastructure.Exceptions;
 
@@ -14,51 +15,20 @@ public class AppExceptionHandler : IExceptionHandler
         int statusCode;
         string message;
         List<string> errorList = [];
-        
-        switch (exception)
+
+        if (exception is BaseException ex)
         {
-            case ValidatorException ex:
-            {
-                statusCode = ex.StatusCode;
-                message = ex.Message;
-                errorList = ex.Errors;
-                break;
-            }
-            case AuthException ex:
-            {
-                statusCode = ex.StatusCode;
-                message = ex.Message;
-                errorList = ex.Errors;
-                break;
-            }
-            case TokenException ex:
-            {
-                statusCode = ex.StatusCode;
-                message = ex.Message;
-                errorList = ex.Errors;
-                break;
-            }
-            case NotFoundException ex:
-            {
-                statusCode = ex.StatusCode;
-                message = ex.Message;
-                errorList = ex.Errors;
-                break;
-            }
-            case ForbidException ex:
-            {
-                statusCode = ex.StatusCode;
-                message = ex.Message;
-                errorList = ex.Errors;
-                break;
-            }
-            default:
-            {           
-                statusCode = 500;
-                message = exception.Message;
-                break;
-            } 
+            statusCode = ex.StatusCode;
+            message = ex.Message;
+            errorList = ex.Errors;
         }
+        else
+        {
+            statusCode = 500;
+            message = exception.Message;
+        }
+        
+        // TODO: ADD MediaServiceException separate case ( don't send to client, log it )
         
         var errorResponse = new ErrorResponse
         {
@@ -70,7 +40,7 @@ public class AppExceptionHandler : IExceptionHandler
         httpContext.Response.ContentType = "application/json";
         var jsonResponse = JsonSerializer.Serialize(errorResponse);
         httpContext.Response.StatusCode = statusCode;
-        await httpContext.Response.WriteAsync(jsonResponse);
+        await httpContext.Response.WriteAsync(jsonResponse, cancellationToken: cancellationToken);
         
         return true;
     }

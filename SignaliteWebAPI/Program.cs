@@ -11,6 +11,10 @@ using Scalar.AspNetCore;
 using Serilog;
 using Serilog.Events;
 using Microsoft.AspNetCore.HttpLogging;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.FileProviders;
+using SignaliteWebAPI.Infrastructure.Database;
+using SignaliteWebAPI.Infrastructure.Helpers;
 using SignaliteWebAPI.Infrastructure.SignalR;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -31,8 +35,27 @@ builder.Services.AddOpenApi(options =>
 
 builder.Services.AddInfrastructureServices(builder.Configuration); // extension function
 builder.Services.AddApplicationServices(); // extension function
+builder.Services.AddValidatorExtensions();
 builder.Services.AddIdentityServices(builder.Configuration); // extension function (configures bearer)
 
+string currDir = Directory.GetCurrentDirectory();
+string staticFilesDirectory = builder.Configuration.Get<StaticFilesConfig>()?.Directory ?? "wwwroot/Attachments";
+string attachmentsPath = Path.Combine(currDir, staticFilesDirectory);
+
+builder.Configuration.AddEnvironmentVariables();
+
+
+if (!Directory.Exists(attachmentsPath))
+{
+    Directory.CreateDirectory(attachmentsPath);
+}
+
+builder.Services.AddSingleton(new AttachmentPath
+{
+    BaseDirectory = currDir,
+    AttachmentsDirectory = attachmentsPath,
+    RequestUrl = builder.Configuration.Get<StaticFilesConfig>()?.RequestUrl ?? "http://localhost:5000/Attachments",
+});
 
 var app = builder.Build();
 
@@ -51,26 +74,49 @@ if (app.Environment.IsDevelopment())
            
     });
 }
+using var scope = app.Services.CreateScope();
+var logger = scope.ServiceProvider.GetRequiredService<ILogger<Program>>();
+
+
+    try
+    {
+        logger.LogInformation("Applying database migrations...");
+        var context = scope.ServiceProvider.GetRequiredService<SignaliteDbContext>();
+        context.Database.Migrate();
+        logger.LogInformation("Database migrations applied successfully.");
+    }
+    catch (Exception ex)
+    {
+        logger.LogError(ex, "An error occurred while applying database migrations.");
+    }
+
+
+app.UseStaticFiles(new StaticFileOptions
+{
+    FileProvider = new PhysicalFileProvider(attachmentsPath),
+    RequestPath = "/Attachments"
+});
 
 app.ConfigureSerilogHttpLogging(); // extension
 app.UseHttpLogging(); // Logs request & response headers, body, etc.
 app.UseExceptionHandler(_ => { });
 app.UseCors(x => x.AllowAnyHeader().AllowAnyMethod().AllowCredentials() // allow credentials to make passing the token to SignalR hubs possible
-    .WithOrigins("http://localhost:4200", "https://localhost:4200")); // must be declared before MapControllers() to work
+    .WithOrigins("http://localhost:4200", "https://localhost:4200", "http://localhost:5026")); // must be declared before MapControllers() to work
 app.UseHttpsRedirection();
 app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
 app.MapHub<PresenceHub>("hubs/presence");
+app.MapHub<NotificationsHub>("hubs/notifications");
+app.MapHub<SignalingHub>("hubs/signaling");
 
 
 bool cleanupPerformed = false;
 
 if (cleanupPerformed) return;
     
-using var scope = app.Services.CreateScope();
-var logger = scope.ServiceProvider.GetRequiredService<ILogger<Program>>();
+
 var presenceTracker = scope.ServiceProvider.GetRequiredService<PresenceTracker>();
     
 try

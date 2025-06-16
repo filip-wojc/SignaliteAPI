@@ -1,21 +1,23 @@
 // UploadUserPhotoHandler.cs
 
-using FluentValidation;
+using AutoMapper;
 using MediatR;
-using SignaliteWebAPI.Application.Features.Users.AddProfilePhoto;
+using SignaliteWebAPI.Domain.DTOs.Users;
 using SignaliteWebAPI.Domain.Models;
-using SignaliteWebAPI.Infrastructure.Database;
 using SignaliteWebAPI.Infrastructure.Exceptions;
-using SignaliteWebAPI.Infrastructure.Interfaces;
 using SignaliteWebAPI.Infrastructure.Interfaces.Repositories;
 using SignaliteWebAPI.Infrastructure.Interfaces.Services;
 
-namespace SignaliteWebAPI.Application.Features.Photos;
+namespace SignaliteWebAPI.Application.Features.Users.UpdateProfilePhoto;
 
 public class UpdateUserPhotoHandler(
     IUserRepository userRepository,
     IPhotoRepository photoRepository,
-    IMediaService mediaService) : IRequestHandler<UpdateProfilePhotoCommand>
+    IFriendsRepository friendsRepository,
+    IMediaService mediaService,
+    INotificationsService notificationsService,
+    IMapper mapper
+    ): IRequestHandler<UpdateProfilePhotoCommand>
 {
     public async Task Handle(UpdateProfilePhotoCommand request, CancellationToken cancellationToken)
     {
@@ -40,7 +42,7 @@ public class UpdateUserPhotoHandler(
         if (user.ProfilePhoto != null)
         {
             var photoId = user.ProfilePhoto.Id;
-            await mediaService.DeletePhotoAsync(user.ProfilePhoto.PublicId);
+            await mediaService.DeleteMediaAsync(user.ProfilePhoto.PublicId);
             await photoRepository.RemoveUserProfilePhotoAsync(user.Id);
             await photoRepository.RemovePhotoAsync(photoId);
         }
@@ -48,6 +50,10 @@ public class UpdateUserPhotoHandler(
         // save new photo
         await photoRepository.AddPhotoAsync(photo);
         await photoRepository.SetUserProfilePhotoAsync(user.Id, photo.Id);
+        var friendsToMap = await friendsRepository.GetUserFriends(user.Id);
+        var usersToNotify = mapper.Map<List<UserBasicInfo>>(friendsToMap);
         
+        var userDto = mapper.Map<UserDTO>(user);
+        await notificationsService.UserUpdated(userDto, userDto.Username, usersToNotify);
     }
 }

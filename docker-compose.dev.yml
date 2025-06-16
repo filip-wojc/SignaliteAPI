@@ -1,0 +1,89 @@
+version: '3.8'
+
+# This is a TEMPLATE/REFERENCE file for development
+# Copy this structure to docker-compose.yml and fill in the .env file
+# DO NOT PUT SENSITIVE DATA HERE !!!
+
+services:
+  # Main API service - your ASP.NET Core application
+  api:
+    image: ${DOCKER_IMAGE}  # Pull from Docker Hub
+    container_name: signalite-api
+    ports:
+      - "${API_PORT:-5000}:8080"  # External:Internal port mapping
+    environment:
+      # These override appsettings.json values with environment variables from .env
+      - ASPNETCORE_ENVIRONMENT=Production
+      - ConnectionStrings__PostgreSQL=Host=postgres;Port=5432;Database=SignaliteDb;Username=postgres;Password=${POSTGRES_PASSWORD}
+      - ConnectionStrings__Redis=redis:6379
+      - TokenKey=${TOKEN_KEY}
+      - CloudinarySettings__CloudName=${CLOUDINARY_CLOUD_NAME}
+      - CloudinarySettings__ApiKey=${CLOUDINARY_API_KEY}
+      - CloudinarySettings__ApiSecret=${CLOUDINARY_API_SECRET}
+      # Logging configuration
+      - Logging__LogLevel__Default=Information
+      - Logging__LogLevel__Microsoft=Warning
+      - Logging__LogLevel__Microsoft.AspNetCore=Warning
+    depends_on:
+      postgres:
+        condition: service_healthy  # Wait for DB to be ready
+      redis:
+        condition: service_healthy  # Wait for Redis to be ready
+    networks:
+      - app-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:8080/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # PostgreSQL database
+  postgres:
+    image: postgres:15-alpine
+    container_name: postgres-db
+    environment:
+      POSTGRES_DB: SignaliteDb
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}  # From .env file
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data  # Persistent storage
+    networks:
+      - app-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Redis cache/session store
+  redis:
+    image: redis:7-alpine
+    container_name: redis-cache
+    ports:
+      - "${REDIS_PORT:-6379}:6379"
+    volumes:
+      - redis_data:/data  # Persistent storage
+    networks:
+      - app-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    command: redis-server --appendonly yes  # Enable persistence
+
+# Named volumes for data persistence
+volumes:
+  postgres_data:  # Database files persist here
+  redis_data:     # Redis data persists here
+
+# Custom network for service communication
+networks:
+  app-network:
+    driver: bridge

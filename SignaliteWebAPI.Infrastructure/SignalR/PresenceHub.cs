@@ -45,11 +45,17 @@ namespace SignaliteWebAPI.Infrastructure.SignalR
         
                 var isOnline = await _presenceTracker.UserConnected(username, Context.ConnectionId, userId);
 
+                var notification = new
+                {
+                    id = userId,
+                    username = username,
+                };
+                
                 if (isOnline)
                 {
                     // Broadcast the online status only if this is the first connection for this user
                     // Include both username and userId in the notification
-                    await Clients.Others.SendAsync("UserIsOnline", new { username, userId });
+                    await Clients.Others.SendAsync("UserIsOnline", notification);
                 }
 
                 // Send the simple list of user IDs to the client
@@ -86,11 +92,17 @@ namespace SignaliteWebAPI.Infrastructure.SignalR
                 
                 var isOffline = await _presenceTracker.UserDisconnected(username, Context.ConnectionId);
 
+                var notification = new
+                {
+                    id = userId,
+                    username = username,
+                };
+                
                 if (isOffline)
                 {
                     // Broadcast the offline status only if this was the last connection for this user
                     // Include both username and userId in the notification
-                    await Clients.Others.SendAsync("UserIsOffline", new { username, userId });
+                    await Clients.Others.SendAsync("UserIsOffline", notification);
                 }
             }
             catch (Exception ex)

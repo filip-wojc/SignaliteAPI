@@ -5,7 +5,11 @@ using SignaliteWebAPI.Infrastructure.Interfaces.Repositories;
 
 namespace SignaliteWebAPI.Application.Features.Auth.Register;
 
-public class RegisterHandler(IUserRepository repository, IMapper mapper, IPasswordHasher<Domain.Models.User> hasher) : IRequestHandler<RegisterCommand>
+public class RegisterHandler(
+    IUserRepository repository, 
+    IMapper mapper, 
+    IPasswordHasher<Domain.Models.User> hasher
+    ) : IRequestHandler<RegisterCommand>
 {
     public async Task Handle(RegisterCommand request, CancellationToken cancellationToken)
     {
