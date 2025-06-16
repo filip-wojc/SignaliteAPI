@@ -28,7 +28,6 @@ USER appuser
 
 # Expose port
 EXPOSE 8080
-
 # Set environment variable for ASP.NET Core to listen on all interfaces
 ENV ASPNETCORE_URLS=http://+:8080
 

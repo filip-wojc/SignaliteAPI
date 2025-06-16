@@ -6,7 +6,7 @@ services:
     image: ${DOCKER_IMAGE}
     container_name: signalite-api
     ports:
-      - "${API_PORT:-5000}:8080"
+      - "0.0.0.0${API_PORT:-5000}:8080"
     environment:
       - ASPNETCORE_ENVIRONMENT=Production
       - ConnectionStrings__PostgreSQL=Host=postgres;Port=5432;Database=SignaliteDb;Username=postgres;Password=${POSTGRES_PASSWORD}
