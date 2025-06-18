@@ -1,5 +1,3 @@
-version: '3.8'
-
 # This is a TEMPLATE/REFERENCE file for development
 # Copy this structure to docker-compose.yml and fill in the .env file
 # DO NOT PUT SENSITIVE DATA HERE !!!
