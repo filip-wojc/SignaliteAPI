@@ -1,6 +1,7 @@
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 using SignaliteWebAPI.Application.Features.Groups.AddUserToGroup;
 using SignaliteWebAPI.Application.Features.Groups.CreateGroup;
 using SignaliteWebAPI.Application.Features.Groups.DeleteGroup;
@@ -47,6 +48,7 @@ public class GroupsController(ISender mediator) : ControllerBase
     }
 
     [HttpPost("photo/{groupId}")]
+    [EnableRateLimiting("file-upload")]
     public async Task<IActionResult> UpdateGroupPhoto(IFormFile file, [FromRoute] int groupId)
     {
         var command = new UpdateGroupPhotoCommand

@@ -11,6 +11,7 @@ using Scalar.AspNetCore;
 using Serilog;
 using Serilog.Events;
 using Microsoft.AspNetCore.HttpLogging;
+using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.FileProviders;
 using SignaliteWebAPI.Infrastructure.Database;
@@ -37,7 +38,21 @@ builder.Services.AddInfrastructureServices(builder.Configuration); // extension 
 builder.Services.AddApplicationServices(); // extension function
 builder.Services.AddValidatorExtensions();
 builder.Services.AddIdentityServices(builder.Configuration); // extension function (configures bearer)
-
+builder.Services.AddRateLimiter(o =>
+{
+    o.AddFixedWindowLimiter("login", o =>
+    {
+        o.PermitLimit = 10;
+        o.Window = TimeSpan.FromMinutes(10);
+        o.QueueLimit = 0;
+    });
+    o.AddFixedWindowLimiter("file-upload", o =>
+    {
+        o.PermitLimit = 10;
+        o.Window = TimeSpan.FromMinutes(5);
+        o.QueueLimit = 2;  
+    });
+});
 string currDir = Directory.GetCurrentDirectory();
 string staticFilesDirectory = builder.Configuration.Get<StaticFilesConfig>()?.Directory ?? "wwwroot/Attachments";
 string attachmentsPath = Path.Combine(currDir, staticFilesDirectory);
@@ -103,6 +118,7 @@ app.UseExceptionHandler(_ => { });
 app.UseCors(x => x.AllowAnyHeader().AllowAnyMethod().AllowCredentials() // allow credentials to make passing the token to SignalR hubs possible
     .WithOrigins("http://localhost:4200", "https://localhost:4200", "http://localhost:5026")); // must be declared before MapControllers() to work
 app.UseHttpsRedirection();
+app.UseRateLimiter();
 app.UseAuthentication();
 app.UseAuthorization();
 

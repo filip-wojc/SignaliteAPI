@@ -1,6 +1,7 @@
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 using SignaliteWebAPI.Application.Features.Auth.ExistsUserByEmail;
 using SignaliteWebAPI.Application.Features.Auth.ExistsUserByUsername;
 using SignaliteWebAPI.Application.Features.Users.ChangePassword;
@@ -80,6 +81,7 @@ public class UserController(ISender mediator) : ControllerBase
     // Tested: works
     [Authorize]
     [HttpPost("profile-photo")]
+    [EnableRateLimiting("file-upload")]
     public async Task<ActionResult<string>> UpdateProfilePhoto(IFormFile file)
     {
         var userId = User.GetUserId();
@@ -111,6 +113,7 @@ public class UserController(ISender mediator) : ControllerBase
     // tested: works
     [Authorize]
     [HttpPost("bg-photo")]
+    [EnableRateLimiting("file-upload")]
     public async Task<IActionResult> UpdateBackgroundPhoto(IFormFile file)
     {
         var userId = User.GetUserId();

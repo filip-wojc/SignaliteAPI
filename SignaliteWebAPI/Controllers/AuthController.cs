@@ -1,5 +1,6 @@
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 using SignaliteWebAPI.Application.Features.Auth.ExistsUserByEmail;
 using SignaliteWebAPI.Application.Features.Auth.ExistsUserByUsername;
 using SignaliteWebAPI.Application.Features.Auth.Login;
@@ -21,6 +22,7 @@ public class AuthController(ISender mediator) : ControllerBase
     }
     
     [HttpPost("login")]
+    [EnableRateLimiting("login")]
     public async Task<ActionResult<TokenResponseDTO>> Login(LoginCommand loginCommand)
     {
         var tokenResponse = await mediator.Send(loginCommand);
