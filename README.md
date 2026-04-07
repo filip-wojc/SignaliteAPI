@@ -104,11 +104,16 @@ API_PORT=5000
 POSTGRES_PORT=5432
 REDIS_PORT=6379
 ```
-
-3. **Deploy with Docker Compose**
+3. **Build and push the API image**
+```bash
+docker build -t your_dockerhub_username/signalite-api:latest .                                                                                                                                                    
+docker push your_dockerhub_username/signalite-api:latest
+```   
+4. **Run Docker Compose**
 
 ```bash
-docker-compose up -d
+docker compose pull
+docker compose up -d
 ```
 
 The API will be available at `http://localhost:5000` with:
