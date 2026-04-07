@@ -16,13 +16,13 @@ public class CreateGroupHandler(
         var group = mapper.Map<CreateGroupCommand, Group>(request);
         group.IsPrivate = false;
         
-        // create group before transactions scope to get groupId
-        await groupRepository.CreateGroup(group);
-        await unitOfWork.SaveChangesAsync();
-        
         try
         {
             await unitOfWork.BeginTransactionAsync();
+            
+            await groupRepository.CreateGroup(group);
+            await unitOfWork.SaveChangesAsync();
+            
             var userGroup = new UserGroup
             {
                 GroupId = group.Id,

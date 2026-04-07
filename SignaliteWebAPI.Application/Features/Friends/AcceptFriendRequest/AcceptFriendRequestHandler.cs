@@ -44,13 +44,13 @@ public class AcceptFriendRequestHandler(
             IsPrivate = true
         };
 
-        // Creating group outside of transaction scope to get groupId
-        await groupRepository.CreateGroup(group);
-        await unitOfWork.SaveChangesAsync();
-
         try
         {
             await unitOfWork.BeginTransactionAsync();
+            
+            await groupRepository.CreateGroup(group);
+            await unitOfWork.SaveChangesAsync();
+            
             await friendsRepository.AddFriend(userFriend);
             friendsRepository.DeleteFriendRequest(requestToAccept);
 
@@ -75,10 +75,7 @@ public class AcceptFriendRequestHandler(
         catch (Exception ex)
         {
             await unitOfWork.RollbackTransactionAsync();
-
-            // Deleting group if transaction failed
-            groupRepository.DeleteGroup(group);
-            await unitOfWork.SaveChangesAsync();
+            throw;
         }
     }
 }

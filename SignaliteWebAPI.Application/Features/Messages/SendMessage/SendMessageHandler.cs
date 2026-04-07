@@ -110,7 +110,7 @@ public class SendMessageHandler(
                 // Transaction already rolled back or disposed, ignore
             }
             // Clean up Cloudinary resource if it was uploaded
-            if (!string.IsNullOrEmpty(uploadedPublicId)) throw; // throw to exception handler
+            if (string.IsNullOrEmpty(uploadedPublicId)) throw; // throw to exception handler
             try
             {
                 await mediaService.DeleteMediaAsync(uploadedPublicId, mimeType ?? "image/jpeg");
